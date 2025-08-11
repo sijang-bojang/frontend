@@ -44,15 +44,28 @@ export default function App() {
             tabBarInactiveTintColor: "#6b7280", // gray-500
             tabBarStyle: {
               backgroundColor: "#ffffff",
-              borderTopWidth: 1,
-              borderTopColor: "#e5e7eb",
-              paddingBottom: 5,
+              borderTopWidth: 0, // 상단 테두리 제거
               paddingTop: 5,
-              height: 60,
+              paddingHorizontal: 20, // 좌우 패딩 추가
+              height: 80, // 높이 증가
+              borderTopLeftRadius: 20, // 위쪽 왼쪽 둥근 모서리
+              borderTopRightRadius: 20, // 위쪽 오른쪽 둥근 모서리
+              shadowColor: "#000",
+              shadowOffset: {
+                width: 0,
+                height: -2,
+              },
+              shadowOpacity: 0.1,
+              shadowRadius: 8,
+              elevation: 10,
             },
             tabBarLabelStyle: {
               fontSize: 12,
               fontWeight: "600",
+              marginTop: 6,
+            },
+            tabBarIconStyle: {
+              marginTop: 6,
             },
             headerShown: false,
           })}
