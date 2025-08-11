@@ -1,11 +1,11 @@
 {
   "expo": {
-    "name": "cnu_informate_frontend",
-    "slug": "cnu_informate_frontend",
+    "name": "frontend",
+    "slug": "frontend",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./src/assets/images/icon.png",
-    "scheme": "cnuinformatefrontend",
+    "scheme": "frontend",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
