@@ -7,7 +7,7 @@ import { Ionicons } from "@expo/vector-icons";
 import "./global.css";
 
 // 스크린 컴포넌트들 import
-import HomeScreen from "./src/screens/HomeScreen";
+import HomeScreen from "./src/screens/home/HomeScreen";
 import MissionScreen from "./src/screens/MissionScreen";
 import TourScreen from "./src/screens/TourScreen";
 import MapScreen from "./src/screens/MapScreen";
