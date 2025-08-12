@@ -4,6 +4,8 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import HeaderBar from "./components/HeaderBar";
 import HeroCarousel from "./components/HeroCarousel";
 import NoticesSection from "./components/NoticesSection";
+import QuickActions from "./components/QuickActions";
+import TodaySummary from "./components/TodaySummary";
 import { HeroCard, Notice } from "./types";
 
 export default function HomeScreen() {
@@ -42,7 +44,34 @@ export default function HomeScreen() {
       <HeaderBar />
       <ScrollView className="flex-1">
         {/* 상단 히어로 캐러셀 */}
-        <HeroCarousel cards={heroCards} />
+        <HeroCarousel cards={heroCards} cardHeight={160} />
+
+        {/* 퀵 액션 */}
+        <QuickActions />
+
+        {/* 오늘의 요약 */}
+        <TodaySummary
+          items={[
+            {
+              id: 1,
+              label: "운영시간",
+              value: "06:00 - 20:00",
+              dotClass: "bg-indigo-500",
+            },
+            {
+              id: 2,
+              label: "주차",
+              value: "무료 (2시간)",
+              dotClass: "bg-teal-500",
+            },
+            {
+              id: 3,
+              label: "날씨",
+              value: "맑음 15°C",
+              dotClass: "bg-rose-500",
+            },
+          ]}
+        />
 
         {/* 공지사항 */}
         <NoticesSection notices={notices} />

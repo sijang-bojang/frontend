@@ -17,9 +17,14 @@ const CARD_WIDTH = SCREEN_WIDTH - HORIZONTAL_PADDING * 2; // full-bleed with pad
 type HeroCarouselProps = {
   cards: HeroCard[];
   onPressCard?: (card: HeroCard) => void;
+  cardHeight?: number; // 카드 높이 커스터마이즈
 };
 
-const HeroCarousel: React.FC<HeroCarouselProps> = ({ cards, onPressCard }) => {
+const HeroCarousel: React.FC<HeroCarouselProps> = ({
+  cards,
+  onPressCard,
+  cardHeight = 220,
+}) => {
   const [activeIndex, setActiveIndex] = useState(0);
   const viewabilityConfig = useMemo(
     () => ({ viewAreaCoveragePercentThreshold: 60 }),
@@ -35,12 +40,10 @@ const HeroCarousel: React.FC<HeroCarouselProps> = ({ cards, onPressCard }) => {
     <TouchableOpacity
       activeOpacity={0.85}
       onPress={() => onPressCard?.(item)}
-      style={{ width: CARD_WIDTH, marginRight: CARD_GAP }}
-      className={`rounded-2xl p-6 ${item.colorClass ?? "bg-indigo-500"}`}
+      style={{ width: CARD_WIDTH, marginRight: CARD_GAP, height: cardHeight }}
+      className={`rounded-2xl p-6 justify-between ${item.colorClass ?? "bg-indigo-500"}`}
     >
-      <Text className="text-white text-2xl font-extrabold mb-2">
-        {item.title}
-      </Text>
+      <Text className="text-white text-2xl font-extrabold">{item.title}</Text>
       {item.description ? (
         <Text className="text-white/90 mb-4">{item.description}</Text>
       ) : null}
@@ -68,7 +71,7 @@ const HeroCarousel: React.FC<HeroCarouselProps> = ({ cards, onPressCard }) => {
         viewabilityConfig={viewabilityConfig}
       />
       {/* 인디케이터 */}
-      <View className="flex-row items-center justify-center mt-3">
+      <View className="flex-row items-center justify-center mt-4">
         {cards.map((_, idx) => (
           <View
             key={idx}
