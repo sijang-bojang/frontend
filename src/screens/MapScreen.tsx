@@ -101,8 +101,8 @@ export default function MapScreen() {
     return colorMap[color] || "bg-gray-500";
   };
 
-  const initialLat = 37.5665; // 서울 시청 근처
-  const initialLng = 126.978;
+  const initialLat = 36.3681; // 충남대학교 근처
+  const initialLng = 127.345;
   const mapHtml = useMemo(() => KAKAO_MAP_HTML(initialLat, initialLng), []);
 
   return (
