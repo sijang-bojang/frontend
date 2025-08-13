@@ -9,7 +9,7 @@ import "./global.css";
 // 스크린 컴포넌트들 import
 import HomeScreen from "./src/screens/home/HomeScreen";
 import MissionScreen from "./src/screens/MissionScreen";
-import TourScreen from "./src/screens/TourScreen";
+import TourScreen from "./src/screens/tour/TourScreen";
 import MapScreen from "./src/screens/MapScreen";
 import ProfileScreen from "./src/screens/ProfileScreen";
 
