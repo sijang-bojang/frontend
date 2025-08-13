@@ -1,6 +1,8 @@
-import React from "react";
-import { View, Text, ScrollView, TouchableOpacity } from "react-native";
+import React, { useMemo } from "react";
+import { View, Text } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { WebView } from "react-native-webview";
+import { KAKAO_MAP_HTML } from "../constants/kakao";
 
 export default function MapScreen() {
   const marketAreas = [
@@ -99,163 +101,19 @@ export default function MapScreen() {
     return colorMap[color] || "bg-gray-500";
   };
 
+  const initialLat = 37.5665; // 서울 시청 근처
+  const initialLng = 126.978;
+  const mapHtml = useMemo(() => KAKAO_MAP_HTML(initialLat, initialLng), []);
+
   return (
     <SafeAreaView className="flex-1 bg-gray-50">
-      <ScrollView className="flex-1">
-        {/* 헤더 */}
-        <View className="bg-white px-6 py-8 border-b border-gray-100">
-          <Text className="text-2xl font-bold text-gray-900 mb-2">
-            시장 지도
-          </Text>
-          <Text className="text-gray-600 text-base">
-            시장의 모든 구역과 편의시설을 한눈에
-          </Text>
-        </View>
-
-        {/* 시장 개요 */}
-        <View className="px-6 py-6">
-          <View className="bg-white rounded-2xl p-6 mb-6 shadow-sm border border-gray-100">
-            <Text className="text-center text-gray-900 text-lg font-semibold mb-2">
-              시장 정보
-            </Text>
-            <View className="flex-row justify-center space-x-8">
-              <View className="items-center">
-                <Text className="text-gray-600 text-sm">주소</Text>
-                <Text className="text-gray-900 font-medium">
-                  지역시 시장로 123
-                </Text>
-              </View>
-              <View className="items-center">
-                <Text className="text-gray-600 text-sm">운영시간</Text>
-                <Text className="text-gray-900 font-medium">06:00-20:00</Text>
-              </View>
-            </View>
-          </View>
-        </View>
-
-        {/* 시장 구역 */}
-        <View className="px-6 py-2">
-          <Text className="text-xl font-bold text-gray-900 mb-4">
-            시장 구역 안내
-          </Text>
-          {marketAreas.map((area) => (
-            <View key={area.id} className="mb-4">
-              <TouchableOpacity
-                className="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm"
-                activeOpacity={0.7}
-              >
-                <View className="flex-row items-start">
-                  <View
-                    className={`w-3 h-3 rounded-full mt-2 mr-4 ${getColorClass(area.color)}`}
-                  />
-                  <View className="flex-1">
-                    <View className="flex-row items-center justify-between mb-2">
-                      <Text className="text-lg font-semibold text-gray-900">
-                        {area.name}
-                      </Text>
-                      <View
-                        className={`px-3 py-1 rounded-full ${
-                          area.status === "open" ? "bg-green-100" : "bg-red-100"
-                        }`}
-                      >
-                        <Text
-                          className={`text-xs font-medium ${
-                            area.status === "open"
-                              ? "text-green-700"
-                              : "text-red-700"
-                          }`}
-                        >
-                          {area.status === "open" ? "영업중" : "휴무"}
-                        </Text>
-                      </View>
-                    </View>
-                    <Text className="text-gray-500 text-sm mb-2">
-                      {area.location}
-                    </Text>
-                    <Text className="text-gray-700 mb-3">
-                      {area.description}
-                    </Text>
-                    <View className="flex-row flex-wrap">
-                      {area.popularItems.map((item, index) => (
-                        <View
-                          key={index}
-                          className="bg-gray-100 px-3 py-1 rounded-full mr-2 mb-2"
-                        >
-                          <Text className="text-xs text-gray-600">{item}</Text>
-                        </View>
-                      ))}
-                    </View>
-                  </View>
-                </View>
-              </TouchableOpacity>
-            </View>
-          ))}
-        </View>
-
-        {/* 주변 편의시설 */}
-        <View className="px-6 py-2">
-          <Text className="text-xl font-bold text-gray-900 mb-4">
-            주변 편의시설
-          </Text>
-          <View className="flex-row flex-wrap justify-between">
-            {nearbyPlaces.map((place) => (
-              <View key={place.id} className="w-[48%] mb-4">
-                <TouchableOpacity
-                  className="bg-white rounded-2xl border border-gray-200 p-4 shadow-sm"
-                  activeOpacity={0.7}
-                >
-                  <View className="items-center">
-                    <View
-                      className={`w-3 h-3 rounded-full mb-3 ${getColorClass(place.color)}`}
-                    />
-                    <Text className="text-sm font-medium text-gray-900 text-center mb-1">
-                      {place.name}
-                    </Text>
-                    <Text className="text-xs text-gray-500">
-                      {place.distance}
-                    </Text>
-                  </View>
-                </TouchableOpacity>
-              </View>
-            ))}
-          </View>
-        </View>
-
-        {/* 이용 팁 */}
-        <View className="px-6 py-6">
-          <View className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
-            <Text className="text-lg font-semibold text-gray-900 mb-3">
-              지도 이용 팁
-            </Text>
-            <View className="space-y-2">
-              <View className="flex-row items-center">
-                <View className="w-2 h-2 bg-blue-500 rounded-full mr-3" />
-                <Text className="text-gray-700">
-                  각 구역을 터치하면 상세 정보를 볼 수 있어요
-                </Text>
-              </View>
-              <View className="flex-row items-center">
-                <View className="w-2 h-2 bg-blue-500 rounded-full mr-3" />
-                <Text className="text-gray-700">
-                  주차장은 시장 서쪽에 위치해 있어요
-                </Text>
-              </View>
-              <View className="flex-row items-center">
-                <View className="w-2 h-2 bg-blue-500 rounded-full mr-3" />
-                <Text className="text-gray-700">
-                  화장실과 ATM은 시장 중앙에 있어요
-                </Text>
-              </View>
-              <View className="flex-row items-center">
-                <View className="w-2 h-2 bg-blue-500 rounded-full mr-3" />
-                <Text className="text-gray-700">
-                  버스와 지하철로도 쉽게 접근할 수 있어요
-                </Text>
-              </View>
-            </View>
-          </View>
-        </View>
-      </ScrollView>
+      <View className="bg-white px-6 py-4 border-b border-gray-100">
+        <Text className="text-2xl font-bold text-gray-900">시장 지도</Text>
+        <Text className="text-gray-600">카카오 지도로 시장을 탐색해보세요</Text>
+      </View>
+      <View className="flex-1">
+        <WebView originWhitelist={["*"]} source={{ html: mapHtml }} />
+      </View>
     </SafeAreaView>
   );
 }

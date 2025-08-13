@@ -32,6 +32,9 @@
           "backgroundColor": "#ffffff"
         }
       ]
-    ]
+    ],
+    "extra": {
+      "KAKAO_JAVASCRIPT_KEY": "${EXPO_PUBLIC_KAKAO_JAVASCRIPT_KEY}"
+    }
   }
 }
