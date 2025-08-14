@@ -12,7 +12,7 @@ import { RegionKey, Market } from "../types";
 
 type RegionSelectProps = {
   regions: string[];
-  onSelect: (name: string) => void;
+  onSelect: (market: Market) => void;
   onBack?: () => void;
 };
 
@@ -31,7 +31,6 @@ const RegionSelect: React.FC<RegionSelectProps> = ({
 
   const handlePress = (name: string) => {
     setActive(name as RegionKey);
-    onSelect(name);
   };
 
   return (
@@ -118,7 +117,7 @@ const RegionSelect: React.FC<RegionSelectProps> = ({
               <TouchableOpacity
                 activeOpacity={0.8}
                 className="py-4 border-b border-gray-100 flex-row items-center justify-between"
-                onPress={() => onSelect(item.name)}
+                onPress={() => onSelect(item)}
               >
                 <View className="flex-1 pr-3">
                   <Text className="text-gray-900 font-medium" numberOfLines={1}>

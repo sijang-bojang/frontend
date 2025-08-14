@@ -1,4 +1,11 @@
-import { Market, RegionKey } from "./types";
+import {
+  Market,
+  RegionKey,
+  VehicleOption,
+  CompanionOption,
+  DurationOption,
+  ThemeOption,
+} from "./types";
 
 export const DAEJEON_REGIONS: Exclude<RegionKey, "전체">[] = [
   "유성구",
@@ -256,6 +263,33 @@ export const MARKETS: Market[] = [
     fullRegion: "대덕구 비래동로 1",
   },
 ];
+
+export const FILTER_OPTIONS = {
+  vehicle: ["자차 보유", "남의 차 보유", "없음"] as VehicleOption[],
+  companion: ["혼자", "연인이랑", "친구랑", "가족이랑"] as CompanionOption[],
+  duration: [
+    "당일치기",
+    "1박 2일",
+    "2박 3일",
+    "1시간 속성",
+  ] as DurationOption[],
+  theme: [
+    "디저트",
+    "밥",
+    "공방",
+    "걷기",
+    "뛰기",
+    "타슈 타기",
+    "노포",
+  ] as ThemeOption[],
+};
+
+export const FILTER_LABELS = {
+  vehicle: "차량 여부",
+  companion: "누구랑",
+  duration: "투어 기간",
+  theme: "테마",
+};
 
 export const getMarketsByRegion = (region: RegionKey): Market[] => {
   if (region === "전체") return MARKETS;
