@@ -2,7 +2,7 @@ import React, { useMemo } from "react";
 import { View, Text } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { WebView } from "react-native-webview";
-import { KAKAO_MAP_HTML } from "../constants/kakao";
+import { KAKAO_MAP_HTML } from "../../shared/constants/kakao";
 
 export default function MapScreen() {
   const marketAreas = [
