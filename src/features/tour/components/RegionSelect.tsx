@@ -5,33 +5,64 @@ import {
   TouchableOpacity,
   TextInput,
   FlatList,
+  ActivityIndicator,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { searchMarkets } from "../data";
-import { RegionKey, Market } from "../types";
+import { Market } from "../types";
 
 type RegionSelectProps = {
   regions: string[];
+  markets: Market[];
   onSelect: (market: Market) => void;
   onBack?: () => void;
+  loading?: boolean;
 };
 
 const RegionSelect: React.FC<RegionSelectProps> = ({
   regions,
+  markets,
   onSelect,
   onBack,
+  loading = false,
 }) => {
   const allRegions = useMemo(() => ["전체", ...regions], [regions]);
-  const [active, setActive] = useState<RegionKey>(allRegions[0] as RegionKey);
+  const [active, setActive] = useState<string>("전체");
   const [keyword, setKeyword] = useState("");
-  const data = useMemo<Market[]>(
-    () => searchMarkets(keyword, active),
-    [keyword, active]
-  );
+
+  // 필터링된 시장 데이터
+  const filteredMarkets = useMemo<Market[]>(() => {
+    let filtered = markets;
+
+    // 지역 필터링
+    if (active !== "전체") {
+      filtered = filtered.filter((market) => market.region === active);
+    }
+
+    // 키워드 검색
+    if (keyword.trim()) {
+      const searchTerm = keyword.toLowerCase().trim();
+      filtered = filtered.filter(
+        (market) =>
+          market.name.toLowerCase().includes(searchTerm) ||
+          market.fullRegion.toLowerCase().includes(searchTerm)
+      );
+    }
+
+    return filtered;
+  }, [markets, active, keyword]);
 
   const handlePress = (name: string) => {
-    setActive(name as RegionKey);
+    setActive(name);
   };
+
+  if (loading) {
+    return (
+      <View className="flex-1 justify-center items-center bg-white">
+        <ActivityIndicator size="large" color="#6366F1" />
+        <Text className="text-gray-600 mt-4">시장 정보를 불러오는 중...</Text>
+      </View>
+    );
+  }
 
   return (
     <View className="flex-1">
@@ -108,33 +139,48 @@ const RegionSelect: React.FC<RegionSelectProps> = ({
         {/* 우측 결과 영역: 시장 리스트 */}
         <View className="flex-1 px-6 pt-3 bg-white">
           <View className="flex-row items-center justify-between mb-2">
-            <Text className="text-sm text-gray-500">총 {data.length}곳</Text>
+            <Text className="text-sm text-gray-500">
+              총 {filteredMarkets.length}곳
+            </Text>
           </View>
-          <FlatList
-            data={data}
-            keyExtractor={(item) => String(item.id)}
-            renderItem={({ item }) => (
-              <TouchableOpacity
-                activeOpacity={0.8}
-                className="py-4 border-b border-gray-100 flex-row items-center justify-between"
-                onPress={() => onSelect(item)}
-              >
-                <View className="flex-1 pr-3">
-                  <Text className="text-gray-900 font-medium" numberOfLines={1}>
-                    {item.name}
-                  </Text>
-                  <Text
-                    className="text-gray-500 text-xs mt-1"
-                    numberOfLines={1}
-                  >
-                    {item.fullRegion}
-                  </Text>
-                </View>
-                <Ionicons name="chevron-forward" size={18} color="#9CA3AF" />
-              </TouchableOpacity>
-            )}
-            showsVerticalScrollIndicator={false}
-          />
+          {filteredMarkets.length === 0 ? (
+            <View className="flex-1 justify-center items-center">
+              <Text className="text-gray-500 text-center">
+                {keyword.trim()
+                  ? "검색 결과가 없습니다."
+                  : "해당 지역에 시장이 없습니다."}
+              </Text>
+            </View>
+          ) : (
+            <FlatList
+              data={filteredMarkets}
+              keyExtractor={(item) => String(item.id)}
+              renderItem={({ item }) => (
+                <TouchableOpacity
+                  activeOpacity={0.8}
+                  className="py-4 border-b border-gray-100 flex-row items-center justify-between"
+                  onPress={() => onSelect(item)}
+                >
+                  <View className="flex-1 pr-3">
+                    <Text
+                      className="text-gray-900 font-medium"
+                      numberOfLines={1}
+                    >
+                      {item.name}
+                    </Text>
+                    <Text
+                      className="text-gray-500 text-xs mt-1"
+                      numberOfLines={1}
+                    >
+                      {item.fullRegion}
+                    </Text>
+                  </View>
+                  <Ionicons name="chevron-forward" size={18} color="#9CA3AF" />
+                </TouchableOpacity>
+              )}
+              showsVerticalScrollIndicator={false}
+            />
+          )}
         </View>
       </View>
     </View>

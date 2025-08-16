@@ -31,9 +31,9 @@ const FilterStep: React.FC<FilterStepProps> = ({
   const toggleFilter = (category: keyof TourFilters, option: string) => {
     setFilters((prev) => {
       const currentOptions = prev[category];
-      const newOptions = currentOptions.includes(option as any)
+      const newOptions = currentOptions.includes(option as never)
         ? currentOptions.filter((item) => item !== option)
-        : [...currentOptions, option as any];
+        : [...currentOptions, option as never];
 
       return {
         ...prev,

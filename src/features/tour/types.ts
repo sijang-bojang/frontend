@@ -1,5 +1,6 @@
 export type RegionKey = "전체" | "유성구" | "서구" | "중구" | "동구" | "대덕구";
 
+// TourScreen에서 사용할 Market 타입 (API 타입과 호환)
 export type Market = {
   id: number;
   name: string;
