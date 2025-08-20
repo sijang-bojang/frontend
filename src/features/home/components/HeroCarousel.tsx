@@ -24,7 +24,7 @@ const MarketNewsCard: React.FC = () => {
   };
 
   return (
-    <View className="px-20 py-6 relative">
+    <View className="px-3 py-6 relative">
       {/* 타원형 배경 */}
       <View className="absolute inset-0 items-center justify-center -z-10">
         <View className="w-[800px] h-[300px] bg-[#0F0D85] rounded-t-full mt-36" />
@@ -44,10 +44,12 @@ const MarketNewsCard: React.FC = () => {
       </View>
 
       {/* 시장 소식 카드 */}
-      <View className="relative ">
+      <View className="relative items-center">
         <View
-          className="bg-white rounded-3xl overflow-hidden shadow-2xl"
+          className="bg-white rounded-3xl shadow-2xl"
           style={{
+            width: 300,
+            height: 320,
             shadowColor: "#000",
             shadowOffset: {
               width: 0,
@@ -59,7 +61,7 @@ const MarketNewsCard: React.FC = () => {
           }}
         >
           {/* 시장 사진 영역 */}
-          <View className="w-full h-56 overflow-hidden">
+          <View className="w-full h-56 overflow-hidden rounded-t-3xl">
             <Image
               source={require("../../../assets/images/sijang.png")}
               className="w-full h-full"
@@ -76,21 +78,21 @@ const MarketNewsCard: React.FC = () => {
               [NEW OPEN!] 새로운 반찬가게가 생겼어요
             </Text>
           </View>
-        </View>
 
-        {/* 더보기 버튼 - 카드 끝선에 반 걸려있게 */}
-        <View className="absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-1/2">
-          <Animated.View style={{ transform: [{ scale: scaleAnim }] }}>
-            <TouchableOpacity
-              className="bg-white rounded-3xl px-6 py-2 border border-gray-200"
-              activeOpacity={1.0}
-              onPress={handlePress}
-            >
-              <Text className="text-gray-900 font-semibold text-base">
-                더보기 →
-              </Text>
-            </TouchableOpacity>
-          </Animated.View>
+          {/* 더보기 버튼 - 카드 하단에 걸쳐있게 */}
+          <View className="absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-1/2">
+            <Animated.View style={{ transform: [{ scale: scaleAnim }] }}>
+              <TouchableOpacity
+                className="bg-white rounded-3xl px-6 py-2 border border-gray-200"
+                activeOpacity={1.0}
+                onPress={handlePress}
+              >
+                <Text className="text-gray-900 font-semibold text-base">
+                  더보기 →
+                </Text>
+              </TouchableOpacity>
+            </Animated.View>
+          </View>
         </View>
       </View>
     </View>
