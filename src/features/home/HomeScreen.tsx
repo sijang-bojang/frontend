@@ -40,7 +40,10 @@ export default function HomeScreen() {
   ];
 
   return (
-    <SafeAreaView className="flex-1 bg-gray-50">
+    <SafeAreaView
+      className="flex-1 bg-gray-50"
+      edges={["top", "left", "right"]}
+    >
       <HeaderBar />
       <ScrollView className="flex-1">
         {/* 상단 히어로 캐러셀 */}

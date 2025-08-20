@@ -102,7 +102,10 @@ export default function ProfileScreen() {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-gray-50">
+    <SafeAreaView
+      className="flex-1 bg-gray-50"
+      edges={["top", "left", "right"]}
+    >
       <ScrollView className="flex-1">
         {/* 프로필 헤더 */}
         <View className="bg-white px-6 py-8 border-b border-gray-100">

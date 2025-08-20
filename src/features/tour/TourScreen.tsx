@@ -71,7 +71,10 @@ export default function TourScreen() {
   // 에러가 있는 경우 표시
   if (error) {
     return (
-      <SafeAreaView className="flex-1 bg-gray-50 justify-center items-center">
+      <SafeAreaView
+        className="flex-1 bg-gray-50 justify-center items-center"
+        edges={["top", "left", "right"]}
+      >
         <View className="p-4">
           <Text className="text-red-500 text-center text-lg mb-4">{error}</Text>
           <TouchableOpacity
@@ -86,7 +89,10 @@ export default function TourScreen() {
   }
 
   return (
-    <SafeAreaView className="flex-1 bg-gray-50">
+    <SafeAreaView
+      className="flex-1 bg-gray-50"
+      edges={["top", "left", "right"]}
+    >
       {step === "intro" ? (
         <ScrollView className="flex-1">
           <IntroStep onStart={() => setStep("region")} />

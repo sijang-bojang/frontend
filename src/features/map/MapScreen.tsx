@@ -106,7 +106,10 @@ export default function MapScreen() {
   const mapHtml = useMemo(() => KAKAO_MAP_HTML(initialLat, initialLng), []);
 
   return (
-    <SafeAreaView className="flex-1 bg-gray-50">
+    <SafeAreaView
+      className="flex-1 bg-gray-50"
+      edges={["top", "left", "right"]}
+    >
       <View className="bg-white px-6 py-4 border-b border-gray-100">
         <Text className="text-2xl font-bold text-gray-900">시장 지도</Text>
         <Text className="text-gray-600">카카오 지도로 시장을 탐색해보세요</Text>
