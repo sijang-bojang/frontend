@@ -1,6 +1,7 @@
 import React from "react";
 import { ScrollView, View, Text } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { LinearGradient } from "expo-linear-gradient";
 import HeaderBar from "./components/HeaderBar";
 import MarketNewsCard from "./components/HeroCarousel";
 import NoticesSection from "./components/NoticesSection";
@@ -13,17 +14,25 @@ export default function HomeScreen() {
   ];
 
   return (
-    <SafeAreaView
-      className="flex-1 bg-gray-50"
-      edges={["top", "left", "right"]}
-    >
+    <SafeAreaView className="flex-1 bg-white" edges={["top", "left", "right"]}>
       <HeaderBar />
       <ScrollView className="flex-1">
         {/* 시장 소식 섹션 */}
-        <View className="px-3 py-6 relative">
+        <View className="px-3 py-6 pb-18 relative">
           {/* 타원형 배경 */}
           <View className="absolute inset-0 items-center justify-center -z-10">
-            <View className="w-[800px] h-[300px] bg-[#0F0D85] rounded-t-full mt-36" />
+            <LinearGradient
+              colors={["#0F0D85", "#0F0D85", "#ffffff"]}
+              locations={[0, 0.2, 0.8, 0.9]}
+              style={{
+                width: 800,
+                height: 330,
+                borderRadius: 400,
+                borderBottomLeftRadius: 0,
+                borderBottomRightRadius: 0,
+                marginTop: 192,
+              }}
+            />
           </View>
 
           {/* 시장 소식 제목 */}
