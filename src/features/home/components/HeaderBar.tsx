@@ -1,17 +1,22 @@
 import React from "react";
-import { View, Text } from "react-native";
+import { View, Text, Image } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 
-const HeaderBar: React.FC = () => (
-  <View className="bg-white px-5 py-4 border-b border-gray-200">
-    <View className="flex-row items-center justify-between">
-      <Ionicons name="chevron-back" size={22} color="#64748b" />
-      <Text className="text-sm font-bold tracking-wider text-slate-600">
-        TIMELINE
-      </Text>
-      <Ionicons name="ellipsis-horizontal" size={22} color="#64748b" />
+const HeaderBar: React.FC = () => {
+  return (
+    <View className=" px-5 py-3 border-b border-gray-200">
+      <View className="flex-row items-center justify-between">
+        <View className="flex-row items-center">
+          <Image
+            source={require("../../../assets/images/image.png")}
+            className="w-32 h-12"
+            resizeMode="contain"
+          />
+        </View>
+        <Ionicons name="notifications-outline" size={24} color="#6b7280" />
+      </View>
     </View>
-  </View>
-);
+  );
+};
 
 export default HeaderBar;

@@ -11,24 +11,26 @@ const NoticesSection: React.FC<NoticesSectionProps> = ({
   notices,
   onPressAdd,
 }) => (
-  <View className="px-6 py-6 border-t border-gray-200">
+  <View className="px-5 py-6">
     <View className="flex-row items-center justify-between mb-4">
-      <Text className="text-xl font-extrabold text-gray-900">공지사항</Text>
+      <Text className="text-xl font-bold text-gray-900">공지사항</Text>
       <TouchableOpacity
         activeOpacity={0.7}
-        className="w-8 h-8 rounded-full border border-gray-300 items-center justify-center"
+        className="w-8 h-8 rounded-full bg-gray-100 items-center justify-center"
         onPress={onPressAdd}
       >
-        <Text className="text-gray-500 text-xl">+</Text>
+        <Text className="text-gray-600 text-xl font-bold">+</Text>
       </TouchableOpacity>
     </View>
-    <View className="bg-white rounded-2xl border border-gray-200 overflow-hidden">
-      {notices.map((item, index) => (
+
+    {/* 공지사항 목록 */}
+    <View className="space-y-3">
+      {notices.map((item) => (
         <View
           key={item.id}
-          className={`px-4 py-3 ${index < notices.length - 1 ? "border-b border-gray-100" : ""}`}
+          className="bg-white rounded-xl border border-gray-100 px-4 py-3 shadow-sm"
         >
-          <Text className="text-gray-700">{item.text}</Text>
+          <Text className="text-gray-700 text-base">{item.text}</Text>
         </View>
       ))}
     </View>
