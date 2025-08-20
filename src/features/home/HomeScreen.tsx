@@ -1,5 +1,5 @@
 import React from "react";
-import { ScrollView, View } from "react-native";
+import { ScrollView, View, Text } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import HeaderBar from "./components/HeaderBar";
 import MarketNewsCard from "./components/HeroCarousel";
@@ -19,8 +19,29 @@ export default function HomeScreen() {
     >
       <HeaderBar />
       <ScrollView className="flex-1">
-        {/* 시장 소식 */}
-        <MarketNewsCard />
+        {/* 시장 소식 섹션 */}
+        <View className="px-3 py-6 relative">
+          {/* 타원형 배경 */}
+          <View className="absolute inset-0 items-center justify-center -z-10">
+            <View className="w-[800px] h-[300px] bg-[#0F0D85] rounded-t-full mt-36" />
+          </View>
+
+          {/* 시장 소식 제목 */}
+          <View className="mb-1 items-center">
+            <View className="items-center relative">
+              <Text className="text-2xl font-bold text-gray-900 relative z-10">
+                시장 소식
+              </Text>
+              <View className="absolute mb-1 bottom-0 w-24 h-1.5 bg-[#0F0D85]/40 rounded-10" />
+            </View>
+            <Text className="text-gray-600 text-base text-center mt-1">
+              시장과 근처 가게 관련 최근 소식을 알려드립니다.
+            </Text>
+          </View>
+
+          {/* 시장 소식 카드 */}
+          <MarketNewsCard />
+        </View>
 
         {/* 공지사항 */}
         <NoticesSection notices={notices} />
