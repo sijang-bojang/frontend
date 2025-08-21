@@ -76,6 +76,24 @@ export interface CourseRecommendResponse {
   confidenceScore: number;
 }
 
+// 코스 정보 인터페이스
+export interface Course {
+  courseId: number;
+  marketId: number;
+  marketName: string;
+  name: string;
+  description: string;
+  typeNames: string[];
+  spotCount: number;
+  courseSpots: Array<{
+    spotId: number;
+    spotName: string;
+    order: number;
+  }>;
+  isFamilyCourse: boolean;
+  isCoupleCourse: boolean;
+}
+
 export const recommendCourse = async (
   request: CourseRecommendRequest
 ): Promise<CourseRecommendResponse> => {
@@ -87,6 +105,21 @@ export const recommendCourse = async (
     return response.data;
   } catch (error) {
     console.error("AI 코스 추천 실패:", error);
+    throw error;
+  }
+};
+
+// 시장별 코스 조회
+export const fetchCoursesByMarket = async (
+  marketId: number
+): Promise<Course[]> => {
+  try {
+    const response = await api.get<Course[]>(
+      `${API_CONFIG.ENDPOINTS.COURSES_BY_MARKET}/${marketId}`
+    );
+    return response.data;
+  } catch (error) {
+    console.error("시장별 코스 조회 실패:", error);
     throw error;
   }
 };

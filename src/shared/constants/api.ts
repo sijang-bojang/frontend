@@ -8,6 +8,7 @@ export const API_CONFIG = {
     MARKETS: "api/markets",
     SPOTS_BY_MARKET: "/api/spots/market",
     COURSE_RECOMMEND: "/api/courses/recommend",
+    COURSES_BY_MARKET: "/api/courses/market",
   },
 
   // 타임아웃 설정 (밀리초)

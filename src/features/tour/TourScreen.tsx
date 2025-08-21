@@ -4,13 +4,17 @@ import { ScrollView, View } from "react-native";
 import IntroStep from "./components/IntroStep";
 import RegionSelect from "./components/RegionSelect";
 import FilterStep from "./components/FilterStep";
+import TourPathScreen from "./components/TourPathScreen";
 import { TourFilters, Market } from "./types";
 import { useMarkets } from "../../shared/hooks/useMarkets";
-import { recommendCourse, CourseRecommendRequest } from "../../shared/api";
+import { fetchCoursesByMarket, Course } from "../../shared/api";
 
 export default function TourScreen() {
-  const [step, setStep] = useState<"intro" | "region" | "filter">("intro");
+  const [step, setStep] = useState<"intro" | "region" | "filter" | "path">(
+    "intro"
+  );
   const [selectedMarket, setSelectedMarket] = useState<Market | null>(null);
+  const [courseData, setCourseData] = useState<Course | null>(null);
   const { markets, loading, error } = useMarkets();
 
   // 고유한 지역 목록 추출 (중복 제거) - 주소에서 지역 추출
@@ -35,33 +39,33 @@ export default function TourScreen() {
     }
 
     try {
-      // 모든 선택된 필터를 태그로 사용
-      const tags: string[] = [
-        ...filters.companion,
-        ...filters.theme,
-        ...filters.vehicle,
-        ...filters.duration,
-      ];
+      console.log("🚀 시장별 코스 조회 요청:", selectedMarket.marketId);
 
-      const request: CourseRecommendRequest = {
-        marketId: selectedMarket.marketId,
-        marketName: selectedMarket.name,
-        tags: tags,
-      };
+      const courses = await fetchCoursesByMarket(selectedMarket.marketId);
 
-      console.log("🚀 AI 코스 추천 요청:", JSON.stringify(request, null, 2));
-
-      const response = await recommendCourse(request);
-
-      console.log("✅ AI 코스 추천 응답:", JSON.stringify(response, null, 2));
       console.log(
-        "📊 추천 신뢰도:",
-        `${(response.confidenceScore * 100).toFixed(1)}%`
+        "✅ 시장별 코스 조회 응답:",
+        JSON.stringify(courses, null, 2)
       );
-      console.log("🎯 추천 이유:", response.recommendationReason);
+
+      if (courses.length > 0) {
+        // 첫 번째 코스 선택
+        const firstCourse = courses[0];
+        console.log("📋 선택된 코스:", firstCourse.name);
+
+        setCourseData(firstCourse);
+        setStep("path");
+      } else {
+        console.log("❌ 해당 시장에 코스가 없습니다.");
+      }
     } catch (error) {
-      console.error("❌ AI 코스 추천 실패:", error);
+      console.error("❌ 시장별 코스 조회 실패:", error);
     }
+  };
+
+  const handleBackFromPath = () => {
+    setStep("filter");
+    setCourseData(null);
   };
 
   return (
@@ -79,7 +83,7 @@ export default function TourScreen() {
           onBack={() => setStep("intro")}
           loading={loading}
         />
-      ) : (
+      ) : step === "filter" ? (
         selectedMarket && (
           <FilterStep
             selectedMarket={selectedMarket}
@@ -87,7 +91,16 @@ export default function TourScreen() {
             onStartTour={handleStartTour}
           />
         )
-      )}
+      ) : step === "path" ? (
+        selectedMarket &&
+        courseData && (
+          <TourPathScreen
+            selectedMarket={selectedMarket}
+            courseData={courseData}
+            onBack={handleBackFromPath}
+          />
+        )
+      ) : null}
     </SafeAreaView>
   );
 }
