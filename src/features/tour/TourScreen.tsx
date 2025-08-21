@@ -6,6 +6,7 @@ import RegionSelect from "./components/RegionSelect";
 import FilterStep from "./components/FilterStep";
 import { TourFilters, Market } from "./types";
 import { useMarkets } from "../../shared/hooks/useMarkets";
+import { recommendCourse, CourseRecommendRequest } from "../../shared/api";
 
 export default function TourScreen() {
   const [step, setStep] = useState<"intro" | "region" | "filter">("intro");
@@ -27,10 +28,40 @@ export default function TourScreen() {
     setStep("filter");
   };
 
-  const handleStartTour = (filters: TourFilters) => {
-    // TODO: 투어 시작 로직 구현
-    console.log("투어 시작:", { market: selectedMarket, filters });
-    // 여기에 실제 투어 시작 로직을 추가할 수 있습니다
+  const handleStartTour = async (filters: TourFilters) => {
+    if (!selectedMarket) {
+      console.log("선택된 시장이 없습니다.");
+      return;
+    }
+
+    try {
+      // 모든 선택된 필터를 태그로 사용
+      const tags: string[] = [
+        ...filters.companion,
+        ...filters.theme,
+        ...filters.vehicle,
+        ...filters.duration,
+      ];
+
+      const request: CourseRecommendRequest = {
+        marketId: selectedMarket.marketId,
+        marketName: selectedMarket.name,
+        tags: tags,
+      };
+
+      console.log("🚀 AI 코스 추천 요청:", JSON.stringify(request, null, 2));
+
+      const response = await recommendCourse(request);
+
+      console.log("✅ AI 코스 추천 응답:", JSON.stringify(response, null, 2));
+      console.log(
+        "📊 추천 신뢰도:",
+        `${(response.confidenceScore * 100).toFixed(1)}%`
+      );
+      console.log("🎯 추천 이유:", response.recommendationReason);
+    } catch (error) {
+      console.error("❌ AI 코스 추천 실패:", error);
+    }
   };
 
   return (

@@ -60,5 +60,36 @@ export const fetchSpotsByMarket = async (marketId: number): Promise<Spot[]> => {
   }
 };
 
+// AI 코스 추천 API
+export interface CourseRecommendRequest {
+  marketId: number;
+  marketName: string;
+  tags: string[];
+}
+
+export interface CourseRecommendResponse {
+  courseId: number;
+  courseName: string;
+  description: string;
+  marketName: string;
+  recommendationReason: string;
+  confidenceScore: number;
+}
+
+export const recommendCourse = async (
+  request: CourseRecommendRequest
+): Promise<CourseRecommendResponse> => {
+  try {
+    const response = await api.post<CourseRecommendResponse>(
+      API_CONFIG.ENDPOINTS.COURSE_RECOMMEND,
+      request
+    );
+    return response.data;
+  } catch (error) {
+    console.error("AI 코스 추천 실패:", error);
+    throw error;
+  }
+};
+
 // API 인스턴스 내보내기 (다른 곳에서 사용할 경우)
 export default api;
