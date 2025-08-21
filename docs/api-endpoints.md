@@ -9,6 +9,17 @@
 - `PUT /api/markets/{marketId}` - 시장 수정 (MarketDto 반환)
 - `DELETE /api/markets/{marketId}` - 시장 삭제
 
+### Spots
+
+- `GET /api/spots` - 모든 스팟 조회 (SpotDto 반환)
+- `GET /api/spots/{spotId}` - 특정 스팟 조회 (SpotDto 반환)
+- `GET /api/spots/market/{marketId}` - 시장별 스팟 조회 (SpotDto 리스트 반환)
+- `GET /api/spots/category/{category}` - 카테고리별 스팟 조회 (SpotDto 리스트 반환)
+- `GET /api/spots/search` - 스팟 검색 (SpotDto 리스트 반환)
+- `POST /api/spots` - 스팟 생성 (SpotDto 반환)
+- `PUT /api/spots/{spotId}` - 스팟 수정 (SpotDto 반환)
+- `DELETE /api/spots/{spotId}` - 스팟 삭제
+
 ### Courses
 
 - `GET /api/courses` - 모든 코스 조회 (CourseDto 반환)
