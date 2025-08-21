@@ -6,6 +6,8 @@ export type Market = {
   name: string;
   region: string;
   fullRegion: string;
+  latitude?: number;
+  longitude?: number;
 };
 
 // 필터 관련 타입들
