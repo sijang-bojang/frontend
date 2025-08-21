@@ -108,9 +108,10 @@ export default function MapScreen() {
   return (
     <SafeAreaView className="flex-1 bg-white" edges={["left", "right"]}>
       {/* 상단 고정 시장 선택 */}
-      <View className="absolute z-10 top-16 left-4 right-4">
+      <View className="absolute z-10 top-16 pt-2 left-4 right-4">
         <TouchableOpacity
           onPress={() => setShowMarketList(!showMarketList)}
+          activeOpacity={1}
           className="bg-white rounded-full shadow-lg border border-gray-200 px-4 py-3 flex-row items-center"
         >
           <Ionicons name="location" size={20} color="#6B7280" />
@@ -169,15 +170,6 @@ export default function MapScreen() {
               스팟 정보를 불러오는 중...
             </Text>
           </View>
-        </View>
-      )}
-
-      {/* 스팟 개수 표시 (화면 왼쪽 아래) */}
-      {selectedMarket && spots.length > 0 && !spotsLoading && (
-        <View className="absolute z-10 left-2 bottom-2 bg-white rounded-lg shadow-lg px-7 py-2">
-          <Text className="text-gray-700 text-sm">
-            미션 장소 {spots.length}개 발견!
-          </Text>
         </View>
       )}
 
