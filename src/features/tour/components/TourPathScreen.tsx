@@ -6,7 +6,7 @@ import { Market } from "../types";
 import { Course } from "../../../shared/api";
 
 const { width: screenWidth } = Dimensions.get("window");
-const GRID_SIZE = 5;
+const GRID_SIZE = 6;
 const CELL_SIZE = (screenWidth - 60) / GRID_SIZE; // 좌우 패딩 40씩
 
 interface TourPathScreenProps {
@@ -23,13 +23,13 @@ export default function TourPathScreen({
   // 그리드 데이터 정의 (0: 빈칸, 1: 경로)
   // ㄹ 자 모양 경로
   const gridData = [
-    [1, 0, 0, 0, 0], // START 위치 (0,0)
-    [1, 0, 0, 0, 0], // 경로 (1,0)
-    [1, 1, 1, 0, 0], // 경로 (2,0), (2,1), (2,2)
-    [0, 0, 1, 0, 0], // 경로 (3,2)
-    [0, 0, 1, 0, 0], // 경로 (4,2)
-    [0, 0, 1, 1, 1], // 경로 (5,2), (5,3), (5,4)
-    [0, 0, 0, 0, 1], // FINISH 위치 (6,4)
+    [0, 0, 1, 0, 0, 0],
+    [0, 0, 1, 1, 1, 0],
+    [0, 0, 0, 0, 1, 0],
+    [0, 1, 1, 1, 1, 0],
+    [0, 1, 0, 0, 0, 0],
+    [0, 1, 1, 1, 0, 0],
+    [0, 0, 0, 1, 0, 0],
   ];
 
   const renderGridCell = (row: number, col: number, cellType: number) => {
