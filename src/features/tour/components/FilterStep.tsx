@@ -97,7 +97,7 @@ const FilterStep: React.FC<FilterStepProps> = ({
   );
 
   return (
-    <SafeAreaView className="flex-1 bg-gray-50">
+    <SafeAreaView className="flex-1 bg-white">
       {/* 헤더 */}
       <View className="bg-white px-6 py-4 border-b border-gray-200">
         <View className="flex-row items-center">

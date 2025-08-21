@@ -6,7 +6,7 @@ type IntroStepProps = {
 };
 
 const IntroStep: React.FC<IntroStepProps> = ({ onStart }) => (
-  <View className="px-6 pt-12">
+  <View className="px-6 pt-12 bg-white">
     <Text className="text-3xl font-extrabold text-gray-900 mb-3">
       투어를 시작하시겠습니까?
     </Text>
