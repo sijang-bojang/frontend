@@ -32,10 +32,6 @@ export default function MissionScreen() {
 
         {/* 미션 목록 섹션 */}
         <View className="bg-gray-100 rounded-2xl p-6">
-          <Text className="text-xl font-bold text-gray-900 mb-4">
-            미션 목록
-          </Text>
-
           {missions.map((mission) => (
             <MissionCard
               key={mission.id}
