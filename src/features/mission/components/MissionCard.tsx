@@ -60,7 +60,11 @@ const MissionCard: React.FC<MissionCardProps> = ({
               </View>
               {/* 진행률 텍스트를 진행바 위에 표시 */}
               <View className="absolute inset-0 items-center justify-center">
-                <Text className="text-gray-700 text-xs font-bold">
+                <Text
+                  className={`text-xs font-bold ${
+                    progressPercentage > 50 ? "text-white" : "text-gray-700"
+                  }`}
+                >
                   {currentProgress}/{targetProgress}
                 </Text>
               </View>
