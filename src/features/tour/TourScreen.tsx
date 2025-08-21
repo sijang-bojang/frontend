@@ -5,21 +5,20 @@ import IntroStep from "./components/IntroStep";
 import RegionSelect from "./components/RegionSelect";
 import FilterStep from "./components/FilterStep";
 import { TourFilters, Market } from "./types";
-import { MARKETS } from "./data";
+import { useMarkets } from "../../shared/hooks/useMarkets";
 
 export default function TourScreen() {
   const [step, setStep] = useState<"intro" | "region" | "filter">("intro");
   const [selectedMarket, setSelectedMarket] = useState<Market | null>(null);
-  const [markets, setMarkets] = useState<Market[]>([]);
+  const { markets, loading, error } = useMarkets();
 
-  // 하드코딩된 시장 데이터 사용
-  useEffect(() => {
-    setMarkets(MARKETS);
-  }, []);
-
-  // 고유한 지역 목록 추출 (중복 제거)
+  // 고유한 지역 목록 추출 (중복 제거) - 주소에서 지역 추출
   const uniqueRegions = React.useMemo(() => {
-    const regions = markets.map((market) => market.region);
+    const regions = markets.map((market) => {
+      // 주소에서 구 단위 추출 (예: "대전광역시 동구" -> "동구")
+      const match = market.address.match(/대전광역시\s+([^\s]+)/);
+      return match ? match[1] : "기타";
+    });
     return Array.from(new Set(regions)).sort();
   }, [markets]);
 
@@ -47,7 +46,7 @@ export default function TourScreen() {
           markets={markets}
           onSelect={handleMarketSelect}
           onBack={() => setStep("intro")}
-          loading={false}
+          loading={loading}
         />
       ) : (
         selectedMarket && (

@@ -1,11 +1,17 @@
 import React, { useMemo, useState, useRef } from "react";
-import { View, Text, TouchableOpacity, ScrollView } from "react-native";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  ScrollView,
+  ActivityIndicator,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { WebView } from "react-native-webview";
 import { Ionicons } from "@expo/vector-icons";
 import { KAKAO_MAP_HTML } from "../../shared/constants/kakao";
-import { MARKETS } from "../tour/data";
 import { Market } from "../tour/types";
+import { useMarkets } from "../../shared/hooks/useMarkets";
 
 export default function MapScreen() {
   const getColorClass = (color: string) => {
@@ -24,6 +30,7 @@ export default function MapScreen() {
   const initialLng = 127.345;
   const mapHtml = useMemo(() => KAKAO_MAP_HTML(initialLat, initialLng), []);
 
+  const { markets, loading, error } = useMarkets();
   const [selectedMarket, setSelectedMarket] = useState<Market | null>(null);
   const [showMarketList, setShowMarketList] = useState(false);
   const webViewRef = useRef<WebView>(null);
@@ -75,22 +82,35 @@ export default function MapScreen() {
         {/* 시장 목록 드롭다운 */}
         {showMarketList && (
           <View className="bg-white rounded-lg shadow-lg border border-gray-200 mt-2 max-h-60">
-            <ScrollView className="max-h-60">
-              {MARKETS.map((market) => (
-                <TouchableOpacity
-                  key={market.id}
-                  onPress={() => handleMarketSelect(market)}
-                  className="px-4 py-3 border-b border-gray-100"
-                >
-                  <Text className="text-gray-900 font-medium">
-                    {market.name}
-                  </Text>
-                  <Text className="text-gray-500 text-sm mt-1">
-                    {market.fullRegion}
-                  </Text>
-                </TouchableOpacity>
-              ))}
-            </ScrollView>
+            {loading ? (
+              <View className="p-4 items-center">
+                <ActivityIndicator size="small" color="#6B7280" />
+                <Text className="text-gray-500 mt-2">
+                  시장 데이터를 불러오는 중...
+                </Text>
+              </View>
+            ) : error ? (
+              <View className="p-4 items-center">
+                <Text className="text-red-500 text-center">{error}</Text>
+              </View>
+            ) : (
+              <ScrollView className="max-h-60">
+                {markets.map((market: Market) => (
+                  <TouchableOpacity
+                    key={market.marketId}
+                    onPress={() => handleMarketSelect(market)}
+                    className="px-4 py-3 border-b border-gray-100"
+                  >
+                    <Text className="text-gray-900 font-medium">
+                      {market.name}
+                    </Text>
+                    <Text className="text-gray-500 text-sm mt-1">
+                      {market.address}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </ScrollView>
+            )}
           </View>
         )}
       </View>

@@ -35,7 +35,11 @@ const RegionSelect: React.FC<RegionSelectProps> = ({
 
     // 지역 필터링
     if (active !== "전체") {
-      filtered = filtered.filter((market) => market.region === active);
+      filtered = filtered.filter((market) => {
+        const match = market.address.match(/대전광역시\s+([^\s]+)/);
+        const region = match ? match[1] : "기타";
+        return region === active;
+      });
     }
 
     // 키워드 검색
@@ -44,7 +48,7 @@ const RegionSelect: React.FC<RegionSelectProps> = ({
       filtered = filtered.filter(
         (market) =>
           market.name.toLowerCase().includes(searchTerm) ||
-          market.fullRegion.toLowerCase().includes(searchTerm)
+          market.address.toLowerCase().includes(searchTerm)
       );
     }
 
@@ -154,7 +158,7 @@ const RegionSelect: React.FC<RegionSelectProps> = ({
           ) : (
             <FlatList
               data={filteredMarkets}
-              keyExtractor={(item) => String(item.id)}
+              keyExtractor={(item) => String(item.marketId)}
               renderItem={({ item }) => (
                 <TouchableOpacity
                   activeOpacity={0.8}
@@ -172,7 +176,7 @@ const RegionSelect: React.FC<RegionSelectProps> = ({
                       className="text-gray-500 text-xs mt-1"
                       numberOfLines={1}
                     >
-                      {item.fullRegion}
+                      {item.address}
                     </Text>
                   </View>
                   <Ionicons name="chevron-forward" size={18} color="#9CA3AF" />
