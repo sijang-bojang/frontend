@@ -23,11 +23,12 @@ export default function HomeScreen() {
           <View className="absolute inset-0 items-center justify-center -z-10">
             <LinearGradient
               colors={["#0F0D85", "#0F0D85", "#ffffff"]}
-              locations={[0, 0.2, 0.8, 0.9]}
+              locations={[0, 0.2, 0.8]}
               style={{
                 width: 800,
                 height: 330,
-                borderRadius: 400,
+                borderTopLeftRadius: 400,
+                borderTopRightRadius: 400,
                 borderBottomLeftRadius: 0,
                 borderBottomRightRadius: 0,
                 marginTop: 192,
