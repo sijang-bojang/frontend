@@ -18,7 +18,7 @@ export default function HomeScreen() {
       <HeaderBar />
       <ScrollView className="flex-1">
         {/* 시장 소식 섹션 */}
-        <View className="px-3 py-6 pb-18 relative">
+        <View className="px-3 py-6 pb-18 mt-5 relative">
           {/* 타원형 배경 */}
           <View className="absolute inset-0 items-center justify-center -z-10">
             <LinearGradient
@@ -52,8 +52,10 @@ export default function HomeScreen() {
           <MarketNewsCard />
         </View>
 
-        {/* 공지사항 */}
-        <NoticesSection notices={notices} />
+        <View className="mt-10">
+          {/* 공지사항 */}
+          <NoticesSection notices={notices} />
+        </View>
 
         <View className="h-6" />
       </ScrollView>
