@@ -27,7 +27,7 @@ export default function App() {
               if (route.name === "Home") {
                 iconName = focused ? "home" : "home-outline";
               } else if (route.name === "Mission") {
-                iconName = focused ? "trophy" : "trophy-outline";
+                iconName = focused ? "warning" : "warning-outline";
               } else if (route.name === "Tour") {
                 iconName = focused ? "map" : "map-outline";
               } else if (route.name === "Map") {
@@ -40,8 +40,8 @@ export default function App() {
 
               return <Ionicons name={iconName} size={size} color={color} />;
             },
-            tabBarActiveTintColor: "#f97316", // orange-500
-            tabBarInactiveTintColor: "#6b7280", // gray-500
+            tabBarActiveTintColor: "#0F0D85",
+            tabBarInactiveTintColor: "#6b7280",
             tabBarStyle: {
               backgroundColor: "#ffffff",
               borderTopWidth: 0, // 상단 테두리 제거
