@@ -7,6 +7,20 @@ export interface Market {
   description?: string;
 }
 
+export interface Spot {
+  spotId: number;
+  marketId: number;
+  marketName: string;
+  name: string;
+  description: string;
+  category: string;
+  latitude: number;
+  longitude: number;
+  imageUrl: string | null;
+  missionCount?: number;
+  courseNames?: string[];
+}
+
 export interface CreateMarketRequest {
   name: string;
   address: string;

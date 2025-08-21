@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useRef } from "react";
+import React, { useMemo, useState, useRef, useEffect } from "react";
 import {
   View,
   Text,
@@ -11,7 +11,10 @@ import { WebView } from "react-native-webview";
 import { Ionicons } from "@expo/vector-icons";
 import { KAKAO_MAP_HTML } from "../../shared/constants/kakao";
 import { Market } from "../tour/types";
+import { Spot } from "../../shared/types/market";
 import { useMarkets } from "../../shared/hooks/useMarkets";
+import { fetchSpotsByMarket } from "../../shared/api";
+import SpotInfoModal from "./components/SpotInfoModal";
 
 export default function MapScreen() {
   const getColorClass = (color: string) => {
@@ -33,9 +36,13 @@ export default function MapScreen() {
   const { markets, loading, error } = useMarkets();
   const [selectedMarket, setSelectedMarket] = useState<Market | null>(null);
   const [showMarketList, setShowMarketList] = useState(false);
+  const [spots, setSpots] = useState<Spot[]>([]);
+  const [spotsLoading, setSpotsLoading] = useState(false);
+  const [selectedSpot, setSelectedSpot] = useState<Spot | null>(null);
+  const [showSpotModal, setShowSpotModal] = useState(false);
   const webViewRef = useRef<WebView>(null);
 
-  const handleMarketSelect = (market: Market) => {
+  const handleMarketSelect = async (market: Market) => {
     setSelectedMarket(market);
     setShowMarketList(false);
 
@@ -49,15 +56,53 @@ export default function MapScreen() {
         })
       );
     }
+
+    // 해당 시장의 스팟 데이터 로드
+    await loadSpotsForMarket(market.marketId);
+  };
+
+  const loadSpotsForMarket = async (marketId: number) => {
+    try {
+      setSpotsLoading(true);
+
+      // 실제 API 호출 (테스트 데이터 대신)
+      const spotsData = await fetchSpotsByMarket(marketId);
+
+      setSpots(spotsData);
+
+      // 지도에 스팟 마커 표시
+      if (webViewRef.current && spotsData.length > 0) {
+        webViewRef.current.postMessage(
+          JSON.stringify({
+            type: "show_spots",
+            spots: spotsData,
+          })
+        );
+      }
+    } catch (error) {
+      console.error("스팟 데이터 로드 실패:", error);
+    } finally {
+      setSpotsLoading(false);
+    }
   };
 
   const handleWebViewMessage = (event: any) => {
     try {
       const data = JSON.parse(event.nativeEvent.data);
       console.log("WebView 메시지:", data);
+
+      if (data.type === "spot_clicked") {
+        setSelectedSpot(data.spot);
+        setShowSpotModal(true);
+      }
     } catch (error) {
       console.error("WebView 메시지 파싱 오류:", error);
     }
+  };
+
+  const handleCloseSpotModal = () => {
+    setShowSpotModal(false);
+    setSelectedSpot(null);
   };
 
   return (
@@ -115,6 +160,27 @@ export default function MapScreen() {
         )}
       </View>
 
+      {/* 스팟 로딩 인디케이터 */}
+      {spotsLoading && (
+        <View className="absolute z-10 top-32 left-4 bg-white rounded-lg shadow-lg px-4 py-2">
+          <View className="flex-row items-center">
+            <ActivityIndicator size="small" color="#6B7280" />
+            <Text className="ml-2 text-gray-700 text-sm">
+              스팟 정보를 불러오는 중...
+            </Text>
+          </View>
+        </View>
+      )}
+
+      {/* 스팟 개수 표시 (화면 왼쪽 아래) */}
+      {selectedMarket && spots.length > 0 && !spotsLoading && (
+        <View className="absolute z-10 left-2 bottom-2 bg-white rounded-lg shadow-lg px-7 py-2">
+          <Text className="text-gray-700 text-sm">
+            미션 장소 {spots.length}개 발견!
+          </Text>
+        </View>
+      )}
+
       <View className="flex-1">
         <WebView
           ref={webViewRef}
@@ -124,6 +190,13 @@ export default function MapScreen() {
           javaScriptEnabled={true}
         />
       </View>
+
+      {/* 스팟 정보 모달 */}
+      <SpotInfoModal
+        visible={showSpotModal}
+        spot={selectedSpot}
+        onClose={handleCloseSpotModal}
+      />
     </SafeAreaView>
   );
 }

@@ -6,6 +6,7 @@ export const API_CONFIG = {
   // API 엔드포인트들
   ENDPOINTS: {
     MARKETS: "/markets",
+    SPOTS_BY_MARKET: "/spots/market",
   },
 
   // 타임아웃 설정 (밀리초)

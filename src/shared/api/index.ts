@@ -1,5 +1,6 @@
 import axios from "axios";
 import { Market } from "../../features/tour/types";
+import { Spot } from "../types/market";
 import { API_CONFIG } from "../constants/api";
 
 // API 기본 설정
@@ -42,6 +43,19 @@ export const fetchMarkets = async (): Promise<Market[]> => {
     return response.data;
   } catch (error) {
     console.error("시장 데이터 가져오기 실패:", error);
+    throw error;
+  }
+};
+
+// 시장별 스팟 데이터 가져오기
+export const fetchSpotsByMarket = async (marketId: number): Promise<Spot[]> => {
+  try {
+    const response = await api.get<Spot[]>(
+      `${API_CONFIG.ENDPOINTS.SPOTS_BY_MARKET}/${marketId}`
+    );
+    return response.data;
+  } catch (error) {
+    console.error("스팟 데이터 가져오기 실패:", error);
     throw error;
   }
 };
