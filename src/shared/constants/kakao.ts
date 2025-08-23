@@ -21,7 +21,6 @@ export const KAKAO_MAP_HTML = (lat: number, lng: number) => `
       html, body, #map { height: 100%; margin: 0; padding: 0; }
       .marker-label { padding: 6px 10px; background: #111827; color: #fff; border-radius: 12px; font-size: 12px; }
       .spot-marker { background: #FF6B6B; border-radius: 50%; width: 20px; height: 20px; border: 3px solid #fff; box-shadow: 0 2px 4px rgba(0,0,0,0.3); }
-      .market-marker { background: #4ECDC4; border-radius: 50%; width: 16px; height: 16px; border: 2px solid #fff; box-shadow: 0 2px 4px rgba(0,0,0,0.3); }
     </style>
     <script src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=${KAKAO_APP_KEY}&autoload=false"></script>
     <script src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=${KAKAO_APP_KEY}&libraries=services"></script>
@@ -33,9 +32,6 @@ export const KAKAO_MAP_HTML = (lat: number, lng: number) => `
         var container = document.getElementById('map');
         var options = { center: new kakao.maps.LatLng(${lat}, ${lng}), level: 3 };
         var map = new kakao.maps.Map(container, options);
-        var markerPosition = new kakao.maps.LatLng(${lat}, ${lng}); 
-        var marker = new kakao.maps.Marker({ position: markerPosition });
-        marker.setMap(map);
         
         // 검색 서비스 초기화
         var ps = new kakao.maps.services.Places();
@@ -217,16 +213,12 @@ export const KAKAO_MAP_HTML = (lat: number, lng: number) => `
           map.setCenter(newPosition);
           map.setLevel(3);
           
+          // 시장 마커는 표시하지 않음 (스팟 마커만 유지)
           // 기존 마커 제거
           if (window.currentMarker) {
             window.currentMarker.setMap(null);
+            window.currentMarker = null;
           }
-          
-          // 새로운 마커 추가
-          window.currentMarker = new kakao.maps.Marker({
-            position: newPosition
-          });
-          window.currentMarker.setMap(map);
         };
         
         // 스팟 위치로 이동하고 확대하는 함수
