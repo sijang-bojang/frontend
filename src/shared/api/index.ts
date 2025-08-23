@@ -88,7 +88,11 @@ export interface Course {
   courseSpots: Array<{
     spotId: number;
     spotName: string;
-    order: number;
+    stepNumber: number;
+    category: string;
+    description: string;
+    latitude: number;
+    longitude: number;
   }>;
   isFamilyCourse: boolean;
   isCoupleCourse: boolean;
@@ -120,6 +124,20 @@ export const fetchCoursesByMarket = async (
     return response.data;
   } catch (error) {
     console.error("시장별 코스 조회 실패:", error);
+    throw error;
+  }
+};
+
+// 코스 상세 정보 가져오기
+export const fetchCourseDetail = async (courseId: number): Promise<Course> => {
+  try {
+    const response = await api.get<Course>(
+      `${API_CONFIG.ENDPOINTS.COURSES}/${courseId}`
+    );
+
+    return response.data;
+  } catch (error) {
+    console.error("코스 상세 정보 가져오기 실패:", error);
     throw error;
   }
 };

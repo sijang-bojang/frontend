@@ -9,21 +9,21 @@ export interface IconButtonData {
 // Mission 버튼들 (고정)
 const missionButtons: IconButtonData[] = [
   {
-    id: "mission_0",
+    id: "mission_1",
     image: require("../../../assets/images/course/mission.png"),
     leftRatio: 0.25,
     topRatio: 0.38,
     onPress: () => console.log("미션 버튼 클릭"),
   },
   {
-    id: "mission_1",
+    id: "mission_2",
     image: require("../../../assets/images/course/mission.png"),
     leftRatio: 0.7,
     topRatio: 0.5,
     onPress: () => console.log("미션 버튼 클릭"),
   },
   {
-    id: "mission_2",
+    id: "mission_3",
     image: require("../../../assets/images/course/mission.png"),
     leftRatio: 0.05,
     topRatio: 0.07,
@@ -35,21 +35,21 @@ const missionButtons: IconButtonData[] = [
 export const iconButtonsData3Spots: IconButtonData[] = [
   ...missionButtons,
   {
-    id: "spot_0",
+    id: "spot_1",
     image: require("../../../assets/images/course/spot.png"),
     leftRatio: 0.4,
     topRatio: 0.15,
     onPress: () => console.log("스팟 0 버튼 클릭"),
   },
   {
-    id: "spot_1",
+    id: "spot_2",
     image: require("../../../assets/images/course/spot.png"),
     leftRatio: 0.58,
     topRatio: 0.35,
     onPress: () => console.log("스팟 1 버튼 클릭"),
   },
   {
-    id: "spot_2",
+    id: "spot_3",
     image: require("../../../assets/images/course/spot.png"),
     leftRatio: 0.25,
     topRatio: 0.6,
@@ -61,28 +61,28 @@ export const iconButtonsData3Spots: IconButtonData[] = [
 export const iconButtonsData4Spots: IconButtonData[] = [
   ...missionButtons,
   {
-    id: "spot_0",
+    id: "spot_1",
     image: require("../../../assets/images/course/spot.png"),
     leftRatio: 0.69,
     topRatio: 0.02,
     onPress: () => console.log("스팟 0 버튼 클릭"),
   },
   {
-    id: "spot_1",
+    id: "spot_2",
     image: require("../../../assets/images/course/spot.png"),
     leftRatio: 0.35,
     topRatio: 0.18,
     onPress: () => console.log("스팟 1 버튼 클릭"),
   },
   {
-    id: "spot_2",
+    id: "spot_3",
     image: require("../../../assets/images/course/spot.png"),
     leftRatio: 0.38,
     topRatio: 0.5,
     onPress: () => console.log("스팟 2 버튼 클릭"),
   },
   {
-    id: "spot_3",
+    id: "spot_4",
     image: require("../../../assets/images/course/spot.png"),
     leftRatio: 0.67,
     topRatio: 0.72,
@@ -94,35 +94,35 @@ export const iconButtonsData4Spots: IconButtonData[] = [
 export const iconButtonsData5Spots: IconButtonData[] = [
   ...missionButtons,
   {
-    id: "spot_0",
+    id: "spot_1",
     image: require("../../../assets/images/course/spot.png"),
     leftRatio: 0.69,
     topRatio: 0.02,
     onPress: () => console.log("스팟 0 버튼 클릭"),
   },
   {
-    id: "spot_1",
+    id: "spot_2",
     image: require("../../../assets/images/course/spot.png"),
     leftRatio: 0.35,
     topRatio: 0.18,
     onPress: () => console.log("스팟 1 버튼 클릭"),
   },
   {
-    id: "spot_2",
+    id: "spot_3",
     image: require("../../../assets/images/course/spot.png"),
     leftRatio: 0.58,
     topRatio: 0.33,
     onPress: () => console.log("스팟 2 버튼 클릭"),
   },
   {
-    id: "spot_3",
+    id: "spot_4",
     image: require("../../../assets/images/course/spot.png"),
     leftRatio: 0.22,
     topRatio: 0.58,
     onPress: () => console.log("스팟 3 버튼 클릭"),
   },
   {
-    id: "spot_4",
+    id: "spot_5",
     image: require("../../../assets/images/course/spot.png"),
     leftRatio: 0.67,
     topRatio: 0.72,
@@ -131,4 +131,4 @@ export const iconButtonsData5Spots: IconButtonData[] = [
 ];
 
 // 기본값 (5개)
-export const iconButtonsData = iconButtonsData3Spots;
+// export const iconButtonsData = iconButtonsData3Spots;

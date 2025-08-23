@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import {
   View,
   Text,
@@ -11,14 +11,9 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { Market } from "./types";
-import { Course } from "../../shared/api";
+import { Course, fetchCourseDetail } from "../../shared/api";
 import IconButton from "./components/IconButton";
-import {
-  iconButtonsData3Spots,
-  iconButtonsData4Spots,
-  iconButtonsData5Spots,
-} from "./data/iconButtons";
-
+import SpotInfoModal, { SpotInfo } from "./components/SpotInfoModal";
 const { width: screenWidth, height: screenHeight } = Dimensions.get("window");
 
 interface TourPathScreenProps {
@@ -34,22 +29,143 @@ export default function TourPathScreen({
 }: TourPathScreenProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [animation] = useState(new Animated.Value(0));
+  const [selectedSpotInfo, setSelectedSpotInfo] = useState<SpotInfo | null>(
+    null
+  );
+  const [isSpotModalVisible, setIsSpotModalVisible] = useState(false);
+  const [detailedCourseData, setDetailedCourseData] = useState<Course | null>(
+    null
+  );
+  const [isLoading, setIsLoading] = useState(true);
 
-  // 코스 데이터의 spotCount에 따라 적절한 아이콘 데이터 선택
+  // 코스 상세 정보 가져오기
+  useEffect(() => {
+    const fetchCourseData = async () => {
+      try {
+        setIsLoading(true);
+        const detailedData = await fetchCourseDetail(courseData.courseId);
+        setDetailedCourseData(detailedData);
+      } catch (error) {
+        console.error("코스 상세 정보 가져오기 실패:", error);
+        // 실패 시 기본 데이터 사용
+        setDetailedCourseData(courseData);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchCourseData();
+  }, [courseData.courseId]);
+
+  // API 데이터를 사용한 실제 아이콘 버튼 생성
   const currentIconButtons = useMemo(() => {
-    const spotCount = courseData.spotCount || 3; // 기본값 3
+    if (!detailedCourseData?.courseSpots) return [];
 
-    switch (spotCount) {
-      case 3:
-        return iconButtonsData3Spots;
-      case 4:
-        return iconButtonsData4Spots;
-      case 5:
-        return iconButtonsData5Spots;
-      default:
-        return iconButtonsData3Spots; // 기본값
+    console.log("코스의 spot 개수:", detailedCourseData.courseSpots.length);
+
+    // mission 버튼들 (고정)
+    const missionButtons = [
+      {
+        id: "mission_0",
+        image: require("../../assets/images/course/mission.png"),
+        leftRatio: 0.25,
+        topRatio: 0.38,
+        onPress: () => console.log("미션 버튼 클릭"),
+      },
+      {
+        id: "mission_1",
+        image: require("../../assets/images/course/mission.png"),
+        leftRatio: 0.7,
+        topRatio: 0.5,
+        onPress: () => console.log("미션 버튼 클릭"),
+      },
+      {
+        id: "mission_2",
+        image: require("../../assets/images/course/mission.png"),
+        leftRatio: 0.05,
+        topRatio: 0.07,
+        onPress: () => console.log("미션 버튼 클릭"),
+      },
+    ];
+
+    // API 데이터를 사용한 실제 spot 버튼들 생성 (최대 5개까지만)
+    const maxSpots = Math.min(detailedCourseData.courseSpots.length, 5);
+    const spotButtons = detailedCourseData.courseSpots
+      .slice(0, maxSpots)
+      .map((spot, index) => {
+        // spot 개수에 따라 위치 비율 조정
+        let leftRatio, topRatio;
+
+        if (maxSpots === 3) {
+          // 3개일 때
+          const positions = [
+            { left: 0.4, top: 0.15 },
+            { left: 0.58, top: 0.35 },
+            { left: 0.25, top: 0.6 },
+          ];
+          leftRatio = positions[index]?.left || 0.5;
+          topRatio = positions[index]?.top || 0.5;
+        } else if (maxSpots === 4) {
+          // 4개일 때
+          const positions = [
+            { left: 0.4, top: 0.15 },
+            { left: 0.58, top: 0.35 },
+            { left: 0.38, top: 0.5 },
+            { left: 0.67, top: 0.72 },
+          ];
+          leftRatio = positions[index]?.left || 0.5;
+          topRatio = positions[index]?.top || 0.5;
+        } else {
+          // 5개일 때
+          const positions = [
+            { left: 0.69, top: 0.02 },
+            { left: 0.35, top: 0.18 },
+            { left: 0.58, top: 0.33 },
+            { left: 0.22, top: 0.58 },
+            { left: 0.67, top: 0.72 },
+          ];
+          leftRatio = positions[index]?.left || 0.5;
+          topRatio = positions[index]?.top || 0.5;
+        }
+
+        return {
+          id: `spot_${index}`,
+          image: require("../../assets/images/course/spot.png"),
+          leftRatio,
+          topRatio,
+          onPress: () => handleSpotPress(`spot_${index}`),
+        };
+      });
+
+    return [...missionButtons, ...spotButtons];
+  }, [detailedCourseData]);
+
+  // spot 버튼 클릭 핸들러
+  const handleSpotPress = (spotId: string) => {
+    if (!detailedCourseData?.courseSpots) {
+      return;
     }
-  }, [courseData.spotCount]);
+
+    // courseSpots에서 해당 spot 정보 찾기ㄴ
+    const spotIndex = parseInt(spotId.split("_")[1]);
+
+    // API의 courseSpots 배열에서 해당 인덱스의 spot 가져오기
+    const courseSpot = detailedCourseData.courseSpots[spotIndex];
+
+    if (courseSpot) {
+      // API 데이터를 SpotInfo 형식으로 변환
+      const spotInfo: SpotInfo = {
+        id: courseSpot.spotId.toString(),
+        name: courseSpot.spotName,
+        description: courseSpot.description,
+        category: courseSpot.category,
+        address: `${detailedCourseData.marketName} 내부`,
+      };
+
+      setSelectedSpotInfo(spotInfo);
+      setIsSpotModalVisible(true);
+    }
+  };
 
   const toggleMenu = () => {
     if (isMenuOpen) {
@@ -88,6 +204,16 @@ export default function TourPathScreen({
     );
   };
 
+  if (isLoading) {
+    return (
+      <View className="flex-1 justify-center items-center bg-gray-100">
+        <Text style={{ fontFamily: "ChosunCentennial" }}>
+          코스 정보를 불러오는 중...
+        </Text>
+      </View>
+    );
+  }
+
   return (
     <View className="flex-1">
       <ImageBackground
@@ -105,7 +231,7 @@ export default function TourPathScreen({
               className="text-2xl text-black text-left"
               style={{ fontFamily: "ChosunCentennial" }}
             >
-              {courseData.name}
+              {detailedCourseData?.name || courseData.name}
             </Text>
           </View>
 
@@ -178,6 +304,16 @@ export default function TourPathScreen({
           </View>
         </SafeAreaView>
       </ImageBackground>
+
+      {/* Spot 정보 모달 */}
+      <SpotInfoModal
+        visible={isSpotModalVisible}
+        spotInfo={selectedSpotInfo}
+        onClose={() => {
+          setIsSpotModalVisible(false);
+          setSelectedSpotInfo(null);
+        }}
+      />
     </View>
   );
 }
