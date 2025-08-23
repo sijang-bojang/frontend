@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import {
   View,
   Text,
@@ -13,7 +13,11 @@ import { Ionicons } from "@expo/vector-icons";
 import { Market } from "./types";
 import { Course } from "../../shared/api";
 import IconButton from "./components/IconButton";
-import { iconButtonsData } from "./data/iconButtons";
+import {
+  iconButtonsData3Spots,
+  iconButtonsData4Spots,
+  iconButtonsData5Spots,
+} from "./data/iconButtons";
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get("window");
 
@@ -30,6 +34,22 @@ export default function TourPathScreen({
 }: TourPathScreenProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [animation] = useState(new Animated.Value(0));
+
+  // 코스 데이터의 spotCount에 따라 적절한 아이콘 데이터 선택
+  const currentIconButtons = useMemo(() => {
+    const spotCount = courseData.spotCount || 3; // 기본값 3
+
+    switch (spotCount) {
+      case 3:
+        return iconButtonsData3Spots;
+      case 4:
+        return iconButtonsData4Spots;
+      case 5:
+        return iconButtonsData5Spots;
+      default:
+        return iconButtonsData3Spots; // 기본값
+    }
+  }, [courseData.spotCount]);
 
   const toggleMenu = () => {
     if (isMenuOpen) {
@@ -90,7 +110,7 @@ export default function TourPathScreen({
           </View>
 
           {/* 아이콘 버튼들 */}
-          {iconButtonsData.map((button) => (
+          {currentIconButtons.map((button) => (
             <IconButton
               key={button.id}
               id={button.id}
