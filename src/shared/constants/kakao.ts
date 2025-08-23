@@ -81,9 +81,9 @@ export const KAKAO_MAP_HTML = (lat: number, lng: number) => `
               map: map
             });
             
-            // 코스 스팟용 커스텀 마커 이미지 (숫자 없이)
+            // 코스 스팟용 커스텀 마커 이미지 (진행중인 코스임을 명확하게 표시)
             var markerImage = new kakao.maps.MarkerImage(
-              'data:image/svg+xml;base64,' + btoa('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="' + (courseSpotColors[spot.color] || '#10B981') + '" stroke="#fff" stroke-width="2"/></svg>'),
+              'data:image/svg+xml;base64,' + btoa('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="' + (courseSpotColors[spot.color] || '#10B981') + '" stroke="#fff" stroke-width="2"/><circle cx="12" cy="12" r="6" fill="' + (courseSpotColors[spot.color] || '#10B981') + '" stroke="#fff" stroke-width="1"/></svg>'),
               new kakao.maps.Size(24, 24)
             );
             marker.setImage(markerImage);
@@ -95,6 +95,22 @@ export const KAKAO_MAP_HTML = (lat: number, lng: number) => `
                 type: 'spot_clicked',
                 spot: spot
               }));
+            });
+            
+            // 마커에 호버 효과 추가
+            kakao.maps.event.addListener(marker, 'mouseover', function() {
+              marker.setZIndex(1000);
+              // 마커 크기 확대 및 강조 효과
+              marker.setImage(new kakao.maps.MarkerImage(
+                'data:image/svg+xml;base64,' + btoa('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><circle cx="12" cy="12" r="12" fill="' + (courseSpotColors[spot.color] || '#10B981') + '" stroke="#fff" stroke-width="3"/><circle cx="12" cy="12" r="8" fill="' + (courseSpotColors[spot.color] || '#10B981') + '" stroke="#fff" stroke-width="2"/></svg>'),
+                new kakao.maps.Size(28, 28)
+              ));
+            });
+            
+            kakao.maps.event.addListener(marker, 'mouseout', function() {
+              marker.setZIndex(1);
+              // 마커 크기 원래대로
+              marker.setImage(markerImage);
             });
             
             window.courseSpotMarkers.push(marker);

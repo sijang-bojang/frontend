@@ -19,6 +19,7 @@ export interface Spot {
   imageUrl: string | null;
   missionCount?: number;
   courseNames?: string[];
+  visitMissionTitles?: string[];
 }
 
 export interface CreateMarketRequest {

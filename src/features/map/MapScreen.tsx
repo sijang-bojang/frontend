@@ -16,6 +16,7 @@ import { useMarkets } from "../../shared/hooks/useMarkets";
 import {
   fetchSpotsByMarket,
   fetchCoursesByMarket,
+  fetchSpotDetail,
   Course,
 } from "../../shared/api";
 import { useCourseStore } from "../../shared/stores/courseStore";
@@ -47,6 +48,7 @@ export default function MapScreen() {
   const [spotsLoading, setSpotsLoading] = useState(false);
   const [selectedSpot, setSelectedSpot] = useState<Spot | null>(null);
   const [showSpotModal, setShowSpotModal] = useState(false);
+  const [spotDetailLoading, setSpotDetailLoading] = useState(false);
 
   // 코스 관련 상태 추가
   const [courses, setCourses] = useState<Course[]>([]);
@@ -60,7 +62,7 @@ export default function MapScreen() {
   useEffect(() => {
     if (currentCourse) {
       setSelectedCourse(currentCourse);
-      
+
       // 기존 마커들 제거
       if (webViewRef.current) {
         webViewRef.current.postMessage(
@@ -69,16 +71,16 @@ export default function MapScreen() {
           })
         );
       }
-      
+
       // API를 통해 상세 정보 가져오기
       const fetchAndDisplayCourse = async () => {
         const { fetchCourseDetail } = useCourseStore.getState();
         await fetchCourseDetail(currentCourse.courseId);
-        
+
         // 상세 정보가 업데이트된 후 지도에 표시
         const { detailedCourse } = useCourseStore.getState();
         const courseToDisplay = detailedCourse || currentCourse;
-        
+
         if (courseToDisplay.courseSpots.length > 0) {
           setTimeout(() => {
             showCourseSpotsOnMap(courseToDisplay.courseSpots);
@@ -87,13 +89,13 @@ export default function MapScreen() {
           }, 100);
         }
       };
-      
+
       fetchAndDisplayCourse();
     } else {
       // 진행중인 코스가 없으면 선택된 코스와 시장을 초기화
       setSelectedCourse(null);
       setSelectedMarket(null);
-      
+
       // 지도에서 모든 마커 제거
       if (webViewRef.current) {
         webViewRef.current.postMessage(
@@ -146,7 +148,7 @@ export default function MapScreen() {
       webViewRef.current.postMessage(
         JSON.stringify({
           type: "fit_bounds_to_spots",
-          spots: courseSpots.map(spot => ({
+          spots: courseSpots.map((spot) => ({
             latitude: spot.latitude,
             longitude: spot.longitude,
           })),
@@ -181,7 +183,6 @@ export default function MapScreen() {
       setShowCourseList(true);
     }
   };
-
 
   const loadCoursesForMarket = async (marketId: number) => {
     try {
@@ -222,50 +223,105 @@ export default function MapScreen() {
 
   // 코스 스팟 정보를 Spot 형태로 변환하는 함수
   const convertCourseSpotToSpot = (
-    courseSpot: Course["courseSpots"][0]
+    courseSpot: Course["courseSpots"][0] | any
   ): Spot => {
-    return {
-      spotId: courseSpot.spotId,
-      marketId: selectedMarket?.marketId || 0,
-      name: courseSpot.spotName,
-      category: courseSpot.category,
-      description: courseSpot.description,
-      latitude: courseSpot.latitude,
-      longitude: courseSpot.longitude,
-      marketName: selectedMarket?.name || "",
-      imageUrl: null, // 코스 스팟에는 이미지가 없을 수 있음
-      missionCount: 0,
-      courseNames: [selectedCourse?.name || ""],
-    };
+    // WebView에서 받은 데이터인지 확인
+    if (courseSpot.spotName) {
+      // WebView에서 받은 데이터
+      return {
+        spotId: courseSpot.spotId,
+        marketId: selectedMarket?.marketId || 0,
+        name: courseSpot.spotName,
+        category: courseSpot.category,
+        description: courseSpot.description,
+        latitude: courseSpot.latitude,
+        longitude: courseSpot.longitude,
+        marketName: selectedMarket?.name || "",
+        imageUrl: null,
+        missionCount: 0,
+        courseNames: [selectedCourse?.name || currentCourse?.name || ""],
+      };
+    } else {
+      // 기존 Course 타입의 데이터
+      return {
+        spotId: courseSpot.spotId,
+        marketId: selectedMarket?.marketId || 0,
+        name: courseSpot.spotName,
+        category: courseSpot.category,
+        description: courseSpot.description,
+        latitude: courseSpot.latitude,
+        longitude: courseSpot.longitude,
+        marketName: selectedMarket?.name || "",
+        imageUrl: null,
+        missionCount: 0,
+        courseNames: [selectedCourse?.name || ""],
+      };
+    }
   };
 
   // 코스 스팟 클릭 핸들러
   const handleCourseSpotClick = (courseSpot: Course["courseSpots"][0]) => {
+    console.log("handleCourseSpotClick 호출됨:", courseSpot);
     const spotData = convertCourseSpotToSpot(courseSpot);
+    console.log("변환된 spotData:", spotData);
     setSelectedSpot(spotData);
     setShowSpotModal(true);
+    console.log("모달 상태 설정 완료 - showSpotModal: true");
   };
 
   // WebView 메시지 핸들러 업데이트
-  const handleWebViewMessage = (event: any) => {
+  const handleWebViewMessage = async (event: any) => {
     try {
       const data = JSON.parse(event.nativeEvent.data);
       console.log("WebView 메시지:", data);
 
       if (data.type === "spot_clicked") {
-        // 코스 스팟인지 일반 스팟인지 확인
-        if (data.spot.stepNumber && selectedCourse) {
-          // 코스 스팟인 경우
-          const courseSpot = selectedCourse.courseSpots.find(
-            (spot) => spot.spotId === data.spot.spotId
-          );
-          if (courseSpot) {
-            handleCourseSpotClick(courseSpot);
+        console.log("스팟 클릭됨:", data.spot);
+
+        // spotId로 API 호출하여 상세 정보 가져오기
+        try {
+          setSpotDetailLoading(true);
+          const spotDetail = await fetchSpotDetail(data.spot.spotId);
+          console.log("API에서 가져온 스팟 상세 정보:", spotDetail);
+
+          // 진행중인 코스인지 확인
+          const isCourseSpot = data.spot.stepNumber !== undefined;
+          const courseToUse = selectedCourse || currentCourse;
+
+          if (isCourseSpot && courseToUse) {
+            // 코스 스팟인 경우 코스 정보 추가
+            const spotWithCourseInfo = {
+              ...spotDetail,
+              courseNames: [courseToUse.name],
+            };
+            setSelectedSpot(spotWithCourseInfo);
+          } else {
+            // 일반 스팟인 경우
+            setSelectedSpot(spotDetail);
           }
-        } else {
-          // 일반 스팟인 경우
-          setSelectedSpot(data.spot);
+
           setShowSpotModal(true);
+        } catch (error) {
+          console.error("스팟 상세 정보 가져오기 실패:", error);
+          // API 실패 시 WebView 데이터 사용
+          const fallbackSpotData = {
+            spotId: data.spot.spotId,
+            marketId: selectedMarket?.marketId || 0,
+            name: data.spot.spotName,
+            category: data.spot.category,
+            description: data.spot.description,
+            latitude: data.spot.latitude,
+            longitude: data.spot.longitude,
+            marketName: selectedMarket?.name || "",
+            imageUrl: null,
+            missionCount: 0,
+            courseNames: [],
+            visitMissionTitles: [],
+          };
+          setSelectedSpot(fallbackSpotData);
+          setShowSpotModal(true);
+        } finally {
+          setSpotDetailLoading(false);
         }
       }
     } catch (error) {
@@ -276,6 +332,27 @@ export default function MapScreen() {
   const handleCloseSpotModal = () => {
     setShowSpotModal(false);
     setSelectedSpot(null);
+  };
+
+  // 진행중인 코스 스팟 방문 완료 처리
+  const handleSpotVisitComplete = () => {
+    // TODO: 스팟 방문 완료 로직 구현
+    console.log("스팟 방문 완료:", selectedSpot?.name);
+    // 여기에 스팟 방문 완료 처리 로직을 추가할 수 있습니다
+  };
+
+  // 길찾기 기능
+  const handleNavigateToSpot = () => {
+    if (selectedSpot) {
+      // TODO: 길찾기 앱 실행 로직 구현
+      console.log(
+        "길찾기:",
+        selectedSpot.name,
+        selectedSpot.latitude,
+        selectedSpot.longitude
+      );
+      // 여기에 길찾기 앱 실행 로직을 추가할 수 있습니다
+    }
   };
 
   return (
@@ -393,11 +470,11 @@ export default function MapScreen() {
                         // courseStore에서 상세 정보 가져오기
                         const { fetchCourseDetail } = useCourseStore.getState();
                         await fetchCourseDetail(currentCourse.courseId);
-                        
+
                         // 상세 정보가 업데이트된 후 지도에 표시
                         const { detailedCourse } = useCourseStore.getState();
                         const courseToDisplay = detailedCourse || currentCourse;
-                        
+
                         if (courseToDisplay.courseSpots.length > 0) {
                           // 약간의 지연을 두어 마커 제거 후 새로운 코스 표시
                           setTimeout(() => {
@@ -493,7 +570,7 @@ export default function MapScreen() {
         spot={selectedSpot}
         onClose={handleCloseSpotModal}
         isCourseSpot={
-          selectedCourse && selectedSpot
+          selectedSpot && selectedCourse
             ? selectedCourse.courseSpots.some(
                 (spot) => spot.spotId === selectedSpot.spotId
               )
@@ -502,16 +579,19 @@ export default function MapScreen() {
         courseInfo={
           selectedCourse && selectedSpot
             ? {
-                courseName: selectedCourse.name,
+                courseName: selectedCourse.name || "알 수 없는 코스",
                 stepNumber:
                   selectedCourse.courseSpots.find(
                     (spot) => spot.spotId === selectedSpot.spotId
                   )?.stepNumber || 1,
                 totalSteps: selectedCourse.courseSpots.length,
-                courseType: selectedCourse.typeNames,
+                courseType: selectedCourse.typeNames || [],
               }
             : undefined
         }
+        onSpotVisitComplete={handleSpotVisitComplete}
+        onNavigateToSpot={handleNavigateToSpot}
+        isLoading={spotDetailLoading}
       />
     </SafeAreaView>
   );

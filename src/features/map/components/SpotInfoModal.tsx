@@ -8,6 +8,7 @@ import {
   Image,
   Dimensions,
   StatusBar,
+  ActivityIndicator,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { Spot } from "../../../shared/types/market";
@@ -36,6 +37,9 @@ interface SpotInfoModalProps {
     totalSteps: number;
     courseType: string[];
   };
+  onSpotVisitComplete?: () => void;
+  onNavigateToSpot?: () => void;
+  isLoading?: boolean;
 }
 
 export default function SpotInfoModal({
@@ -44,6 +48,9 @@ export default function SpotInfoModal({
   onClose,
   isCourseSpot = false,
   courseInfo,
+  onSpotVisitComplete,
+  onNavigateToSpot,
+  isLoading = false,
 }: SpotInfoModalProps) {
   const translateY = useSharedValue(screenHeight);
   const opacity = useSharedValue(0);
@@ -119,7 +126,7 @@ export default function SpotInfoModal({
       {/* 모달 컨텐츠 */}
       <Animated.View
         style={modalStyle}
-        className="absolute bottom-0 left-0 right-0 bg-white rounded-t-3xl max-h-[85%]"
+        className="absolute bottom-0 left-0 right-0 bg-white rounded-t-3xl max-h-[90%]"
       >
         {/* 드래그 핸들 */}
         <PanGestureHandler onGestureEvent={gestureHandler}>
@@ -128,145 +135,122 @@ export default function SpotInfoModal({
           </Animated.View>
         </PanGestureHandler>
 
-        {/* 헤더 */}
-        <View className="flex-row items-center justify-between px-6 pb-4 border-b border-gray-100">
-          <Text className="text-xl font-bold text-gray-900">
-            {isCourseSpot ? "코스 스팟 정보" : "스팟 정보"}
-          </Text>
-          <TouchableOpacity
-            onPress={onClose}
-            className="p-2 rounded-full bg-gray-100"
-          >
-            <Ionicons name="close" size={20} color="#6B7280" />
-          </TouchableOpacity>
-        </View>
-
         <ScrollView
           className="flex-1 px-6 pt-4"
           showsVerticalScrollIndicator={false}
         >
-          {/* 코스 정보 헤더 - 코스 스팟인 경우에만 표시 */}
-          {isCourseSpot && courseInfo && (
-            <View className="mb-6 p-4 bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl border border-blue-100">
-              <View className="flex-row items-center justify-between mb-3">
-                <Text className="text-lg font-bold text-blue-900">
-                  {courseInfo.courseName}
-                </Text>
-                <View className="bg-blue-500 px-3 py-1 rounded-full">
-                  <Text className="text-white text-sm font-bold">
-                    {courseInfo.stepNumber} / {courseInfo.totalSteps}
+          {/* 로딩 상태 */}
+          {isLoading && (
+            <View className="mb-6 p-8 items-center">
+              <ActivityIndicator size="large" color="#10B981" />
+              <Text className="text-gray-600 mt-4 text-center">
+                스팟 정보를 불러오는 중...
+              </Text>
+            </View>
+          )}
+
+          {/* 스팟 정보 (로딩이 완료된 경우에만 표시) */}
+          {!isLoading && spot && (
+            <>
+              {/* 진행중인 코스 배지 */}
+              {isCourseSpot && courseInfo && (
+                <View className="mb-6 p-4 bg-gradient-to-r from-emerald-50 to-green-50 rounded-2xl border border-emerald-200">
+                  <View className="flex-row items-center justify-between mb-3">
+                    <View className="flex-row items-center">
+                      <View className="w-3 h-3 bg-emerald-500 rounded-full mr-2 animate-pulse" />
+                      <Text className="text-emerald-800 font-semibold text-base">
+                        진행중인 코스
+                      </Text>
+                    </View>
+                    <View className="bg-emerald-500 px-3 py-1 rounded-full">
+                      <Text className="text-white text-sm font-bold">
+                        {courseInfo.stepNumber} / {courseInfo.totalSteps}
+                      </Text>
+                    </View>
+                  </View>
+
+                  <Text className="text-emerald-900 font-bold text-lg mb-2">
+                    {courseInfo.courseName}
+                  </Text>
+
+                  {/* 진행률 바 */}
+                  <View className="bg-emerald-200 rounded-full h-2 mb-2">
+                    <View
+                      className="bg-emerald-500 h-2 rounded-full"
+                      style={{
+                        width: `${(courseInfo.stepNumber / courseInfo.totalSteps) * 100}%`,
+                      }}
+                    />
+                  </View>
+
+                  <Text className="text-emerald-700 text-sm text-center">
+                    {Math.round(
+                      (courseInfo.stepNumber / courseInfo.totalSteps) * 100
+                    )}
+                    % 완료
                   </Text>
                 </View>
-              </View>
+              )}
 
-              {/* 코스 타입 태그들 */}
-              <View className="flex-row flex-wrap">
-                {courseInfo.courseType.map((type, index) => (
-                  <View
-                    key={index}
-                    className="bg-blue-100 px-3 py-1 rounded-full mr-2 mb-2"
-                  >
-                    <Text className="text-blue-700 text-xs font-medium">
-                      {type}
+              {/* 스팟 이름과 카테고리 */}
+              <View className="mb-6">
+                <Text className="text-3xl font-bold text-gray-900 mb-3">
+                  {spot.name}
+                </Text>
+
+                <View className="flex-row items-center">
+                  <View className="bg-blue-100 px-4 py-2 rounded-full">
+                    <Text className="text-blue-800 text-sm font-semibold">
+                      {spot.category}
                     </Text>
                   </View>
-                ))}
-              </View>
-
-              {/* 진행률 바 */}
-              <View className="mt-3 bg-blue-200 rounded-full h-2">
-                <View
-                  className="bg-blue-500 h-2 rounded-full"
-                  style={{
-                    width: `${(courseInfo.stepNumber / courseInfo.totalSteps) * 100}%`,
-                  }}
-                />
-              </View>
-            </View>
-          )}
-
-          {/* 스팟 이미지 */}
-          {spot.imageUrl && (
-            <View className="mb-6">
-              <Image
-                source={{ uri: spot.imageUrl }}
-                className="w-full h-48 rounded-xl"
-                resizeMode="cover"
-              />
-            </View>
-          )}
-
-          {/* 스팟 이름 */}
-          <Text className="text-2xl font-bold text-gray-900 mb-3">
-            {spot.name}
-          </Text>
-
-          {/* 카테고리 */}
-          <View className="flex-row items-center mb-4">
-            <View className="bg-blue-100 px-4 py-2 rounded-full">
-              <Text className="text-blue-800 text-sm font-semibold">
-                {spot.category}
-              </Text>
-            </View>
-            {spot.missionCount && spot.missionCount > 0 && (
-              <View className="bg-orange-100 px-4 py-2 rounded-full ml-3">
-                <Text className="text-orange-800 text-sm font-semibold">
-                  미션 {spot.missionCount}개
-                </Text>
-              </View>
-            )}
-          </View>
-
-          {/* 시장 정보 */}
-          <View className="flex-row items-center mb-6 p-4 bg-gray-50 rounded-xl">
-            <Ionicons name="location" size={18} color="#6B7280" />
-            <Text className="ml-3 text-gray-700 font-medium">
-              {spot.marketName}
-            </Text>
-          </View>
-
-          {/* 설명 */}
-          <View className="mb-6">
-            <Text className="text-gray-900 leading-7 text-base">
-              {spot.description}
-            </Text>
-          </View>
-
-          {/* 코스 정보 */}
-          {spot.courseNames && spot.courseNames.length > 0 && (
-            <View className="mb-6">
-              <Text className="text-lg font-semibold text-gray-900 mb-3">
-                포함된 코스
-              </Text>
-              {spot.courseNames.map((courseName, index) => (
-                <View
-                  key={index}
-                  className="flex-row items-center p-4 bg-green-50 rounded-xl mb-3"
-                >
-                  <Ionicons name="map" size={18} color="#059669" />
-                  <Text className="ml-3 text-green-800 font-medium">
-                    {courseName}
-                  </Text>
                 </View>
-              ))}
-            </View>
-          )}
+              </View>
 
-          {/* 코스 스팟 추가 정보 */}
-          {isCourseSpot && (
-            <View className="mb-6 p-4 bg-yellow-50 rounded-xl border border-yellow-200">
-              <View className="flex-row items-center mb-2">
-                <Ionicons name="information-circle" size={20} color="#D97706" />
-                <Text className="ml-2 text-yellow-800 font-semibold">
-                  코스 진행 팁
+              {/* 설명 */}
+              <View className="mb-6 p-4 bg-gray-50 rounded-2xl">
+                <Text className="text-gray-700 leading-6 text-base">
+                  {spot.description}
                 </Text>
               </View>
-              <Text className="text-yellow-800 text-sm leading-5">
-                이 스팟을 방문하여 미션을 완료하면 다음 단계로 진행할 수
-                있습니다. 코스를 완주하면 특별한 보상을 받을 수 있어요!
-              </Text>
-            </View>
+
+              {/* 액션 버튼들 */}
+              {isCourseSpot && (
+                <View className="mb-6 space-y-3">
+                  <TouchableOpacity
+                    onPress={onSpotVisitComplete}
+                    className="bg-gradient-to-r from-emerald-500 to-green-500 py-4 px-6 rounded-2xl shadow-lg"
+                  >
+                    <View className="flex-row items-center justify-center">
+                      <Ionicons
+                        name="checkmark-circle"
+                        size={24}
+                        color="white"
+                      />
+                      <Text className="text-white font-bold text-lg ml-3">
+                        이 스팟 방문 완료
+                      </Text>
+                    </View>
+                  </TouchableOpacity>
+
+                  <TouchableOpacity
+                    onPress={onNavigateToSpot}
+                    className="bg-gradient-to-r from-blue-500 to-indigo-500 py-4 px-6 rounded-2xl shadow-lg"
+                  >
+                    <View className="flex-row items-center justify-center">
+                      <Ionicons name="navigate" size={20} color="white" />
+                      <Text className="text-white font-bold text-lg ml-2">
+                        길찾기
+                      </Text>
+                    </View>
+                  </TouchableOpacity>
+                </View>
+              )}
+            </>
           )}
+
+          {/* 하단 여백 */}
+          <View className="h-6" />
         </ScrollView>
       </Animated.View>
     </Modal>
