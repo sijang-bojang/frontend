@@ -4,12 +4,18 @@ import { SafeAreaView } from "react-native-safe-area-context";
 
 import StampGrid from "./components/StampGrid";
 import MissionCard from "./components/MissionCard";
-import { missions, stampData } from "./data";
+import CourseMissionCard from "./components/CourseMissionCard";
+import { missions, courseMissions, stampData } from "./data";
 
 export default function MissionScreen() {
   const handleMissionPress = (missionId: number) => {
     console.log(`Mission ${missionId} pressed`);
     // TODO: 미션 상세 화면으로 이동 또는 미션 완료 처리
+  };
+
+  const handleCourseMissionPress = (missionId: number) => {
+    console.log(`Course Mission ${missionId} pressed`);
+    // TODO: 코스 미션 상세 화면으로 이동 또는 미션 완료 처리
   };
 
   return (
@@ -23,6 +29,7 @@ export default function MissionScreen() {
             className="h-10 w-32"
           />
         </View>
+
         {/* 스탬프 수집 섹션 */}
         <StampGrid
           completedStamps={stampData.completedStamps}
@@ -30,21 +37,42 @@ export default function MissionScreen() {
           rewardPoints={stampData.rewardPoints}
         />
 
-        {/* 미션 목록 섹션 */}
-        <View className="bg-gray-100 rounded-2xl p-6">
-          {missions.map((mission) => (
-            <MissionCard
-              key={mission.id}
-              id={mission.id}
-              title={mission.title}
-              description={mission.description}
-              currentProgress={mission.currentProgress}
-              targetProgress={mission.targetProgress}
-              iconName={mission.iconName}
-              iconColor={mission.iconColor}
-              onPress={() => handleMissionPress(mission.id)}
-            />
-          ))}
+        {/* 코스 미션 섹션 */}
+        <View className="mb-6">
+          <Text className="text-xl font-bold text-gray-900 mb-4 px-2">
+            코스 미션
+          </Text>
+          <View className="rounded-2xl">
+            {courseMissions.map((mission) => (
+              <CourseMissionCard
+                key={mission.missionId}
+                mission={mission}
+                onPress={() => handleCourseMissionPress(mission.missionId)}
+              />
+            ))}
+          </View>
+        </View>
+
+        {/* 일반 미션 섹션 */}
+        <View className="mb-6">
+          <Text className="text-xl font-bold text-gray-900 mb-4 px-2">
+            일반 미션
+          </Text>
+          <View className="rounded-2xl">
+            {missions.map((mission) => (
+              <MissionCard
+                key={mission.id}
+                id={mission.id}
+                title={mission.title}
+                description={mission.description}
+                currentProgress={mission.currentProgress}
+                targetProgress={mission.targetProgress}
+                iconName={mission.iconName}
+                iconColor={mission.iconColor}
+                onPress={() => handleMissionPress(mission.id)}
+              />
+            ))}
+          </View>
         </View>
 
         {/* 하단 여백 */}

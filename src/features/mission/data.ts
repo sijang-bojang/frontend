@@ -1,4 +1,4 @@
-import { Mission, StampData } from "./types";
+import { Mission, CourseMission, StampData } from "./types";
 
 export const stampData: StampData = {
   completedStamps: 5,
@@ -54,6 +54,20 @@ export const missions: Mission[] = [
     iconName: "cake.png",
     iconColor: "#E91E63",
     isCompleted: false,
+  },
+];
+
+export const courseMissions: CourseMission[] = [
+  {
+    missionId: 2,
+    title: "단짠단짠 특제 간장치킨",
+    description:
+      "스모프치킨의 중독성 강한 매콤달콤 특제 간장 소스 치킨을 사진으로 남겨주세요.",
+    rewardPoints: 100,
+    missionType: "VISIT",
+    spotNames: ["스모프치킨"],
+    isVisitType: true,
+    isNonVisitType: false,
   },
 ];
 

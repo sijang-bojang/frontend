@@ -9,6 +9,17 @@ export interface Mission {
   isCompleted: boolean;
 }
 
+export interface CourseMission {
+  missionId: number;
+  title: string;
+  description: string;
+  rewardPoints: number;
+  missionType: string;
+  spotNames: string[];
+  isVisitType: boolean;
+  isNonVisitType: boolean;
+}
+
 export interface StampData {
   completedStamps: number;
   totalStamps: number;
