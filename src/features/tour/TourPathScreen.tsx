@@ -31,7 +31,7 @@ export default function TourPathScreen({
         source={require("../../assets/images/course_background.jpg")}
         style={{
           width: screenWidth,
-          height: screenHeight * 0.9,
+          height: screenHeight * 0.85,
         }}
         resizeMode="cover"
       >
