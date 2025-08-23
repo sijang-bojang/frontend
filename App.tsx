@@ -1,9 +1,11 @@
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { NavigationContainer } from "@react-navigation/native";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { Ionicons, Entypo } from "@expo/vector-icons";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
+import * as Font from "expo-font";
+import { View, Text } from "react-native";
 
 import "./global.css";
 
@@ -17,6 +19,26 @@ import ProfileScreen from "./src/features/profile/ProfileScreen";
 const Tab = createBottomTabNavigator();
 
 export default function App() {
+  const [fontsLoaded, setFontsLoaded] = useState(false);
+
+  useEffect(() => {
+    async function loadFonts() {
+      await Font.loadAsync({
+        ChosunCentennial: require("./src/assets/fonts/ChosunCentennial_ttf.ttf"),
+      });
+      setFontsLoaded(true);
+    }
+    loadFonts();
+  }, []);
+
+  if (!fontsLoaded) {
+    return (
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+        <Text>폰트 로딩 중...</Text>
+      </View>
+    );
+  }
+
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaProvider>

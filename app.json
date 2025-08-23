@@ -8,6 +8,11 @@
     "scheme": "frontend",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
+    "fonts": [
+      {
+        "asset": "./src/assets/fonts/ChosunCentennial_ttf.ttf"
+      }
+    ],
     "ios": {
       "supportsTablet": true
     },
