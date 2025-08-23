@@ -36,7 +36,7 @@ export default function TourCompleteModal({
             {/* 파란색 헤더 바 */}
             <View
               className="rounded-t-2xl py-4 px-6 mb-6"
-              style={{ backgroundColor: "#1A66FF" }}
+              style={{ backgroundColor: "#0F0D85" }}
             >
               <Text className="text-lg font-bold text-white text-center">
                 투어가 생성되었습니다
@@ -66,7 +66,7 @@ export default function TourCompleteModal({
               {/* 도전 버튼 */}
               <TouchableOpacity
                 className="flex-1 py-4 rounded-xl mr-2 items-center justify-center"
-                style={{ backgroundColor: "#1A66FF" }}
+                style={{ backgroundColor: "#0F0D85" }}
                 onPress={onChallenge}
               >
                 <Text className="text-white text-center font-bold text-lg">
