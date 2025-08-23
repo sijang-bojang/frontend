@@ -24,6 +24,7 @@ const FilterStep: React.FC<FilterStepProps> = ({
   const [filters, setFilters] = useState<TourFilters>({
     vehicle: [],
     companion: [],
+    season: [],
     duration: [],
     theme: [],
   });
@@ -31,14 +32,28 @@ const FilterStep: React.FC<FilterStepProps> = ({
   const toggleFilter = (category: keyof TourFilters, option: string) => {
     setFilters((prev) => {
       const currentOptions = prev[category];
-      const newOptions = currentOptions.includes(option as never)
-        ? currentOptions.filter((item) => item !== option)
-        : [...currentOptions, option as never];
 
-      return {
-        ...prev,
-        [category]: newOptions,
-      };
+      // 테마는 복수 선택 가능, 나머지는 단일 선택만 가능
+      if (category === "theme") {
+        const newOptions = currentOptions.includes(option as any)
+          ? currentOptions.filter((item) => item !== option)
+          : [...currentOptions, option as any];
+
+        return {
+          ...prev,
+          [category]: newOptions,
+        };
+      } else {
+        // 단일 선택: 이미 선택된 옵션이면 해제, 아니면 새로 선택
+        const newOptions = currentOptions.includes(option as any)
+          ? []
+          : [option as any];
+
+        return {
+          ...prev,
+          [category]: newOptions,
+        };
+      }
     });
   };
 
@@ -46,9 +61,23 @@ const FilterStep: React.FC<FilterStepProps> = ({
     setFilters({
       vehicle: [],
       companion: [],
+      season: [],
       duration: [],
       theme: [],
     });
+  };
+
+  const handleStartTour = () => {
+    // 모든 선택된 태그를 하나의 리스트로 통합
+    const allSelectedTags: string[] = [
+      ...filters.vehicle,
+      ...filters.companion,
+      ...filters.season,
+      ...filters.duration,
+      ...filters.theme,
+    ];
+
+    onStartTour(filters);
   };
 
   const FilterSection = ({
@@ -134,6 +163,13 @@ const FilterStep: React.FC<FilterStepProps> = ({
         />
 
         <FilterSection
+          title={FILTER_LABELS.season}
+          options={FILTER_OPTIONS.season}
+          selectedOptions={filters.season}
+          onToggle={(option) => toggleFilter("season", option)}
+        />
+
+        <FilterSection
           title={FILTER_LABELS.duration}
           options={FILTER_OPTIONS.duration}
           selectedOptions={filters.duration}
@@ -162,7 +198,7 @@ const FilterStep: React.FC<FilterStepProps> = ({
           </TouchableOpacity>
           <TouchableOpacity
             activeOpacity={0.8}
-            onPress={() => onStartTour(filters)}
+            onPress={handleStartTour}
             className={`flex-1 py-4 rounded-2xl items-center ${
               hasAnySelection ? "bg-indigo-600" : "bg-gray-300"
             }`}

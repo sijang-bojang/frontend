@@ -3,6 +3,7 @@ import {
   RegionKey,
   VehicleOption,
   CompanionOption,
+  SeasonOption,
   DurationOption,
   ThemeOption,
 } from "./types";
@@ -271,30 +272,49 @@ export const MARKETS: Market[] = [
 ];
 
 export const FILTER_OPTIONS = {
-  vehicle: ["자차 보유", "남의 차 보유", "없음"] as VehicleOption[],
-  companion: ["혼자", "연인이랑", "친구랑", "가족이랑"] as CompanionOption[],
+  vehicle: [
+    "자차 보유",
+    "대중교통",
+    "자전거/킥보드 이용",
+    "걷기",
+  ] as VehicleOption[],
+  companion: [
+    "혼자",
+    "연인이랑",
+    "친구랑",
+    "가족이랑",
+    "기타",
+  ] as CompanionOption[],
+  season: ["여름", "봄", "겨울", "가을", "기타"] as SeasonOption[],
   duration: [
-    "당일치기",
-    "1박 2일",
-    "2박 3일",
-    "1시간 속성",
+    "1시간",
+    "2시간",
+    "3시간",
+    "1박2일",
+    "2박3일",
+    "기간 상관없음",
   ] as DurationOption[],
   theme: [
     "디저트",
-    "밥",
+    "빵",
     "공방",
-    "걷기",
-    "뛰기",
-    "타슈 타기",
     "노포",
+    "흥정",
+    "동네산책",
+    "핫플레이스",
+    "소품샵",
+    "길거리음식",
+    "책",
+    "음악",
   ] as ThemeOption[],
 };
 
 export const FILTER_LABELS = {
-  vehicle: "차량 여부",
+  vehicle: "이동은",
   companion: "누구랑",
+  season: "계절은",
   duration: "투어 기간",
-  theme: "테마",
+  theme: "테마 (복수선택 가능)",
 };
 
 export const getMarketsByRegion = (region: RegionKey): Market[] => {

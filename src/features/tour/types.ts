@@ -44,21 +44,53 @@ export type SpotMission = {
 };
 
 // 필터 관련 타입들
-export type VehicleOption = "자차 보유" | "남의 차 보유" | "없음";
-export type CompanionOption = "혼자" | "연인이랑" | "친구랑" | "가족이랑";
-export type DurationOption = "당일치기" | "1박 2일" | "2박 3일" | "1시간 속성";
+export type VehicleOption =
+  | "자차 보유"
+  | "자전거/킥보드 이용"
+  | "걷기"
+  | "직접 입력하기";
+
+export type CompanionOption =
+  | "혼자"
+  | "연인이랑"
+  | "친구랑"
+  | "가족이랑"
+  | "직접 입력하기";
+
+export type SeasonOption =
+  | "여름"
+  | "봄"
+  | "겨울"
+  | "가을"
+  | "기타"
+  | "직접 입력하기";
+
+export type DurationOption =
+  | "1시간"
+  | "2시간"
+  | "3시간"
+  | "1박2일"
+  | "2박3일"
+  | "직접 입력하기";
+
 export type ThemeOption =
   | "디저트"
-  | "밥"
+  | "빵"
   | "공방"
-  | "걷기"
-  | "뛰기"
-  | "타슈 타기"
-  | "노포";
+  | "노포"
+  | "흥정"
+  | "동네산책"
+  | "핫플레이스"
+  | "소품샵"
+  | "길거리음식"
+  | "책"
+  | "음악"
+  | "직접 입력하기";
 
 export type TourFilters = {
   vehicle: VehicleOption[];
   companion: CompanionOption[];
+  season: SeasonOption[];
   duration: DurationOption[];
   theme: ThemeOption[];
 };
