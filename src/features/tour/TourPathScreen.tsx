@@ -6,6 +6,7 @@ import {
   Dimensions,
   ImageBackground,
   ScrollView,
+  Alert,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
@@ -25,6 +26,24 @@ export default function TourPathScreen({
   courseData,
   onBack,
 }: TourPathScreenProps) {
+  const handleQuitCourse = () => {
+    Alert.alert(
+      "코스 그만두기",
+      "코스를 그만두시겠습니까? \n모든 미션 내역이 사라집니다.",
+      [
+        {
+          text: "계속하기",
+          style: "cancel",
+        },
+        {
+          text: "그만두기",
+          style: "destructive",
+          onPress: onBack,
+        },
+      ]
+    );
+  };
+
   return (
     <View className="flex-1">
       <ImageBackground
@@ -37,31 +56,30 @@ export default function TourPathScreen({
       >
         <SafeAreaView className="flex-1" edges={["left", "right"]}>
           {/* 헤더 오버레이 */}
-          <View className="px-4 py-3 bg-black/50 backdrop-blur-sm rounded-lg mx-4">
-            <View className="flex-row items-center justify-between mb-0">
-              <TouchableOpacity onPress={onBack} className="p-2">
-                <Ionicons name="chevron-back" size={24} color="white" />
-              </TouchableOpacity>
-              <View className="flex-1 mx-3">
-                <Text className="text-xl font-bold text-white text-center">
-                  {courseData.name}
-                </Text>
-              </View>
-              <View className="w-10" />
-            </View>
-            <Text className="text-sm text-white text-center px-4 opacity-90">
-              {courseData.description}
+          <View className="px-4 py-4 mx-4">
+            <Text
+              className="text-2xl  text-black text-left"
+              style={{ fontFamily: "ChosunCentennial" }}
+            >
+              {courseData.name}
             </Text>
           </View>
 
-          {/* 코스 정보 오버레이 */}
-          <View className="px-4 py-4">
-            <View className="flex-row items-center">
-              <Ionicons name="location" size={16} color="black" />
-              <Text className="ml-2 text-black opacity-90">
-                {courseData.marketName}
-              </Text>
-            </View>
+          {/* 코스 그만두기 플로팅 버튼 */}
+          <View className="absolute bottom-8 left-6">
+            <TouchableOpacity
+              onPress={handleQuitCourse}
+              className="bg-red-500 rounded-full p-4 shadow-lg"
+              style={{
+                shadowColor: "#000",
+                shadowOffset: { width: 0, height: 2 },
+                shadowOpacity: 0.25,
+                shadowRadius: 3.84,
+                elevation: 5,
+              }}
+            >
+              <Ionicons name="close" size={24} color="white" />
+            </TouchableOpacity>
           </View>
         </SafeAreaView>
       </ImageBackground>
