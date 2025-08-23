@@ -11,7 +11,7 @@ interface CourseState {
   setCurrentCourse: (course: Course) => void;
 
   // 코스 상세 정보 가져오기
-  fetchCourseDetail: (courseId: string) => Promise<void>;
+  fetchCourseDetail: (courseId: number) => Promise<void>;
 
   // 상태 초기화
   clearCourse: () => void;
@@ -33,7 +33,7 @@ export const useCourseStore = create<CourseState>((set, get) => ({
     set({ currentCourse: course });
   },
 
-  fetchCourseDetail: async (courseId: string) => {
+  fetchCourseDetail: async (courseId: number) => {
     // 이미 같은 코스의 상세 정보가 있다면 API 호출하지 않음
     if (get().detailedCourse?.courseId === courseId) {
       return;

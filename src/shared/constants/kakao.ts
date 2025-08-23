@@ -44,6 +44,8 @@ export const KAKAO_MAP_HTML = (lat: number, lng: number) => `
         window.spotMarkers = [];
         // 코스 스팟 마커들을 저장할 배열
         window.courseSpotMarkers = [];
+        // 코스 경로 폴리라인을 저장할 변수
+        window.coursePolyline = null;
         
         // 코스 스팟 색상 정의
         var courseSpotColors = {
@@ -64,16 +66,24 @@ export const KAKAO_MAP_HTML = (lat: number, lng: number) => `
           }
           window.courseSpotMarkers = [];
           
-          // 새로운 코스 스팟 마커들 추가
+          // 기존 코스 경로 라인 제거
+          if (window.coursePolyline) {
+            window.coursePolyline.setMap(null);
+            window.coursePolyline = null;
+          }
+          
+          // 새로운 코스 스팟 마커들 추가 (순서 없이)
           spots.forEach(function(spot, index) {
+            var position = new kakao.maps.LatLng(spot.latitude, spot.longitude);
+            
             var marker = new kakao.maps.Marker({
-              position: new kakao.maps.LatLng(spot.latitude, spot.longitude),
+              position: position,
               map: map
             });
             
-            // 코스 스팟용 커스텀 마커 이미지 (단계 번호 포함)
+            // 코스 스팟용 커스텀 마커 이미지 (숫자 없이)
             var markerImage = new kakao.maps.MarkerImage(
-              'data:image/svg+xml;base64,' + btoa('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="' + (courseSpotColors[spot.color] || '#10B981') + '" stroke="#fff" stroke-width="2"/><text x="12" y="16" text-anchor="middle" fill="white" font-size="12" font-weight="bold">' + (spot.stepNumber || (index + 1)) + '</text></svg>'),
+              'data:image/svg+xml;base64,' + btoa('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="' + (courseSpotColors[spot.color] || '#10B981') + '" stroke="#fff" stroke-width="2"/></svg>'),
               new kakao.maps.Size(24, 24)
             );
             marker.setImage(markerImage);
@@ -189,6 +199,65 @@ export const KAKAO_MAP_HTML = (lat: number, lng: number) => `
           window.currentMarker.setMap(map);
         };
         
+        // 여러 스팟을 포함하도록 지도 범위 조정
+        window.fitBoundsToSpots = function(spots) {
+          if (spots.length === 0) return;
+          
+          var bounds = new kakao.maps.LatLngBounds();
+          spots.forEach(function(spot) {
+            bounds.extend(new kakao.maps.LatLng(spot.latitude, spot.longitude));
+          });
+          
+          // 모든 스팟이 보이도록 지도 범위 설정
+          map.setBounds(bounds);
+          
+          // 너무 확대되지 않도록 최대 레벨 제한
+          setTimeout(function() {
+            if (map.getLevel() < 1) {
+              map.setLevel(1);
+            }
+          }, 100);
+        };
+        
+        // 모든 마커 제거
+        window.clearAllMarkers = function() {
+          // 스팟 마커들 제거
+          if (window.spotMarkers) {
+            window.spotMarkers.forEach(function(marker) {
+              marker.setMap(null);
+            });
+            window.spotMarkers = [];
+          }
+          
+          // 코스 스팟 마커들 제거
+          if (window.courseSpotMarkers) {
+            window.courseSpotMarkers.forEach(function(marker) {
+              marker.setMap(null);
+            });
+            window.courseSpotMarkers = [];
+          }
+          
+          // 코스 경로 라인 제거
+          if (window.coursePolyline) {
+            window.coursePolyline.setMap(null);
+            window.coursePolyline = null;
+          }
+          
+          // 검색 마커들 제거
+          if (window.searchMarkers) {
+            window.searchMarkers.forEach(function(marker) {
+              marker.setMap(null);
+            });
+            window.searchMarkers = [];
+          }
+          
+          // 현재 마커 제거
+          if (window.currentMarker) {
+            window.currentMarker.setMap(null);
+            window.currentMarker = null;
+          }
+        };
+        
         // React Native에서 메시지 수신
         window.addEventListener('message', function(event) {
           try {
@@ -199,6 +268,10 @@ export const KAKAO_MAP_HTML = (lat: number, lng: number) => `
               window.showSpots(data.spots);
             } else if (data.type === 'show_course_spots') {
               window.showCourseSpots(data.spots);
+            } else if (data.type === 'fit_bounds_to_spots') {
+              window.fitBoundsToSpots(data.spots);
+            } else if (data.type === 'clear_all_markers') {
+              window.clearAllMarkers();
             }
           } catch (error) {
             console.error('메시지 파싱 오류:', error);

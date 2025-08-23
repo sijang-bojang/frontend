@@ -56,17 +56,39 @@ export default function MapScreen() {
 
   const webViewRef = useRef<WebView>(null);
 
-  // 현재 진행중인 코스가 있으면 자동으로 선택
+  // 현재 진행중인 코스가 있으면 자동으로 선택하고 지도에 표시
   useEffect(() => {
-    if (currentCourse && !selectedCourse) {
+    if (currentCourse) {
       setSelectedCourse(currentCourse);
-      // 코스의 첫 번째 스팟으로 지도 이동
-      if (currentCourse.courseSpots.length > 0) {
-        const firstSpot = currentCourse.courseSpots[0];
-        moveToLocation(firstSpot.latitude, firstSpot.longitude);
-        // 코스 스팟들을 지도에 표시
-        showCourseSpotsOnMap(currentCourse.courseSpots);
+      
+      // 기존 마커들 제거
+      if (webViewRef.current) {
+        webViewRef.current.postMessage(
+          JSON.stringify({
+            type: "clear_all_markers",
+          })
+        );
       }
+      
+      // API를 통해 상세 정보 가져오기
+      const fetchAndDisplayCourse = async () => {
+        const { fetchCourseDetail } = useCourseStore.getState();
+        await fetchCourseDetail(currentCourse.courseId);
+        
+        // 상세 정보가 업데이트된 후 지도에 표시
+        const { detailedCourse } = useCourseStore.getState();
+        const courseToDisplay = detailedCourse || currentCourse;
+        
+        if (courseToDisplay.courseSpots.length > 0) {
+          setTimeout(() => {
+            showCourseSpotsOnMap(courseToDisplay.courseSpots);
+            // 지도를 코스 전체가 보이도록 조정
+            centerMapOnCourse(courseToDisplay.courseSpots);
+          }, 100);
+        }
+      };
+      
+      fetchAndDisplayCourse();
     }
   }, [currentCourse]);
 
@@ -105,6 +127,21 @@ export default function MapScreen() {
     }
   };
 
+  const centerMapOnCourse = (courseSpots: Course["courseSpots"]) => {
+    if (webViewRef.current && courseSpots.length > 0) {
+      // 모든 스팟의 좌표를 전달하여 지도가 모든 스팟을 포함하도록 조정
+      webViewRef.current.postMessage(
+        JSON.stringify({
+          type: "fit_bounds_to_spots",
+          spots: courseSpots.map(spot => ({
+            latitude: spot.latitude,
+            longitude: spot.longitude,
+          })),
+        })
+      );
+    }
+  };
+
   const getCourseSpotColor = (index: number, total: number) => {
     const colors = ["green", "blue", "red", "orange", "purple"];
     return colors[index % colors.length];
@@ -136,13 +173,30 @@ export default function MapScreen() {
     setSelectedCourse(course);
     setShowCourseList(false);
 
-    // 코스의 첫 번째 스팟으로 지도 이동
-    if (course.courseSpots.length > 0) {
-      const firstSpot = course.courseSpots[0];
-      moveToLocation(firstSpot.latitude, firstSpot.longitude);
+    // 지도에 표시된 다른 마커들 제거
+    if (webViewRef.current) {
+      webViewRef.current.postMessage(
+        JSON.stringify({
+          type: "clear_all_markers",
+        })
+      );
+    }
 
-      // 코스 스팟들을 지도에 표시
-      showCourseSpotsOnMap(course.courseSpots);
+    // courseStore에서 상세 정보 가져오기
+    const { fetchCourseDetail } = useCourseStore.getState();
+    await fetchCourseDetail(course.courseId);
+    
+    // 상세 정보가 업데이트된 후 지도에 표시
+    const { detailedCourse } = useCourseStore.getState();
+    const courseToDisplay = detailedCourse || course;
+    
+    if (courseToDisplay.courseSpots.length > 0) {
+      // 약간의 지연을 두어 마커 제거 후 새로운 코스 표시
+      setTimeout(() => {
+        showCourseSpotsOnMap(courseToDisplay.courseSpots);
+        // 지도를 코스 전체가 보이도록 조정
+        centerMapOnCourse(courseToDisplay.courseSpots);
+      }, 100);
     }
   };
 
@@ -335,7 +389,7 @@ export default function MapScreen() {
                       </Text>
                     </View>
                     <TouchableOpacity
-                      onPress={() => {
+                      onPress={async () => {
                         setSelectedCourse(currentCourse);
                         setSelectedMarket(
                           markets.find(
@@ -344,14 +398,30 @@ export default function MapScreen() {
                         );
                         setShowMarketList(false);
 
-                        // 코스의 첫 번째 스팟으로 지도 이동
-                        if (currentCourse.courseSpots.length > 0) {
-                          const firstSpot = currentCourse.courseSpots[0];
-                          moveToLocation(
-                            firstSpot.latitude,
-                            firstSpot.longitude
+                        // 지도에 표시된 다른 마커들 제거
+                        if (webViewRef.current) {
+                          webViewRef.current.postMessage(
+                            JSON.stringify({
+                              type: "clear_all_markers",
+                            })
                           );
-                          showCourseSpotsOnMap(currentCourse.courseSpots);
+                        }
+
+                        // courseStore에서 상세 정보 가져오기
+                        const { fetchCourseDetail } = useCourseStore.getState();
+                        await fetchCourseDetail(currentCourse.courseId);
+                        
+                        // 상세 정보가 업데이트된 후 지도에 표시
+                        const { detailedCourse } = useCourseStore.getState();
+                        const courseToDisplay = detailedCourse || currentCourse;
+                        
+                        if (courseToDisplay.courseSpots.length > 0) {
+                          // 약간의 지연을 두어 마커 제거 후 새로운 코스 표시
+                          setTimeout(() => {
+                            showCourseSpotsOnMap(courseToDisplay.courseSpots);
+                            // 지도를 코스 전체가 보이도록 조정
+                            centerMapOnCourse(courseToDisplay.courseSpots);
+                          }, 100);
                         }
                       }}
                       className="px-4 py-3"
