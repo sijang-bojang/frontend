@@ -103,6 +103,11 @@ export default function TourPathScreen({
           position: "absolute",
           left: left,
           top: top,
+          shadowColor: "#000",
+          shadowOffset: { width: 0, height: 4 },
+          shadowOpacity: 0.3,
+          shadowRadius: 8,
+          elevation: 8,
         }}
         onPress={button.onPress}
       >
