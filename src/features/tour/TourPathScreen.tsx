@@ -7,6 +7,7 @@ import {
   ImageBackground,
   Alert,
   Animated,
+  ScrollView,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
@@ -220,82 +221,79 @@ export default function TourPathScreen({
 
   return (
     <View className="flex-1">
-      <ImageBackground
-        source={require("../../assets/images/course_background.jpg")}
-        style={{
-          width: screenWidth,
-          height: screenHeight * 0.85,
-        }}
-        resizeMode="cover"
+      {/* 고정 제목 */}
+      <View className="absolute top-0 left-0 right-0 z-10 px-4 py-4 mx-4">
+        <Text
+          className="text-2xl text-black text-left"
+          style={{
+            fontFamily: "ChosunCentennial",
+            textShadowColor: "white",
+            textShadowOffset: { width: 3, height: 3 },
+            textShadowRadius: 6,
+          }}
+        >
+          {detailedCourseData?.name || courseData.name}
+        </Text>
+      </View>
+
+      <ScrollView
+        className="flex-1"
+        showsVerticalScrollIndicator={false}
+        bounces={false}
+        contentContainerStyle={{ paddingBottom: 50 }}
       >
-        <SafeAreaView className="flex-1" edges={["left", "right"]}>
-          {/* 헤더 오버레이 */}
-          <View className="px-4 py-4 mx-4">
-            <Text
-              className="text-2xl text-black text-left"
-              style={{ fontFamily: "ChosunCentennial" }}
-            >
-              {detailedCourseData?.name || courseData.name}
-            </Text>
-          </View>
+        <ImageBackground
+          source={require("../../assets/images/course_background.jpg")}
+          style={{
+            width: screenWidth,
+            height: screenHeight * 0.85,
+          }}
+          resizeMode="cover"
+        >
+          <SafeAreaView className="flex-1" edges={["left", "right"]}>
+            {/* 아이콘 버튼들 */}
+            {currentIconButtons.map((button) => (
+              <IconButton
+                key={button.id}
+                id={button.id}
+                image={button.image}
+                leftRatio={button.leftRatio}
+                topRatio={button.topRatio}
+                label={button.label}
+                onPress={button.onPress}
+              />
+            ))}
+          </SafeAreaView>
+        </ImageBackground>
+      </ScrollView>
 
-          {/* 아이콘 버튼들 */}
-          {currentIconButtons.map((button) => (
-            <IconButton
-              key={button.id}
-              id={button.id}
-              image={button.image}
-              leftRatio={button.leftRatio}
-              topRatio={button.topRatio}
-              label={button.label}
-              onPress={button.onPress}
-            />
-          ))}
-
-          {/* 코스 그만두기 플로팅 버튼들 */}
-          <View className="absolute bottom-8 left-6">
-            {/* X 버튼 (위로 튀어나옴) */}
-            {isMenuOpen && (
-              <Animated.View
-                style={{
-                  transform: [
-                    {
-                      translateY: animation.interpolate({
-                        inputRange: [0, 1],
-                        outputRange: [20, -60],
-                      }),
-                    },
-                    {
-                      scale: animation.interpolate({
-                        inputRange: [0, 1],
-                        outputRange: [0.5, 1],
-                      }),
-                    },
-                  ],
-                  opacity: animation,
-                }}
-                className="mb-4"
-              >
-                <TouchableOpacity
-                  onPress={handleQuitCourse}
-                  className="bg-rose-400 rounded-full p-4 shadow-lg"
-                  style={{
-                    shadowColor: "#000",
-                    shadowOffset: { width: 0, height: 2 },
-                    shadowOpacity: 0.25,
-                    shadowRadius: 3.84,
-                    elevation: 5,
-                  }}
-                >
-                  <Ionicons name="close" size={24} color="white" />
-                </TouchableOpacity>
-              </Animated.View>
-            )}
-
-            {/* ... 버튼 (메인) */}
+      {/* 고정 플로팅 버튼들 */}
+      <View className="absolute bottom-8 left-6 z-10">
+        {/* X 버튼 (위로 튀어나옴) */}
+        {isMenuOpen && (
+          <Animated.View
+            style={{
+              transform: [
+                {
+                  translateY: animation.interpolate({
+                    inputRange: [0, 1],
+                    outputRange: [20, -60],
+                  }),
+                },
+                {
+                  scale: animation.interpolate({
+                    inputRange: [0, 1],
+                    outputRange: [0.5, 1],
+                  }),
+                },
+              ],
+              opacity: animation,
+            }}
+            className="mb-4"
+          >
             <TouchableOpacity
-              onPress={toggleMenu}
-              className="bg-gray-400 rounded-full p-4 shadow-lg"
+              onPress={handleQuitCourse}
+              className="bg-rose-400 rounded-full p-4 shadow-lg"
               style={{
                 shadowColor: "#000",
                 shadowOffset: { width: 0, height: 2 },
@@ -304,11 +302,26 @@ export default function TourPathScreen({
                 elevation: 5,
               }}
             >
-              <Ionicons name="ellipsis-horizontal" size={24} color="white" />
+              <Ionicons name="close" size={24} color="white" />
             </TouchableOpacity>
-          </View>
-        </SafeAreaView>
-      </ImageBackground>
+          </Animated.View>
+        )}
+
+        {/* ... 버튼 (메인) */}
+        <TouchableOpacity
+          onPress={toggleMenu}
+          className="bg-gray-400 rounded-full p-4 shadow-lg"
+          style={{
+            shadowColor: "#000",
+            shadowOffset: { width: 0, height: 2 },
+            shadowOpacity: 0.25,
+            shadowRadius: 3.84,
+            elevation: 5,
+          }}
+        >
+          <Ionicons name="ellipsis-horizontal" size={24} color="white" />
+        </TouchableOpacity>
+      </View>
 
       {/* Spot 정보 모달 */}
       <SpotInfoModal
