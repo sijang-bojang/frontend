@@ -7,6 +7,8 @@ export const API_CONFIG = {
   ENDPOINTS: {
     MARKETS: "api/markets",
     SPOTS_BY_MARKET: "/api/spots/market",
+    SPOTS: "/api/spots",
+    SPOT_MISSIONS: "/api/spots",
     COURSE_RECOMMEND: "/api/courses/recommend",
     COURSES_BY_MARKET: "/api/courses/market",
     COURSES: "/api/courses",

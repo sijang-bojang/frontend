@@ -60,6 +60,30 @@ export const fetchSpotsByMarket = async (marketId: number): Promise<Spot[]> => {
   }
 };
 
+// 스팟 상세 정보 가져오기 (미션 정보 포함)
+export const fetchSpotDetail = async (spotId: number) => {
+  try {
+    const response = await api.get(`${API_CONFIG.ENDPOINTS.SPOTS}/${spotId}`);
+    return response.data;
+  } catch (error) {
+    console.error("스팟 상세 정보 가져오기 실패:", error);
+    throw error;
+  }
+};
+
+// 스팟에 연결된 모든 미션 조회
+export const fetchSpotMissions = async (spotId: number) => {
+  try {
+    const response = await api.get(
+      `${API_CONFIG.ENDPOINTS.SPOT_MISSIONS}/${spotId}/missions`
+    );
+    return response.data;
+  } catch (error) {
+    console.error("스팟 미션 조회 실패:", error);
+    throw error;
+  }
+};
+
 // AI 코스 추천 API
 export interface CourseRecommendRequest {
   marketId: number;

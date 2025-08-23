@@ -16,6 +16,33 @@ export type Market = {
   fullRegion?: string;
 };
 
+// 스팟 상세 정보 타입 (미션 정보 포함)
+export type SpotDetail = {
+  spotId: number;
+  marketId: number;
+  marketName: string;
+  name: string;
+  category: string;
+  description: string;
+  imageUrl: string | null;
+  latitude: number;
+  longitude: number;
+  missionCount: number;
+  visitMissionTitles: string[];
+  courseNames: string[];
+};
+
+// 스팟 미션 정보 타입
+export type SpotMission = {
+  missionId: number;
+  title: string;
+  description: string;
+  missionType: "VISIT" | "PHOTO" | "REVIEW" | "PURCHASE";
+  rewardPoints: number;
+  spotId: number;
+  spotName: string;
+};
+
 // 필터 관련 타입들
 export type VehicleOption = "자차 보유" | "남의 차 보유" | "없음";
 export type CompanionOption = "혼자" | "연인이랑" | "친구랑" | "가족이랑";

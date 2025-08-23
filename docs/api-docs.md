@@ -556,6 +556,60 @@
 }
 ```
 
+### 5.2.1 스팟 정보 조회 (미션 정보 포함) ⭐
+
+- **Method**: `GET`
+- **URL**: `/api/spots/{spotId}`
+- **Description**: 스팟의 기본 정보와 함께 연결된 미션 정보를 포함하여 조회
+- **Response**:
+
+```json
+{
+  "spotId": 1,
+  "marketId": 1,
+  "marketName": "대전 중앙 시장",
+  "name": "개천식당",
+  "category": "식당",
+  "description": "자극적이지 않고 담백한 맛이 일품인 이북식 손만두 전문점입니다. '생활의 달인'에도 소개된 숨은 맛집으로, 슴슴한 만두국이 별미입니다.",
+  "imageUrl": null,
+  "latitude": 36.3287,
+  "longitude": 127.4316,
+  "missionCount": 1,
+  "visitMissionTitles": ["생활의 달인 만두국 인증"],
+  "courseNames": ["중앙시장 맛집 탐방 코스"]
+}
+```
+
+### 5.2.2 스팟에 연결된 모든 미션 조회 ⭐
+
+- **Method**: `GET`
+- **URL**: `/api/spots/{spotId}/missions`
+- **Description**: 특정 스팟에 연결된 모든 미션의 상세 정보를 조회
+- **Response**:
+
+```json
+[
+  {
+    "missionId": 1,
+    "title": "생활의 달인 만두국 인증",
+    "description": "개천식당의 만두국을 먹고 인증 사진을 찍어주세요",
+    "missionType": "PHOTO",
+    "rewardPoints": 100,
+    "spotId": 1,
+    "spotName": "개천식당"
+  },
+  {
+    "missionId": 2,
+    "title": "맛집 리뷰 작성",
+    "description": "개천식당의 음식에 대한 솔직한 리뷰를 작성해주세요",
+    "missionType": "REVIEW",
+    "rewardPoints": 50,
+    "spotId": 1,
+    "spotName": "개천식당"
+  }
+]
+```
+
 ### 5.3 시장별 스팟 조회
 
 - **Method**: `GET`
@@ -1001,6 +1055,23 @@ const response = await fetch(
   }
 );
 const completedMission = await response.json();
+```
+
+### 4. 스팟 미션 정보 조회 ⭐
+
+```javascript
+// 스팟의 미션 정보를 조회할 때
+const response = await fetch("http://3.34.186.143:5000/api/spots/1");
+const spotDetail = await response.json();
+
+// 스팟에 연결된 모든 미션 조회
+const missionsResponse = await fetch(
+  "http://3.34.186.143:5000/api/spots/1/missions"
+);
+const spotMissions = await missionsResponse.json();
+
+console.log("스팟 정보:", spotDetail);
+console.log("연결된 미션들:", spotMissions);
 ```
 
 ---

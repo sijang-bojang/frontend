@@ -17,6 +17,16 @@ export interface SpotInfo {
   description: string;
   category: string;
   address?: string;
+  // 미션 정보 추가
+  missionCount?: number;
+  visitMissionTitles?: string[];
+  missions?: Array<{
+    missionId: number;
+    title: string;
+    description: string;
+    missionType: "VISIT" | "PHOTO" | "REVIEW" | "PURCHASE";
+    rewardPoints: number;
+  }>;
 }
 
 interface SpotInfoModalProps {
@@ -95,21 +105,90 @@ export default function SpotInfoModal({
               </Text>
             </View>
 
-            {/* 주소 */}
-            {spotInfo.address && (
+            {/* 미션 정보 */}
+            {spotInfo.missionCount && spotInfo.missionCount > 0 && (
               <View className="mb-4">
                 <Text
-                  className="text-sm text-gray-500 mb-1"
+                  className="text-sm text-gray-500 mb-2"
                   style={{ fontFamily: "ChosunCentennial" }}
                 >
-                  주소
+                  미션 ({spotInfo.missionCount}개)
                 </Text>
-                <Text
-                  className="text-gray-800"
-                  style={{ fontFamily: "ChosunCentennial" }}
-                >
-                  {spotInfo.address}
-                </Text>
+
+                {/* 방문 미션 제목들 */}
+                {spotInfo.visitMissionTitles &&
+                  spotInfo.visitMissionTitles.length > 0 && (
+                    <View className="mb-3">
+                      <Text
+                        className="text-sm text-gray-600 mb-2"
+                        style={{ fontFamily: "ChosunCentennial" }}
+                      >
+                        방문 미션
+                      </Text>
+                      {spotInfo.visitMissionTitles.map((title, index) => (
+                        <View
+                          key={index}
+                          className="bg-green-100 px-3 py-2 rounded-lg mb-2"
+                        >
+                          <Text
+                            className="text-green-800 font-medium"
+                            style={{ fontFamily: "ChosunCentennial" }}
+                          >
+                            {title}
+                          </Text>
+                        </View>
+                      ))}
+                    </View>
+                  )}
+
+                {/* 상세 미션 정보 */}
+                {spotInfo.missions && spotInfo.missions.length > 0 && (
+                  <View>
+                    <Text
+                      className="text-sm text-gray-600 mb-2"
+                      style={{ fontFamily: "ChosunCentennial" }}
+                    >
+                      상세 미션
+                    </Text>
+                    {spotInfo.missions.map((mission, index) => (
+                      <View
+                        key={index}
+                        className="bg-purple-100 px-3 py-2 rounded-lg mb-2"
+                      >
+                        <View className="flex-row justify-between items-center mb-1">
+                          <Text
+                            className="text-purple-800 font-medium"
+                            style={{ fontFamily: "ChosunCentennial" }}
+                          >
+                            {mission.title}
+                          </Text>
+                          <View className="bg-purple-200 px-2 py-1 rounded-full">
+                            <Text
+                              className="text-purple-800 text-xs"
+                              style={{ fontFamily: "ChosunCentennial" }}
+                            >
+                              {mission.rewardPoints}P
+                            </Text>
+                          </View>
+                        </View>
+                        <Text
+                          className="text-purple-700 text-sm"
+                          style={{ fontFamily: "ChosunCentennial" }}
+                        >
+                          {mission.description}
+                        </Text>
+                        <View className="mt-1">
+                          <Text
+                            className="text-purple-600 text-xs"
+                            style={{ fontFamily: "ChosunCentennial" }}
+                          >
+                            타입: {mission.missionType}
+                          </Text>
+                        </View>
+                      </View>
+                    ))}
+                  </View>
+                )}
               </View>
             )}
           </ScrollView>

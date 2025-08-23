@@ -11,8 +11,8 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
-import { Market } from "./types";
-import { Course } from "../../shared/api";
+import { Market, SpotDetail, SpotMission } from "./types";
+import { Course, fetchSpotDetail, fetchSpotMissions } from "../../shared/api";
 import IconButton from "./components/IconButton";
 import SpotInfoModal, { SpotInfo } from "./components/SpotInfoModal";
 import { useCourseStore } from "../../shared/stores/courseStore";
@@ -141,7 +141,7 @@ export default function TourPathScreen({
   }, [detailedCourseData]);
 
   // spot 버튼 핸들러
-  const handleSpotPress = (spotId: string) => {
+  const handleSpotPress = async (spotId: string) => {
     if (!detailedCourseData?.courseSpots) {
       return;
     }
@@ -153,17 +153,38 @@ export default function TourPathScreen({
     const courseSpot = detailedCourseData.courseSpots[spotIndex];
 
     if (courseSpot) {
-      // API 데이터를 SpotInfo 형식으로 변환
-      const spotInfo: SpotInfo = {
-        id: courseSpot.spotId.toString(),
-        name: courseSpot.spotName,
-        description: courseSpot.description,
-        category: courseSpot.category,
-        address: `${detailedCourseData.marketName} 내부`,
-      };
+      try {
+        // 스팟 상세 정보와 미션 정보를 병렬로 가져오기
+        const [spotDetail, spotMissions] = await Promise.all([
+          fetchSpotDetail(courseSpot.spotId),
+          fetchSpotMissions(courseSpot.spotId),
+        ]);
 
-      setSelectedSpotInfo(spotInfo);
-      setIsSpotModalVisible(true);
+        // API 데이터를 SpotInfo 형식으로 변환
+        const spotInfo: SpotInfo = {
+          id: courseSpot.spotId.toString(),
+          name: courseSpot.spotName,
+          description: courseSpot.description,
+          category: courseSpot.category,
+          address: `${detailedCourseData.marketName} 내부`,
+          // 미션 정보 추가
+          missionCount: spotDetail.missionCount,
+          visitMissionTitles: spotDetail.visitMissionTitles,
+          missions: spotMissions.map((mission: SpotMission) => ({
+            missionId: mission.missionId,
+            title: mission.title,
+            description: mission.description,
+            missionType: mission.missionType,
+            rewardPoints: mission.rewardPoints,
+          })),
+        };
+
+        setSelectedSpotInfo(spotInfo);
+        setIsSpotModalVisible(true);
+      } catch (error) {
+        console.error("스팟 정보 조회 실패:", error);
+        Alert.alert("오류", "스팟 정보를 불러오는데 실패했습니다.");
+      }
     }
   };
 
