@@ -10,6 +10,11 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { useUserStore } from "../../shared/stores/userStore";
+import {
+  getLevelByExp,
+  getLevelProgress,
+  getExpToNextLevel,
+} from "../../shared/constants/levels";
 
 export default function ProfileScreen() {
   const { currentUser, isLoading, error, loginAsUser } = useUserStore();
@@ -96,49 +101,74 @@ export default function ProfileScreen() {
       <ScrollView className="flex-1">
         {/* 사용자 프로필 */}
         <View className="px-6 py-6">
-          <View className="flex-row items-center">
-            <View className="w-16 h-16 bg-purple-100 rounded-full items-center justify-center mr-4">
-              <Ionicons name="person" size={32} color="#6B7280" />
+          <View className="flex-row items-start">
+            {/* 프로필 아이콘 - 크게 */}
+            <View className="w-20 h-20 bg-gray-100 rounded-full items-center justify-center mr-4">
+              <Ionicons name="person" size={40} color="#6B7280" />
             </View>
+
+            {/* 사용자 정보 - 오른쪽 영역 */}
             <View className="flex-1">
-              <Text className="text-lg font-bold text-gray-900 mb-1">
+              {/* 이름과 계급 */}
+              <Text className="text-xl font-bold text-gray-900 mb-2">
                 {currentUser.username}
               </Text>
-              <View className="bg-gray-100 rounded-full px-3 py-1 self-start">
-                <Text className="text-sm text-gray-600">
-                  Lv.{currentUser.level}
-                </Text>
+              <View className="flex-row items-center mb-4">
+                <View className="bg-purple-100 rounded-full px-4 py-2 mr-4">
+                  <Text className="text-sm text-purple-700 font-medium">
+                    {getLevelByExp(currentUser.exp).name}
+                  </Text>
+                </View>
+
+                {/* XP 아이콘과 경험치 바 */}
+                <View className="flex-row items-center flex-1">
+                  <View className="flex-1">
+                    <View className="flex-row items-center justify-between mb-1">
+                      <Text className="text-xs text-gray-600">
+                        {currentUser.exp.toLocaleString()}
+                      </Text>
+                      <Text className="text-xs text-gray-500">
+                        {getLevelProgress(currentUser.exp)}%
+                      </Text>
+                    </View>
+                    <View className="w-full h-1.5 bg-gray-200 rounded-full overflow-hidden">
+                      <View
+                        className="h-full bg-green-500 rounded-full"
+                        style={{
+                          width: `${getLevelProgress(currentUser.exp)}%`,
+                        }}
+                      />
+                    </View>
+                  </View>
+                  <View className="w-6 h-6 bg-green-500 rounded-full items-center justify-center ml-2">
+                    <Text className="text-white font-bold text-xs">XP</Text>
+                  </View>
+                </View>
               </View>
             </View>
           </View>
         </View>
 
-        {/* 포인트 섹션 */}
+        {/* 포인트 박스 */}
         <View className="px-6 mb-6">
-          <TouchableOpacity className="bg-white rounded-lg border border-gray-200 p-4 flex-row items-center">
-            <View className="w-10 h-10 bg-blue-500 rounded-full items-center justify-center mr-3">
-              <Text className="text-white font-bold text-lg">P</Text>
+          <View className="bg-gradient-to-r from-blue-50 to-blue-100 rounded-xl border border-blue-200 p-6">
+            <View className="flex-row items-center justify-between">
+              <View>
+                <Text className="text-lg font-semibold text-gray-900 mb-1">
+                  포인트
+                </Text>
+                <Text className="text-sm text-gray-600">
+                  지금까지 모은 포인트
+                </Text>
+              </View>
+              <View className="items-end">
+                <Text className="text-3xl font-bold text-blue-600">
+                  {currentUser.rewardPoints.toLocaleString()}
+                </Text>
+                <Text className="text-lg text-blue-500 font-semibold">P</Text>
+              </View>
             </View>
-            <Text className="flex-1 text-gray-900">지금까지 모은 포인트</Text>
-            <Text className="text-blue-500 font-semibold mr-2">
-              {currentUser.rewardPoints.toLocaleString()}P
-            </Text>
-            <Ionicons name="chevron-forward" size={20} color="#9CA3AF" />
-          </TouchableOpacity>
-        </View>
-
-        {/* 경험치 섹션 */}
-        <View className="px-6 mb-6">
-          <TouchableOpacity className="bg-white rounded-lg border border-gray-200 p-4 flex-row items-center">
-            <View className="w-10 h-10 bg-green-500 rounded-full items-center justify-center mr-3">
-              <Text className="text-white font-bold text-lg">XP</Text>
-            </View>
-            <Text className="flex-1 text-gray-900">현재 경험치</Text>
-            <Text className="text-green-500 font-semibold mr-2">
-              {currentUser.exp.toLocaleString()} XP
-            </Text>
-            <Ionicons name="chevron-forward" size={20} color="#9CA3AF" />
-          </TouchableOpacity>
+          </View>
         </View>
 
         {/* 찜한 시장/가게 */}

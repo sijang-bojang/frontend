@@ -179,7 +179,9 @@ export const fetchCourseDetail = async (courseId: number): Promise<Course> => {
 // 모든 사용자 조회
 export const fetchUsers = async (): Promise<User[]> => {
   try {
-    const response = await api.get<UserApiResponse[]>(API_CONFIG.ENDPOINTS.USERS);
+    const response = await api.get<UserApiResponse[]>(
+      API_CONFIG.ENDPOINTS.USERS
+    );
     return response.data.map(transformUserApiResponse);
   } catch (error) {
     console.error("사용자 목록 가져오기 실패:", error);
@@ -191,7 +193,7 @@ export const fetchUsers = async (): Promise<User[]> => {
 const transformUserApiResponse = (apiResponse: UserApiResponse): User => {
   // level은 exp를 기반으로 계산 (예: exp / 100 + 1)
   const level = Math.floor(apiResponse.exp / 100) + 1;
-  
+
   return {
     userId: apiResponse.userId,
     username: apiResponse.username,
@@ -246,7 +248,10 @@ export const createUser = async (
   userData: CreateUserRequest
 ): Promise<User> => {
   try {
-    const response = await api.post<UserApiResponse>(API_CONFIG.ENDPOINTS.USERS, userData);
+    const response = await api.post<UserApiResponse>(
+      API_CONFIG.ENDPOINTS.USERS,
+      userData
+    );
     return transformUserApiResponse(response.data);
   } catch (error) {
     console.error("사용자 생성 실패:", error);
