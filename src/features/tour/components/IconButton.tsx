@@ -18,6 +18,7 @@ interface IconButtonProps {
   size?: number;
   label?: string;
   onPress: () => void;
+  disabled?: boolean;
 }
 
 export default function IconButton({
@@ -28,10 +29,13 @@ export default function IconButton({
   size = 120,
   label,
   onPress,
+  disabled = false,
 }: IconButtonProps) {
   const [animation] = useState(new Animated.Value(1));
 
   const handlePress = () => {
+    if (disabled) return;
+
     Animated.sequence([
       Animated.timing(animation, {
         toValue: 0.8,
@@ -65,31 +69,39 @@ export default function IconButton({
         top,
         transform: [{ scale: animation }],
         alignItems: "center",
+        opacity: disabled ? 0.5 : 1,
       }}
     >
       <TouchableOpacity
         style={{
           shadowColor: "#000",
           shadowOffset: { width: 0, height: 4 },
-          shadowOpacity: 0.3,
+          shadowOpacity: disabled ? 0.1 : 0.3,
           shadowRadius: 8,
-          elevation: 8,
+          elevation: disabled ? 2 : 8,
         }}
-        activeOpacity={1.0}
+        activeOpacity={disabled ? 1.0 : 0.8}
         onPress={handlePress}
+        disabled={disabled}
       >
         <Image
           source={image}
-          style={{ width: size, height: size }}
+          style={{
+            width: size,
+            height: size,
+            opacity: disabled ? 0.7 : 1,
+          }}
           resizeMode="contain"
         />
       </TouchableOpacity>
 
       {/* 라벨 텍스트 */}
       {label && (
-        <View className="-mt-6 px-2 py-1 bg-black/70 rounded-lg">
+        <View
+          className={`-mt-6 px-2 py-1 rounded-lg ${disabled ? "bg-gray-500/70" : "bg-black/70"}`}
+        >
           <Text
-            className="text-white text-xm text-center"
+            className={`text-center ${disabled ? "text-gray-300" : "text-white"}`}
             style={{ fontFamily: "ChosunCentennial" }}
           >
             {label}

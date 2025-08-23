@@ -16,6 +16,18 @@ import { Course, fetchSpotDetail, fetchSpotMissions } from "../../shared/api";
 import IconButton from "./components/IconButton";
 import SpotInfoModal, { SpotInfo } from "./components/SpotInfoModal";
 import { useCourseStore } from "../../shared/stores/courseStore";
+
+// API 응답 구조에 맞는 타입 정의
+interface ApiMissionResponse {
+  id: number;
+  missionId: number;
+  missionTitle: string;
+  missionType: "VISIT" | "PHOTO" | "REVIEW" | "PURCHASE";
+  rewardPoints: number;
+  spotId: number;
+  spotName: string;
+}
+
 const { width: screenWidth, height: screenHeight } = Dimensions.get("window");
 
 interface TourPathScreenProps {
@@ -35,6 +47,7 @@ export default function TourPathScreen({
     null
   );
   const [isSpotModalVisible, setIsSpotModalVisible] = useState(false);
+  const [isSpotLoading, setIsSpotLoading] = useState(false);
 
   // Course store 사용
   const {
@@ -154,11 +167,19 @@ export default function TourPathScreen({
 
     if (courseSpot) {
       try {
+        setIsSpotLoading(true);
+
         // 스팟 상세 정보와 미션 정보를 병렬로 가져오기
         const [spotDetail, spotMissions] = await Promise.all([
           fetchSpotDetail(courseSpot.spotId),
           fetchSpotMissions(courseSpot.spotId),
         ]);
+
+        // /api/spots/{id}/missions 응답만 로그로 출력
+        console.log(
+          `/api/spots/${courseSpot.spotId}/missions 응답:`,
+          spotMissions
+        );
 
         // API 데이터를 SpotInfo 형식으로 변환
         const spotInfo: SpotInfo = {
@@ -167,15 +188,23 @@ export default function TourPathScreen({
           description: courseSpot.description,
           category: courseSpot.category,
           address: `${detailedCourseData.marketName} 내부`,
-          // 미션 정보 추가
-          missionCount: spotDetail.missionCount,
-          visitMissionTitles: spotDetail.visitMissionTitles,
-          missions: spotMissions.map((mission: SpotMission) => ({
+          // 미션 정보 추가 - API 응답 구조에 맞게 수정
+          missionCount: spotMissions.length,
+          visitMissionTitles: spotMissions
+            .filter(
+              (mission: ApiMissionResponse) => mission.missionType === "VISIT"
+            )
+            .map((mission: ApiMissionResponse) => mission.missionTitle),
+          missions: spotMissions.map((mission: ApiMissionResponse) => ({
+            id: mission.id,
             missionId: mission.missionId,
-            title: mission.title,
-            description: mission.description,
+            missionTitle: mission.missionTitle,
             missionType: mission.missionType,
             rewardPoints: mission.rewardPoints,
+            spotId: mission.spotId,
+            spotName: mission.spotName,
+            description:
+              (mission as any).description || "미션 설명이 준비 중입니다.", // 나중에 API에 추가될 예정
           })),
         };
 
@@ -183,9 +212,27 @@ export default function TourPathScreen({
         setIsSpotModalVisible(true);
       } catch (error) {
         console.error("스팟 정보 조회 실패:", error);
-        Alert.alert("오류", "스팟 정보를 불러오는데 실패했습니다.");
+        Alert.alert(
+          "스팟 정보 조회 실패",
+          "스팟의 미션 정보를 불러오는데 실패했습니다.\n잠시 후 다시 시도해주세요."
+        );
+      } finally {
+        setIsSpotLoading(false);
       }
     }
+  };
+
+  // 도전하기 버튼 핸들러
+  const handleChallenge = () => {
+    console.log("도전하기 버튼 클릭됨!");
+    console.log("선택된 스팟:", selectedSpotInfo?.name);
+    console.log("미션 정보:", selectedSpotInfo?.missions);
+
+    // TODO: 실제 미션 도전 로직 구현
+    Alert.alert(
+      "미션 도전",
+      "미션 도전이 시작되었습니다!\n(현재는 로그만 출력됩니다)"
+    );
   };
 
   const toggleMenu = () => {
@@ -277,6 +324,7 @@ export default function TourPathScreen({
                 topRatio={button.topRatio}
                 label={button.label}
                 onPress={button.onPress}
+                disabled={isSpotLoading && button.id.startsWith("spot_")}
               />
             ))}
           </SafeAreaView>
@@ -347,7 +395,23 @@ export default function TourPathScreen({
           setIsSpotModalVisible(false);
           setSelectedSpotInfo(null);
         }}
+        onChallenge={handleChallenge}
       />
+
+      {/* 로딩 오버레이 */}
+      {isSpotLoading && (
+        <View className="absolute inset-0 bg-black/30 justify-center items-center z-50">
+          <View className="bg-white rounded-2xl p-6 items-center">
+            <View className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mb-3" />
+            <Text
+              className="text-gray-700 text-center"
+              style={{ fontFamily: "ChosunCentennial" }}
+            >
+              스팟 정보를 불러오는 중...
+            </Text>
+          </View>
+        </View>
+      )}
     </View>
   );
 }

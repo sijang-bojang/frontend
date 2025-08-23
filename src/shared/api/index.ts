@@ -66,7 +66,7 @@ export const fetchSpotDetail = async (spotId: number) => {
     const response = await api.get(`${API_CONFIG.ENDPOINTS.SPOTS}/${spotId}`);
     return response.data;
   } catch (error) {
-    console.error("스팟 상세 정보 가져오기 실패:", error);
+    console.error(`스팟 상세 정보 가져오기 실패 (ID: ${spotId}):`, error);
     throw error;
   }
 };
@@ -79,7 +79,7 @@ export const fetchSpotMissions = async (spotId: number) => {
     );
     return response.data;
   } catch (error) {
-    console.error("스팟 미션 조회 실패:", error);
+    console.error(`스팟 미션 조회 실패 (ID: ${spotId}):`, error);
     throw error;
   }
 };
