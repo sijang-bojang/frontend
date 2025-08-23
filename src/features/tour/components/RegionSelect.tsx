@@ -76,38 +76,43 @@ const RegionSelect: React.FC<RegionSelectProps> = ({
           <TouchableOpacity
             activeOpacity={0.7}
             onPress={onBack}
-            className="mr-2"
+            className="mr-3"
           >
-            <Ionicons name="chevron-back" size={22} color="#111827" />
+            <Ionicons name="chevron-back" size={24} color="#111827" />
           </TouchableOpacity>
-          <Text className="text-xl font-semibold text-gray-900">시장</Text>
+          <View className="flex-1">
+            <Text className="text-xl font-semibold text-gray-900">
+              시장 찾기
+            </Text>
+            <Text className="text-sm text-gray-500 mt-1">
+              원하는 시장을 선택해주세요
+            </Text>
+          </View>
         </View>
         <View className="flex-row items-center mt-4">
-          <View className="flex-1 bg-gray-50 rounded-full px-4 py-3 border border-gray-200">
+          <View className="flex-1 bg-gray-50 rounded-full px-4 py-3 border border-gray-200 flex-row items-center min-h-[48px]">
+            <Ionicons
+              name="search-outline"
+              size={18}
+              color="#9CA3AF"
+              className="mr-3"
+            />
             <TextInput
               value={keyword}
               onChangeText={setKeyword}
               placeholder="시장 이름을 입력해주세요."
               placeholderTextColor="#9CA3AF"
-              className="text-sm text-gray-800"
+              className="text-sm text-gray-800 flex-1"
             />
-          </View>
-          <View className="ml-3 flex-row items-center">
             {keyword.length > 0 && (
               <TouchableOpacity
-                className="w-9 h-9 rounded-full items-center justify-center mr-1"
+                className="w-6 h-6 rounded-full items-center justify-center"
                 activeOpacity={0.7}
                 onPress={() => setKeyword("")}
               >
-                <Ionicons name="close" size={18} color="#9CA3AF" />
+                <Ionicons name="close" size={16} color="#9CA3AF" />
               </TouchableOpacity>
             )}
-            <TouchableOpacity
-              className="w-9 h-9 rounded-full items-center justify-center"
-              activeOpacity={0.7}
-            >
-              <Ionicons name="search-outline" size={18} color="#9CA3AF" />
-            </TouchableOpacity>
           </View>
         </View>
       </View>
