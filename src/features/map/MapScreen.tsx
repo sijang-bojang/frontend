@@ -248,25 +248,65 @@ export default function MapScreen() {
         <TouchableOpacity
           onPress={() => setShowMarketList(!showMarketList)}
           activeOpacity={1}
-          className="bg-white rounded-full shadow-lg border border-gray-200 px-4 py-3 flex-row items-center"
+          className={`rounded-full shadow-lg border px-4 py-3 flex-row items-center ${
+            selectedCourse
+              ? selectedCourse.courseId === currentCourse?.courseId
+                ? "bg-green-50 border-green-200" // 진행중인 코스 선택 시
+                : "bg-blue-50 border-blue-200" // 다른 코스 선택 시
+              : "bg-white border-gray-200" // 기본 상태
+          }`}
         >
-          <Ionicons name="location" size={20} color="#6B7280" />
-          <Text className="flex-1 ml-3 text-gray-900 text-base">
+          <Ionicons
+            name="location"
+            size={20}
+            color={
+              selectedCourse
+                ? selectedCourse.courseId === currentCourse?.courseId
+                  ? "#059669" // 진행중인 코스
+                  : "#2563EB" // 다른 코스
+                : "#6B7280" // 기본 상태
+            }
+          />
+          <Text
+            className={`flex-1 ml-3 text-base font-medium ${
+              selectedCourse
+                ? selectedCourse.courseId === currentCourse?.courseId
+                  ? "text-green-900" // 진행중인 코스
+                  : "text-blue-900" // 다른 코스
+                : "text-gray-900" // 기본 상태
+            }`}
+          >
             {selectedCourse
               ? selectedCourse.name
               : selectedMarket
                 ? selectedMarket.name
                 : "시장을 선택하세요"}
           </Text>
-          {currentCourse && !selectedCourse && (
-            <View className="bg-green-100 px-2 py-1 rounded-full mr-2">
-              <Text className="text-green-700 text-xs font-medium">진행중</Text>
+          {currentCourse && selectedCourse && (
+            <View
+              className={`px-2 py-1 rounded-full mr-2 ${
+                selectedCourse.courseId === currentCourse.courseId
+                  ? "bg-green-500" // 진행중인 코스
+                  : "bg-blue-500" // 다른 코스
+              }`}
+            >
+              <Text className="text-white text-xs font-medium">
+                {selectedCourse.courseId === currentCourse.courseId
+                  ? "진행중"
+                  : "선택됨"}
+              </Text>
             </View>
           )}
           <Ionicons
             name={showMarketList ? "chevron-up" : "chevron-down"}
             size={20}
-            color="#6B7280"
+            color={
+              selectedCourse
+                ? selectedCourse.courseId === currentCourse?.courseId
+                  ? "#059669" // 진행중인 코스
+                  : "#2563EB" // 다른 코스
+                : "#6B7280" // 기본 상태
+            }
           />
         </TouchableOpacity>
 
