@@ -418,7 +418,7 @@ export default function TourPathScreen({
                 {
                   translateY: animation.interpolate({
                     inputRange: [0, 1],
-                    outputRange: [20, -60],
+                    outputRange: [20, -40],
                   }),
                 },
                 {
@@ -430,7 +430,7 @@ export default function TourPathScreen({
               ],
               opacity: animation,
             }}
-            className="mb-4"
+            className="mb-2"
           >
             <TouchableOpacity
               onPress={handleQuitCourse}
