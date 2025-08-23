@@ -38,13 +38,10 @@ export default function TourScreen() {
 
   const handleStartTour = async (filters: TourFilters) => {
     if (!selectedMarket) {
-      console.log("선택된 시장이 없습니다.");
       return;
     }
 
     try {
-      console.log("🚀 AI 코스 추천 요청:", selectedMarket.marketId);
-
       const requestBody = {
         marketId: selectedMarket.marketId,
         marketName: selectedMarket.name,
@@ -56,22 +53,14 @@ export default function TourScreen() {
         ],
       };
 
-      console.log("📤 요청 Body:", JSON.stringify(requestBody, null, 2));
-
       const course = await recommendCourse(requestBody);
 
-      console.log("✅ AI 코스 추천 응답:", JSON.stringify(course, null, 2));
-
       if (course) {
-        console.log("📋 추천된 코스:", course.courseName);
-
         setCourseData(course);
         setShowTourCompleteModal(true); // 모달 표시
-      } else {
-        console.log("❌ 코스 추천을 받을 수 없습니다.");
       }
     } catch (error) {
-      console.error("❌ AI 코스 추천 실패:", error);
+      // 에러 처리 (로그 없이)
     }
   };
 

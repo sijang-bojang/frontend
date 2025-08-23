@@ -86,7 +86,6 @@ export default function MapScreen() {
       const { status } = await Location.requestForegroundPermissionsAsync();
 
       if (status !== "granted") {
-        console.log("위치 권한이 거부되었습니다. 기본 위치를 사용합니다.");
         setLocationLoading(false);
         return;
       }
@@ -99,7 +98,6 @@ export default function MapScreen() {
       });
 
       const { latitude, longitude } = location.coords;
-      console.log("사용자 위치 가져오기 성공:", { latitude, longitude });
 
       setUserLocation({ latitude, longitude });
 
@@ -116,7 +114,6 @@ export default function MapScreen() {
         }, 500); // WebView 로딩 완료 후 실행
       }
     } catch (error) {
-      console.error("사용자 위치 가져오기 실패:", error);
       Alert.alert(
         "위치 정보 오류",
         "현재 위치를 가져올 수 없습니다. 기본 위치를 사용합니다."
@@ -183,14 +180,10 @@ export default function MapScreen() {
   // spotToShow 파라미터가 있을 때 해당 스팟을 지도에 표시
   useEffect(() => {
     if (spotToShow && webViewRef.current) {
-      console.log("🚀 지도에서 보기 시작:", spotToShow.name);
-
       // WebView가 로드될 때까지 기다린 후 실행 (빠른 반응)
       const executeSpotShow = () => {
         // 진행중인 코스가 있다면 3단계로 처리
         if (currentCourse) {
-          console.log("1️⃣ 1단계: 코스 선택 및 시장 설정");
-
           // 진행중인 코스의 시장 찾기
           const courseMarket = markets.find(
             (market) => market.marketId === currentCourse.marketId
@@ -199,37 +192,26 @@ export default function MapScreen() {
           if (courseMarket) {
             // 선택된 시장을 진행중인 코스의 시장으로 변경
             setSelectedMarket(courseMarket);
-            console.log("✅ 시장 설정 완료:", courseMarket.name);
 
             // 진행중인 코스 선택
             setSelectedCourse(currentCourse);
-            console.log("✅ 코스 선택 완료:", currentCourse.name);
 
             // 2단계: 코스 상세 정보 가져오기 및 스팟 시각화
             const fetchAndDisplayCourse = async () => {
               try {
-                console.log("2️⃣ 2단계: 코스 스팟 시각화 시작");
-
                 const { fetchCourseDetail } = useCourseStore.getState();
                 await fetchCourseDetail(currentCourse.courseId);
-                console.log("✅ 코스 상세 정보 로드 완료");
 
                 // 상세 정보가 업데이트된 후 지도에 표시
                 const { detailedCourse } = useCourseStore.getState();
                 const courseToDisplay = detailedCourse || currentCourse;
 
                 if (courseToDisplay.courseSpots.length > 0) {
-                  console.log(
-                    `✅ ${courseToDisplay.courseSpots.length}개 스팟 시각화 완료`
-                  );
-
                   // 코스 스팟들을 지도에 표시
                   showCourseSpotsOnMap(courseToDisplay.courseSpots);
 
                   // 3단계: 해당 스팟 위치로 이동 (즉시 실행)
                   setTimeout(() => {
-                    console.log("3️⃣ 3단계: 선택된 스팟 위치로 이동");
-
                     webViewRef.current?.postMessage(
                       JSON.stringify({
                         type: "show_spot_on_map",
@@ -240,26 +222,20 @@ export default function MapScreen() {
                         },
                       })
                     );
-                    console.log("✅ 스팟 위치 이동 완료:", spotToShow.name);
                   }, 100); // 즉시 실행 (0.1초로 단축)
                 } else {
-                  console.warn("⚠️ 코스 스팟이 없습니다");
+                  // 에러 처리 (로그 없이)
                 }
               } catch (error) {
-                console.error("❌ 코스 스팟 시각화 실패:", error);
+                // 에러 처리 (로그 없이)
               }
             };
 
             fetchAndDisplayCourse();
           } else {
-            console.error(
-              "❌ 코스 시장을 찾을 수 없습니다:",
-              currentCourse.marketId
-            );
+            // 에러 처리 (로그 없이)
           }
         } else {
-          console.log("⚠️ 진행중인 코스가 없어 단순 위치 이동만 실행");
-
           // 진행중인 코스가 없다면 단순히 해당 위치로만 이동
           setTimeout(() => {
             webViewRef.current?.postMessage(
@@ -300,12 +276,6 @@ export default function MapScreen() {
   };
 
   const showCourseSpotsOnMap = (courseSpots: Course["courseSpots"]) => {
-    console.log(
-      "🎯 showCourseSpotsOnMap 호출됨:",
-      courseSpots.length,
-      "개 스팟"
-    );
-
     if (webViewRef.current) {
       // 코스 스팟들을 Spot 형태로 변환
       const spotsForMap = courseSpots.map((courseSpot, index) => ({
@@ -319,19 +289,12 @@ export default function MapScreen() {
         color: getCourseSpotColor(index),
       }));
 
-      console.log("🎯 변환된 스팟 데이터:", spotsForMap);
-
       const message = {
         type: "show_course_spots",
         spots: spotsForMap,
       };
 
-      console.log("🎯 WebView로 전송할 메시지:", message);
-
       webViewRef.current.postMessage(JSON.stringify(message));
-      console.log("✅ WebView 메시지 전송 완료");
-    } else {
-      console.error("❌ webViewRef.current가 null입니다");
     }
   };
 
@@ -383,7 +346,7 @@ export default function MapScreen() {
       const coursesData = await fetchCoursesByMarket(marketId);
       setCourses(coursesData);
     } catch (error) {
-      console.error("코스 데이터 로드 실패:", error);
+      // 에러 처리 (로그 없이)
     } finally {
       setCoursesLoading(false);
     }
@@ -408,7 +371,7 @@ export default function MapScreen() {
         );
       }
     } catch (error) {
-      console.error("스팟 데이터 로드 실패:", error);
+      // 에러 처리 (로그 없이)
     } finally {
       setSpotsLoading(false);
     }
@@ -454,28 +417,21 @@ export default function MapScreen() {
 
   // 코스 스팟 클릭 핸들러
   const handleCourseSpotClick = (courseSpot: Course["courseSpots"][0]) => {
-    console.log("handleCourseSpotClick 호출됨:", courseSpot);
     const spotData = convertCourseSpotToSpot(courseSpot);
-    console.log("변환된 spotData:", spotData);
     setSelectedSpot(spotData);
     setShowSpotModal(true);
-    console.log("모달 상태 설정 완료 - showSpotModal: true");
   };
 
   // WebView 메시지 핸들러 업데이트
   const handleWebViewMessage = async (event: any) => {
     try {
       const data = JSON.parse(event.nativeEvent.data);
-      console.log("📨 WebView 메시지 수신:", data.type);
 
       if (data.type === "spot_clicked") {
-        console.log("스팟 클릭됨:", data.spot);
-
         // spotId로 API 호출하여 상세 정보 가져오기
         try {
           setSpotDetailLoading(true);
           const spotDetail = await fetchSpotDetail(data.spot.spotId);
-          console.log("API에서 가져온 스팟 상세 정보:", spotDetail);
 
           // 진행중인 코스인지 확인
           const isCourseSpot = data.spot.stepNumber !== undefined;
@@ -495,7 +451,6 @@ export default function MapScreen() {
 
           setShowSpotModal(true);
         } catch (error) {
-          console.error("스팟 상세 정보 가져오기 실패:", error);
           // API 실패 시 WebView 데이터 사용
           const fallbackSpotData = {
             spotId: data.spot.spotId,
@@ -517,12 +472,12 @@ export default function MapScreen() {
           setSpotDetailLoading(false);
         }
       } else if (data.type === "show_course_spots_response") {
-        console.log("✅ WebView에서 코스 스팟 표시 완료 응답:", data);
+        // 응답 처리
       } else if (data.type === "error") {
-        console.error("❌ WebView 에러:", data.message);
+        // 에러 처리
       }
     } catch (error) {
-      console.error("WebView 메시지 파싱 오류:", error);
+      // 에러 처리 (로그 없이)
     }
   };
 
@@ -534,7 +489,6 @@ export default function MapScreen() {
   // 진행중인 코스 스팟 방문 완료 처리
   const handleSpotVisitComplete = () => {
     // TODO: 스팟 방문 완료 로직 구현
-    console.log("스팟 방문 완료:", selectedSpot?.name);
     // 여기에 스팟 방문 완료 처리 로직을 추가할 수 있습니다
   };
 
@@ -542,12 +496,6 @@ export default function MapScreen() {
   const handleNavigateToSpot = () => {
     if (selectedSpot) {
       // TODO: 길찾기 앱 실행 로직 구현
-      console.log(
-        "길찾기:",
-        selectedSpot.name,
-        selectedSpot.latitude,
-        selectedSpot.longitude
-      );
       // 여기에 길찾기 앱 실행 로직을 추가할 수 있습니다
     }
   };
