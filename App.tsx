@@ -53,10 +53,9 @@ export default function App() {
                 } else if (route.name === "Mission") {
                   iconName = focused ? "warning" : "warning-outline";
                 } else if (route.name === "Tour") {
-                  // 투어 탭은 Entypo flag 아이콘 사용
                   return <Entypo name="flag" size={size} color={color} />;
                 } else if (route.name === "Map") {
-                  iconName = focused ? "location" : "location-outline";
+                  iconName = focused ? "map" : "map-outline";
                 } else if (route.name === "Profile") {
                   iconName = focused ? "person" : "person-outline";
                 } else {
@@ -104,11 +103,11 @@ export default function App() {
               }}
             />
             <Tab.Screen
-              name="Mission"
-              component={MissionScreen}
+              name="Map"
+              component={MapScreen}
               options={{
-                title: "미션",
-                tabBarLabel: "미션",
+                title: "지도",
+                tabBarLabel: "지도",
               }}
             />
             <Tab.Screen
@@ -120,11 +119,11 @@ export default function App() {
               }}
             />
             <Tab.Screen
-              name="Map"
-              component={MapScreen}
+              name="Mission"
+              component={MissionScreen}
               options={{
-                title: "지도",
-                tabBarLabel: "지도",
+                title: "미션",
+                tabBarLabel: "미션",
               }}
             />
             <Tab.Screen
