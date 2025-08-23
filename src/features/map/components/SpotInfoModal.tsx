@@ -112,21 +112,12 @@ export default function SpotInfoModal({
       onRequestClose={onClose}
       statusBarTranslucent={true}
     >
-      <StatusBar backgroundColor="rgba(0,0,0,0.5)" barStyle="light-content" />
-
-      {/* 배경 오버레이 */}
-      <Animated.View style={overlayStyle} className="flex-1 bg-black/50">
-        <TouchableOpacity
-          className="flex-1"
-          activeOpacity={1}
-          onPress={handleBackdropPress}
-        />
-      </Animated.View>
+      <StatusBar backgroundColor="transparent" barStyle="dark-content" />
 
       {/* 모달 컨텐츠 */}
       <Animated.View
         style={modalStyle}
-        className="absolute bottom-0 left-0 right-0 bg-white rounded-t-3xl max-h-[90%]"
+        className="absolute bottom-0 left-0 right-0 bg-white rounded-t-3xl max-h-[90%] shadow-2xl"
       >
         {/* 드래그 핸들 */}
         <PanGestureHandler onGestureEvent={gestureHandler}>
