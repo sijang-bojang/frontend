@@ -280,12 +280,13 @@ export const FILTER_OPTIONS = {
   ] as VehicleOption[],
   companion: [
     "혼자",
-    "연인이랑",
-    "친구랑",
-    "가족이랑",
+    "연인",
+    "친구",
+    "가족",
+    "반려동물",
     "기타",
   ] as CompanionOption[],
-  season: ["여름", "봄", "겨울", "가을", "기타"] as SeasonOption[],
+  season: ["봄", "여름", "겨울", "가을", "기타"] as SeasonOption[],
   duration: [
     "1시간",
     "2시간",
