@@ -1,14 +1,25 @@
-import React from "react";
-import { View, Text, ScrollView, TouchableOpacity, Image } from "react-native";
+import React, { useEffect } from "react";
+import {
+  View,
+  Text,
+  ScrollView,
+  TouchableOpacity,
+  Image,
+  ActivityIndicator,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
+import { useUserStore } from "../../shared/stores/userStore";
 
 export default function ProfileScreen() {
-  const userData = {
-    nickname: "명란바게트진짜맛있다님",
-    level: "대전 초보 Lv.3",
-    points: "2,003P",
-  };
+  const { currentUser, isLoading, error, loginAsUser } = useUserStore();
+
+  // 컴포넌트 마운트 시 사용자 ID 1번으로 로그인 (테스트용)
+  useEffect(() => {
+    if (!currentUser) {
+      loginAsUser(1);
+    }
+  }, [currentUser, loginAsUser]);
 
   const completedTours = [
     {
@@ -23,19 +34,66 @@ export default function ProfileScreen() {
     },
   ];
 
+  // 로딩 중일 때
+  if (isLoading) {
+    return (
+      <SafeAreaView
+        className="flex-1 bg-white"
+        edges={["top", "left", "right"]}
+      >
+        <View className="flex-1 items-center justify-center">
+          <ActivityIndicator size="large" color="#3B82F6" />
+          <Text className="text-gray-600 mt-4">
+            사용자 정보를 불러오는 중...
+          </Text>
+        </View>
+      </SafeAreaView>
+    );
+  }
+
+  // 에러가 있을 때
+  if (error) {
+    return (
+      <SafeAreaView
+        className="flex-1 bg-white"
+        edges={["top", "left", "right"]}
+      >
+        <View className="flex-1 items-center justify-center px-6">
+          <Ionicons name="alert-circle" size={64} color="#EF4444" />
+          <Text className="text-red-500 text-lg font-semibold mt-4 mb-2">
+            오류가 발생했습니다
+          </Text>
+          <Text className="text-gray-600 text-center mb-4">{error}</Text>
+          <TouchableOpacity
+            className="bg-blue-500 px-6 py-3 rounded-lg"
+            onPress={() => loginAsUser(1)}
+          >
+            <Text className="text-white font-semibold">다시 시도</Text>
+          </TouchableOpacity>
+        </View>
+      </SafeAreaView>
+    );
+  }
+
+  // 사용자 정보가 없을 때
+  if (!currentUser) {
+    return (
+      <SafeAreaView
+        className="flex-1 bg-white"
+        edges={["top", "left", "right"]}
+      >
+        <View className="flex-1 items-center justify-center">
+          <Text className="text-gray-600">
+            사용자 정보를 불러올 수 없습니다.
+          </Text>
+        </View>
+      </SafeAreaView>
+    );
+  }
+
   return (
     <SafeAreaView className="flex-1 bg-white" edges={["top", "left", "right"]}>
       <ScrollView className="flex-1">
-        {/* 헤더 */}
-        <View className="px-6 py-4 border-b border-gray-100">
-          <View className="flex-row items-center">
-            <TouchableOpacity className="mr-3">
-              <Ionicons name="chevron-back" size={24} color="#111827" />
-            </TouchableOpacity>
-            <Text className="text-xl font-bold text-gray-900">마이페이지</Text>
-          </View>
-        </View>
-
         {/* 사용자 프로필 */}
         <View className="px-6 py-6">
           <View className="flex-row items-center">
@@ -44,10 +102,12 @@ export default function ProfileScreen() {
             </View>
             <View className="flex-1">
               <Text className="text-lg font-bold text-gray-900 mb-1">
-                {userData.nickname}
+                {currentUser.username}
               </Text>
               <View className="bg-gray-100 rounded-full px-3 py-1 self-start">
-                <Text className="text-sm text-gray-600">{userData.level}</Text>
+                <Text className="text-sm text-gray-600">
+                  Lv.{currentUser.level}
+                </Text>
               </View>
             </View>
           </View>
@@ -61,7 +121,21 @@ export default function ProfileScreen() {
             </View>
             <Text className="flex-1 text-gray-900">지금까지 모은 포인트</Text>
             <Text className="text-blue-500 font-semibold mr-2">
-              {userData.points}
+              {currentUser.rewardPoints.toLocaleString()}P
+            </Text>
+            <Ionicons name="chevron-forward" size={20} color="#9CA3AF" />
+          </TouchableOpacity>
+        </View>
+
+        {/* 경험치 섹션 */}
+        <View className="px-6 mb-6">
+          <TouchableOpacity className="bg-white rounded-lg border border-gray-200 p-4 flex-row items-center">
+            <View className="w-10 h-10 bg-green-500 rounded-full items-center justify-center mr-3">
+              <Text className="text-white font-bold text-lg">XP</Text>
+            </View>
+            <Text className="flex-1 text-gray-900">현재 경험치</Text>
+            <Text className="text-green-500 font-semibold mr-2">
+              {currentUser.exp.toLocaleString()} XP
             </Text>
             <Ionicons name="chevron-forward" size={20} color="#9CA3AF" />
           </TouchableOpacity>

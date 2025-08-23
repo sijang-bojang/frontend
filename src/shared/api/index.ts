@@ -1,6 +1,13 @@
 import axios from "axios";
 import { Market } from "../../features/tour/types";
 import { Spot } from "../types/market";
+import {
+  User,
+  CreateUserRequest,
+  UpdateUserRequest,
+  UpdateUserRewardRequest,
+  UpdateUserExpRequest,
+} from "../types/user";
 import { API_CONFIG } from "../constants/api";
 
 // API 기본 설정
@@ -162,6 +169,130 @@ export const fetchCourseDetail = async (courseId: number): Promise<Course> => {
     return response.data;
   } catch (error) {
     console.error("코스 상세 정보 가져오기 실패:", error);
+    throw error;
+  }
+};
+
+// 사용자 관련 API 함수들
+
+// 모든 사용자 조회
+export const fetchUsers = async (): Promise<User[]> => {
+  try {
+    const response = await api.get<User[]>(API_CONFIG.ENDPOINTS.USERS);
+    return response.data;
+  } catch (error) {
+    console.error("사용자 목록 가져오기 실패:", error);
+    throw error;
+  }
+};
+
+// 특정 사용자 조회
+export const fetchUserById = async (userId: number): Promise<User> => {
+  try {
+    const response = await api.get<User>(
+      `${API_CONFIG.ENDPOINTS.USER_BY_ID}/${userId}`
+    );
+    return response.data;
+  } catch (error) {
+    console.error(`사용자 정보 가져오기 실패 (ID: ${userId}):`, error);
+    throw error;
+  }
+};
+
+// 사용자명으로 사용자 조회
+export const fetchUserByUsername = async (username: string): Promise<User> => {
+  try {
+    const response = await api.get<User>(
+      `${API_CONFIG.ENDPOINTS.USER_BY_USERNAME}/${username}`
+    );
+    return response.data;
+  } catch (error) {
+    console.error(`사용자명으로 사용자 조회 실패 (${username}):`, error);
+    throw error;
+  }
+};
+
+// 이메일로 사용자 조회
+export const fetchUserByEmail = async (email: string): Promise<User> => {
+  try {
+    const response = await api.get<User>(
+      `${API_CONFIG.ENDPOINTS.USER_BY_EMAIL}/${email}`
+    );
+    return response.data;
+  } catch (error) {
+    console.error(`이메일로 사용자 조회 실패 (${email}):`, error);
+    throw error;
+  }
+};
+
+// 사용자 생성
+export const createUser = async (
+  userData: CreateUserRequest
+): Promise<User> => {
+  try {
+    const response = await api.post<User>(API_CONFIG.ENDPOINTS.USERS, userData);
+    return response.data;
+  } catch (error) {
+    console.error("사용자 생성 실패:", error);
+    throw error;
+  }
+};
+
+// 사용자 정보 수정
+export const updateUser = async (
+  userId: number,
+  userData: UpdateUserRequest
+): Promise<User> => {
+  try {
+    const response = await api.put<User>(
+      `${API_CONFIG.ENDPOINTS.USER_BY_ID}/${userId}`,
+      userData
+    );
+    return response.data;
+  } catch (error) {
+    console.error(`사용자 정보 수정 실패 (ID: ${userId}):`, error);
+    throw error;
+  }
+};
+
+// 사용자 보상 포인트 업데이트
+export const updateUserReward = async (
+  userId: number,
+  rewardData: UpdateUserRewardRequest
+): Promise<User> => {
+  try {
+    const response = await api.put<User>(
+      `${API_CONFIG.ENDPOINTS.USER_REWARD}/${userId}/reward?rewardPoints=${rewardData.rewardPoints}`
+    );
+    return response.data;
+  } catch (error) {
+    console.error(`사용자 보상 포인트 업데이트 실패 (ID: ${userId}):`, error);
+    throw error;
+  }
+};
+
+// 사용자 경험치 업데이트
+export const updateUserExp = async (
+  userId: number,
+  expData: UpdateUserExpRequest
+): Promise<User> => {
+  try {
+    const response = await api.put<User>(
+      `${API_CONFIG.ENDPOINTS.USER_EXP}/${userId}/exp?exp=${expData.exp}`
+    );
+    return response.data;
+  } catch (error) {
+    console.error(`사용자 경험치 업데이트 실패 (ID: ${userId}):`, error);
+    throw error;
+  }
+};
+
+// 사용자 삭제
+export const deleteUser = async (userId: number): Promise<void> => {
+  try {
+    await api.delete(`${API_CONFIG.ENDPOINTS.USER_BY_ID}/${userId}`);
+  } catch (error) {
+    console.error(`사용자 삭제 실패 (ID: ${userId}):`, error);
     throw error;
   }
 };
