@@ -11,7 +11,7 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
-import { Market, SpotDetail, SpotMission } from "./types";
+import { Market } from "./types";
 import { Course, fetchSpotDetail, fetchSpotMissions } from "../../shared/api";
 import IconButton from "./components/IconButton";
 import SpotInfoModal, { SpotInfo } from "./components/SpotInfoModal";
@@ -38,9 +38,7 @@ interface TourPathScreenProps {
 }
 
 export default function TourPathScreen({
-  selectedMarket,
   courseData,
-  onBack,
   onReset,
 }: TourPathScreenProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -66,7 +64,7 @@ export default function TourPathScreen({
     setCurrentCourse(courseData);
 
     // 코스 상세 정보 가져오기 (store에서 중복 호출 방지)
-    fetchCourseDetail(courseData.courseId.toString());
+    fetchCourseDetail(courseData.courseId);
   }, [courseData.courseId, setCurrentCourse, fetchCourseDetail]);
 
   // API 데이터를 사용한 실제 아이콘 버튼 생성
@@ -172,42 +170,37 @@ export default function TourPathScreen({
       try {
         setIsSpotLoading(true);
 
-        // 스팟 상세 정보와 미션 정보를 병렬로 가져오기
-        const [spotDetail, spotMissions] = await Promise.all([
-          fetchSpotDetail(courseSpot.spotId),
-          fetchSpotMissions(courseSpot.spotId),
-        ]);
+        // 스팟 미션 정보만 가져오기 (새로운 API 구조 사용)
+        const spotMissions = await fetchSpotMissions(courseSpot.spotId);
 
-        // /api/spots/{id}/missions 응답만 로그로 출력
+        // API 응답 로그 출력
         console.log(
           `/api/spots/${courseSpot.spotId}/missions 응답:`,
           spotMissions
         );
 
-        // API 데이터를 SpotInfo 형식으로 변환
+        // 새로운 API 구조에 맞게 SpotInfo 형식으로 변환
         const spotInfo: SpotInfo = {
           id: courseSpot.spotId.toString(),
           name: courseSpot.spotName,
           description: courseSpot.description,
           category: courseSpot.category,
           address: `${detailedCourseData.marketName} 내부`,
-          // 미션 정보 추가 - API 응답 구조에 맞게 수정
           missionCount: spotMissions.length,
           visitMissionTitles: spotMissions
-            .filter(
-              (mission: ApiMissionResponse) => mission.missionType === "VISIT"
-            )
-            .map((mission: ApiMissionResponse) => mission.missionTitle),
-          missions: spotMissions.map((mission: ApiMissionResponse) => ({
-            id: mission.id,
+            .filter((mission: any) => mission.missionType === "VISIT")
+            .map((mission: any) => mission.title),
+          missions: spotMissions.map((mission: any) => ({
+            id: mission.missionId,
             missionId: mission.missionId,
-            missionTitle: mission.missionTitle,
+            missionTitle: mission.title,
             missionType: mission.missionType,
             rewardPoints: mission.rewardPoints,
-            spotId: mission.spotId,
-            spotName: mission.spotName,
-            description:
-              (mission as any).description || "미션 설명이 준비 중입니다.", // 나중에 API에 추가될 예정
+            spotId: courseSpot.spotId,
+            spotName: mission.spotNames && mission.spotNames.length > 0 
+              ? mission.spotNames[0] 
+              : courseSpot.spotName,
+            description: mission.description || "미션 설명이 준비 중입니다.",
           })),
         };
 

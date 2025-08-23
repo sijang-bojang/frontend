@@ -69,7 +69,7 @@ export default function SpotInfoModal({
           <View className="flex-row items-center justify-between p-3 border-b border-gray-200">
             <View className="flex-row items-center">
               <Text
-                className="pl-2 pt-2 text-xl font-bold text-orange-800"
+                className="pl-1 pt-1 text-xl font-bold text-orange-800"
                 style={{ fontFamily: "ChosunCentennial" }}
               >
                 {spotInfo.missions && spotInfo.missions.length > 0
@@ -80,7 +80,7 @@ export default function SpotInfoModal({
           </View>
 
           {/* 내용 */}
-          <View className="p-4">
+          <View className="p-4 pb-0">
             {/* 미션 정보 */}
             {spotInfo.missions && spotInfo.missions.length > 0 ? (
               spotInfo.missions.map((mission, index) => (
