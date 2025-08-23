@@ -146,8 +146,6 @@ export default function TourPathScreen({
   const currentIconButtons = useMemo(() => {
     if (!detailedCourseData?.courseSpots) return [];
 
-    console.log("코스의 spot 개수:", detailedCourseData.courseSpots.length);
-
     // mission 버튼들 (고정)
     const missionButtons = [
       {
@@ -156,7 +154,7 @@ export default function TourPathScreen({
         leftRatio: 0.25,
         topRatio: 0.38,
         label: "",
-        onPress: () => console.log("미션 버튼 클릭"),
+        onPress: () => {},
       },
       {
         id: "mission_1",
@@ -164,7 +162,7 @@ export default function TourPathScreen({
         leftRatio: 0.7,
         topRatio: 0.5,
         label: "",
-        onPress: () => console.log("미션 버튼 클릭"),
+        onPress: () => {},
       },
       {
         id: "mission_2",
@@ -172,7 +170,7 @@ export default function TourPathScreen({
         leftRatio: 0.05,
         topRatio: 0.07,
         label: "",
-        onPress: () => console.log("미션 버튼 클릭"),
+        onPress: () => {},
       },
     ];
 
@@ -243,17 +241,8 @@ export default function TourPathScreen({
 
     if (courseSpot) {
       try {
-        // 로딩 상태 없이 바로 모달 표시
-        // setIsSpotLoading(true); // 로딩 상태 제거
-
         // 스팟 미션 정보만 가져오기 (새로운 API 구조 사용)
         const spotMissions = await fetchSpotMissions(courseSpot.spotId);
-
-        // API 응답 로그 출력
-        console.log(
-          `/api/spots/${courseSpot.spotId}/missions 응답:`,
-          spotMissions
-        );
 
         // 새로운 API 구조에 맞게 SpotInfo 형식으로 변환
         const spotInfo: MissionInfo = {
@@ -284,22 +273,16 @@ export default function TourPathScreen({
         setSelectedSpotInfo(spotInfo);
         setIsSpotModalVisible(true);
       } catch (error) {
-        console.error("스팟 정보 조회 실패:", error);
         Alert.alert(
           "스팟 정보 조회 실패",
           "스팟의 미션 정보를 불러오는데 실패했습니다.\n잠시 후 다시 시도해주세요."
         );
       }
-      // finally 블록 제거 (로딩 상태 설정하지 않음)
     }
   };
 
   // 도전하기 버튼 핸들러
   const handleChallenge = () => {
-    console.log("도전하기 버튼 클릭됨!");
-    console.log("선택된 스팟:", selectedSpotInfo?.name);
-    console.log("미션 정보:", selectedSpotInfo?.missions);
-
     // TODO: 실제 미션 도전 로직 구현
     Alert.alert(
       "미션 도전",
