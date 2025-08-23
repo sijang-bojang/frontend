@@ -42,6 +42,54 @@ export const KAKAO_MAP_HTML = (lat: number, lng: number) => `
         
         // 스팟 마커들을 저장할 배열
         window.spotMarkers = [];
+        // 코스 스팟 마커들을 저장할 배열
+        window.courseSpotMarkers = [];
+        
+        // 코스 스팟 색상 정의
+        var courseSpotColors = {
+          green: '#10B981',
+          blue: '#3B82F6',
+          red: '#EF4444',
+          orange: '#F59E0B',
+          purple: '#8B5CF6'
+        };
+        
+        // 코스 스팟 마커 표시 함수
+        window.showCourseSpots = function(spots) {
+          // 기존 코스 스팟 마커들 제거
+          if (window.courseSpotMarkers) {
+            window.courseSpotMarkers.forEach(function(marker) {
+              marker.setMap(null);
+            });
+          }
+          window.courseSpotMarkers = [];
+          
+          // 새로운 코스 스팟 마커들 추가
+          spots.forEach(function(spot, index) {
+            var marker = new kakao.maps.Marker({
+              position: new kakao.maps.LatLng(spot.latitude, spot.longitude),
+              map: map
+            });
+            
+            // 코스 스팟용 커스텀 마커 이미지 (단계 번호 포함)
+            var markerImage = new kakao.maps.MarkerImage(
+              'data:image/svg+xml;base64,' + btoa('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="' + (courseSpotColors[spot.color] || '#10B981') + '" stroke="#fff" stroke-width="2"/><text x="12" y="16" text-anchor="middle" fill="white" font-size="12" font-weight="bold">' + (spot.stepNumber || (index + 1)) + '</text></svg>'),
+              new kakao.maps.Size(24, 24)
+            );
+            marker.setImage(markerImage);
+            
+            // 마커 클릭 이벤트
+            kakao.maps.event.addListener(marker, 'click', function() {
+              // 코스 스팟 정보를 React Native로 전송
+              window.ReactNativeWebView.postMessage(JSON.stringify({
+                type: 'spot_clicked',
+                spot: spot
+              }));
+            });
+            
+            window.courseSpotMarkers.push(marker);
+          });
+        };
         
         // 스팟 마커 표시 함수
         window.showSpots = function(spots) {
@@ -149,6 +197,8 @@ export const KAKAO_MAP_HTML = (lat: number, lng: number) => `
               window.moveToLocation(data.lat, data.lng);
             } else if (data.type === 'show_spots') {
               window.showSpots(data.spots);
+            } else if (data.type === 'show_course_spots') {
+              window.showCourseSpots(data.spots);
             }
           } catch (error) {
             console.error('메시지 파싱 오류:', error);

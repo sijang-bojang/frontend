@@ -29,12 +29,21 @@ interface SpotInfoModalProps {
   visible: boolean;
   spot: Spot | null;
   onClose: () => void;
+  isCourseSpot?: boolean;
+  courseInfo?: {
+    courseName: string;
+    stepNumber: number;
+    totalSteps: number;
+    courseType: string[];
+  };
 }
 
 export default function SpotInfoModal({
   visible,
   spot,
   onClose,
+  isCourseSpot = false,
+  courseInfo,
 }: SpotInfoModalProps) {
   const translateY = useSharedValue(screenHeight);
   const opacity = useSharedValue(0);
@@ -121,7 +130,9 @@ export default function SpotInfoModal({
 
         {/* 헤더 */}
         <View className="flex-row items-center justify-between px-6 pb-4 border-b border-gray-100">
-          <Text className="text-xl font-bold text-gray-900">스팟 정보</Text>
+          <Text className="text-xl font-bold text-gray-900">
+            {isCourseSpot ? "코스 스팟 정보" : "스팟 정보"}
+          </Text>
           <TouchableOpacity
             onPress={onClose}
             className="p-2 rounded-full bg-gray-100"
@@ -134,6 +145,46 @@ export default function SpotInfoModal({
           className="flex-1 px-6 pt-4"
           showsVerticalScrollIndicator={false}
         >
+          {/* 코스 정보 헤더 - 코스 스팟인 경우에만 표시 */}
+          {isCourseSpot && courseInfo && (
+            <View className="mb-6 p-4 bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl border border-blue-100">
+              <View className="flex-row items-center justify-between mb-3">
+                <Text className="text-lg font-bold text-blue-900">
+                  {courseInfo.courseName}
+                </Text>
+                <View className="bg-blue-500 px-3 py-1 rounded-full">
+                  <Text className="text-white text-sm font-bold">
+                    {courseInfo.stepNumber} / {courseInfo.totalSteps}
+                  </Text>
+                </View>
+              </View>
+
+              {/* 코스 타입 태그들 */}
+              <View className="flex-row flex-wrap">
+                {courseInfo.courseType.map((type, index) => (
+                  <View
+                    key={index}
+                    className="bg-blue-100 px-3 py-1 rounded-full mr-2 mb-2"
+                  >
+                    <Text className="text-blue-700 text-xs font-medium">
+                      {type}
+                    </Text>
+                  </View>
+                ))}
+              </View>
+
+              {/* 진행률 바 */}
+              <View className="mt-3 bg-blue-200 rounded-full h-2">
+                <View
+                  className="bg-blue-500 h-2 rounded-full"
+                  style={{
+                    width: `${(courseInfo.stepNumber / courseInfo.totalSteps) * 100}%`,
+                  }}
+                />
+              </View>
+            </View>
+          )}
+
           {/* 스팟 이미지 */}
           {spot.imageUrl && (
             <View className="mb-6">
@@ -198,6 +249,22 @@ export default function SpotInfoModal({
                   </Text>
                 </View>
               ))}
+            </View>
+          )}
+
+          {/* 코스 스팟 추가 정보 */}
+          {isCourseSpot && (
+            <View className="mb-6 p-4 bg-yellow-50 rounded-xl border border-yellow-200">
+              <View className="flex-row items-center mb-2">
+                <Ionicons name="information-circle" size={20} color="#D97706" />
+                <Text className="ml-2 text-yellow-800 font-semibold">
+                  코스 진행 팁
+                </Text>
+              </View>
+              <Text className="text-yellow-800 text-sm leading-5">
+                이 스팟을 방문하여 미션을 완료하면 다음 단계로 진행할 수
+                있습니다. 코스를 완주하면 특별한 보상을 받을 수 있어요!
+              </Text>
             </View>
           )}
         </ScrollView>
