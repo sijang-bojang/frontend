@@ -30,6 +30,17 @@ export default function TourPathScreen({
 }: TourPathScreenProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [animation] = useState(new Animated.Value(0));
+  const [buttonAnimations] = useState(() =>
+    new Map()
+      .set("mission_0", new Animated.Value(1))
+      .set("mission_1", new Animated.Value(1))
+      .set("mission_2", new Animated.Value(1))
+      .set("spot_0", new Animated.Value(1))
+      .set("spot_1", new Animated.Value(1))
+      .set("spot_2", new Animated.Value(1))
+      .set("spot_3", new Animated.Value(1))
+      .set("spot_4", new Animated.Value(1))
+  );
 
   // 아이콘 버튼 설정 배열
   const iconButtons = [
@@ -38,56 +49,240 @@ export default function TourPathScreen({
       image: require("../../assets/images/course/mission.png"),
       leftRatio: 0.25,
       topRatio: 0.38,
-      onPress: () => console.log("미션 버튼 클릭"),
+      onPress: () => {
+        const anim = buttonAnimations.get("mission_0");
+        if (anim) {
+          Animated.sequence([
+            Animated.timing(anim, {
+              toValue: 0.8,
+              duration: 100,
+              useNativeDriver: true,
+            }),
+            Animated.spring(anim, {
+              toValue: 1.1,
+              friction: 3,
+              tension: 40,
+              useNativeDriver: true,
+            }),
+            Animated.timing(anim, {
+              toValue: 1,
+              duration: 100,
+              useNativeDriver: true,
+            }),
+          ]).start();
+        }
+        console.log("미션 버튼 클릭");
+      },
     },
     {
       id: "mission_1",
       image: require("../../assets/images/course/mission.png"),
       leftRatio: 0.7,
       topRatio: 0.5,
-      onPress: () => console.log("미션 버튼 클릭"),
+      onPress: () => {
+        const anim = buttonAnimations.get("mission_1");
+        if (anim) {
+          Animated.sequence([
+            Animated.timing(anim, {
+              toValue: 0.8,
+              duration: 100,
+              useNativeDriver: true,
+            }),
+            Animated.spring(anim, {
+              toValue: 1.1,
+              friction: 3,
+              tension: 40,
+              useNativeDriver: true,
+            }),
+            Animated.timing(anim, {
+              toValue: 1,
+              duration: 100,
+              useNativeDriver: true,
+            }),
+          ]).start();
+        }
+        console.log("미션 버튼 클릭");
+      },
     },
     {
       id: "mission_2",
       image: require("../../assets/images/course/mission.png"),
       leftRatio: 0.05,
       topRatio: 0.07,
-      onPress: () => console.log("미션 버튼 클릭"),
+      onPress: () => {
+        const anim = buttonAnimations.get("mission_2");
+        if (anim) {
+          Animated.sequence([
+            Animated.timing(anim, {
+              toValue: 0.8,
+              duration: 100,
+              useNativeDriver: true,
+            }),
+            Animated.spring(anim, {
+              toValue: 1.1,
+              friction: 3,
+              tension: 40,
+              useNativeDriver: true,
+            }),
+            Animated.timing(anim, {
+              toValue: 1,
+              duration: 100,
+              useNativeDriver: true,
+            }),
+          ]).start();
+        }
+        console.log("미션 버튼 클릭");
+      },
     },
     {
       id: "spot_0",
       image: require("../../assets/images/course/spot.png"),
       leftRatio: 0.69,
       topRatio: 0.02,
-      onPress: () => console.log("스팟 버튼 클릭"),
+      onPress: () => {
+        const anim = buttonAnimations.get("spot_0");
+        if (anim) {
+          Animated.sequence([
+            Animated.timing(anim, {
+              toValue: 0.8,
+              duration: 100,
+              useNativeDriver: true,
+            }),
+            Animated.spring(anim, {
+              toValue: 1.1,
+              friction: 3,
+              tension: 40,
+              useNativeDriver: true,
+            }),
+            Animated.timing(anim, {
+              toValue: 1,
+              duration: 100,
+              useNativeDriver: true,
+            }),
+          ]).start();
+        }
+        console.log("스팟 버튼 클릭");
+      },
     },
     {
       id: "spot_1",
       image: require("../../assets/images/course/spot.png"),
       leftRatio: 0.35,
       topRatio: 0.18,
-      onPress: () => console.log("스팟 버튼 클릭"),
+      onPress: () => {
+        const anim = buttonAnimations.get("spot_1");
+        if (anim) {
+          Animated.sequence([
+            Animated.timing(anim, {
+              toValue: 0.8,
+              duration: 100,
+              useNativeDriver: true,
+            }),
+            Animated.spring(anim, {
+              toValue: 1.1,
+              friction: 3,
+              tension: 40,
+              useNativeDriver: true,
+            }),
+            Animated.timing(anim, {
+              toValue: 1,
+              duration: 100,
+              useNativeDriver: true,
+            }),
+          ]).start();
+        }
+        console.log("스팟 버튼 클릭");
+      },
     },
     {
       id: "spot_2",
       image: require("../../assets/images/course/spot.png"),
       leftRatio: 0.58,
       topRatio: 0.33,
-      onPress: () => console.log("스팟 버튼 클릭"),
+      onPress: () => {
+        const anim = buttonAnimations.get("spot_2");
+        if (anim) {
+          Animated.sequence([
+            Animated.timing(anim, {
+              toValue: 0.8,
+              duration: 100,
+              useNativeDriver: true,
+            }),
+            Animated.spring(anim, {
+              toValue: 1.1,
+              friction: 3,
+              tension: 40,
+              useNativeDriver: true,
+            }),
+            Animated.timing(anim, {
+              toValue: 1,
+              duration: 100,
+              useNativeDriver: true,
+            }),
+          ]).start();
+        }
+        console.log("스팟 버튼 클릭");
+      },
     },
     {
       id: "spot_3",
       image: require("../../assets/images/course/spot.png"),
       leftRatio: 0.22,
       topRatio: 0.58,
-      onPress: () => console.log("스팟 버튼 클릭"),
+      onPress: () => {
+        const anim = buttonAnimations.get("spot_3");
+        if (anim) {
+          Animated.sequence([
+            Animated.timing(anim, {
+              toValue: 0.8,
+              duration: 100,
+              useNativeDriver: true,
+            }),
+            Animated.spring(anim, {
+              toValue: 1.1,
+              friction: 3,
+              tension: 40,
+              useNativeDriver: true,
+            }),
+            Animated.timing(anim, {
+              toValue: 1,
+              duration: 100,
+              useNativeDriver: true,
+            }),
+          ]).start();
+        }
+        console.log("스팟 버튼 클릭");
+      },
     },
     {
       id: "spot_4",
       image: require("../../assets/images/course/spot.png"),
       leftRatio: 0.67,
       topRatio: 0.72,
-      onPress: () => console.log("스팟 버튼 클릭"),
+      onPress: () => {
+        const anim = buttonAnimations.get("spot_4");
+        if (anim) {
+          Animated.sequence([
+            Animated.timing(anim, {
+              toValue: 0.8,
+              duration: 100,
+              useNativeDriver: true,
+            }),
+            Animated.spring(anim, {
+              toValue: 1.1,
+              friction: 3,
+              tension: 40,
+              useNativeDriver: true,
+            }),
+            Animated.timing(anim, {
+              toValue: 1,
+              duration: 100,
+              useNativeDriver: true,
+            }),
+          ]).start();
+        }
+        console.log("스팟 버튼 클릭");
+      },
     },
   ];
 
@@ -95,28 +290,35 @@ export default function TourPathScreen({
   const renderIconButton = (button: any) => {
     const left = screenWidth * button.leftRatio;
     const top = screenHeight * button.topRatio;
+    const anim = buttonAnimations.get(button.id);
 
     return (
-      <TouchableOpacity
+      <Animated.View
         key={button.id}
         style={{
           position: "absolute",
           left: left,
           top: top,
-          shadowColor: "#000",
-          shadowOffset: { width: 0, height: 4 },
-          shadowOpacity: 0.3,
-          shadowRadius: 8,
-          elevation: 8,
+          transform: [{ scale: anim || 1 }],
         }}
-        onPress={button.onPress}
       >
-        <Image
-          source={button.image}
-          style={{ width: 120, height: 120 }}
-          resizeMode="contain"
-        />
-      </TouchableOpacity>
+        <TouchableOpacity
+          style={{
+            shadowColor: "#000",
+            shadowOffset: { width: 0, height: 4 },
+            shadowOpacity: 0.3,
+            shadowRadius: 8,
+            elevation: 8,
+          }}
+          onPress={button.onPress}
+        >
+          <Image
+            source={button.image}
+            style={{ width: 120, height: 120 }}
+            resizeMode="contain"
+          />
+        </TouchableOpacity>
+      </Animated.View>
     );
   };
 
