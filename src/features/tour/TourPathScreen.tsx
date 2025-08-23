@@ -8,6 +8,7 @@ import {
   ScrollView,
   Alert,
   Animated,
+  Image,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
@@ -29,6 +30,90 @@ export default function TourPathScreen({
 }: TourPathScreenProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [animation] = useState(new Animated.Value(0));
+
+  // 아이콘 버튼 설정 배열
+  const iconButtons = [
+    {
+      id: "mission_0",
+      image: require("../../assets/images/course/mission.png"),
+      leftRatio: 0.25,
+      topRatio: 0.38,
+      onPress: () => console.log("미션 버튼 클릭"),
+    },
+    {
+      id: "mission_1",
+      image: require("../../assets/images/course/mission.png"),
+      leftRatio: 0.7,
+      topRatio: 0.5,
+      onPress: () => console.log("미션 버튼 클릭"),
+    },
+    {
+      id: "mission_2",
+      image: require("../../assets/images/course/mission.png"),
+      leftRatio: 0.05,
+      topRatio: 0.07,
+      onPress: () => console.log("미션 버튼 클릭"),
+    },
+    {
+      id: "spot_0",
+      image: require("../../assets/images/course/spot.png"),
+      leftRatio: 0.69,
+      topRatio: 0.02,
+      onPress: () => console.log("스팟 버튼 클릭"),
+    },
+    {
+      id: "spot_1",
+      image: require("../../assets/images/course/spot.png"),
+      leftRatio: 0.35,
+      topRatio: 0.18,
+      onPress: () => console.log("스팟 버튼 클릭"),
+    },
+    {
+      id: "spot_2",
+      image: require("../../assets/images/course/spot.png"),
+      leftRatio: 0.58,
+      topRatio: 0.33,
+      onPress: () => console.log("스팟 버튼 클릭"),
+    },
+    {
+      id: "spot_3",
+      image: require("../../assets/images/course/spot.png"),
+      leftRatio: 0.22,
+      topRatio: 0.58,
+      onPress: () => console.log("스팟 버튼 클릭"),
+    },
+    {
+      id: "spot_4",
+      image: require("../../assets/images/course/spot.png"),
+      leftRatio: 0.67,
+      topRatio: 0.72,
+      onPress: () => console.log("스팟 버튼 클릭"),
+    },
+  ];
+
+  // 아이콘 버튼 렌더링 함수
+  const renderIconButton = (button: any) => {
+    const left = screenWidth * button.leftRatio;
+    const top = screenHeight * button.topRatio;
+
+    return (
+      <TouchableOpacity
+        key={button.id}
+        style={{
+          position: "absolute",
+          left: left,
+          top: top,
+        }}
+        onPress={button.onPress}
+      >
+        <Image
+          source={button.image}
+          style={{ width: 120, height: 120 }}
+          resizeMode="contain"
+        />
+      </TouchableOpacity>
+    );
+  };
 
   const toggleMenu = () => {
     if (isMenuOpen) {
@@ -87,6 +172,9 @@ export default function TourPathScreen({
               {courseData.name}
             </Text>
           </View>
+
+          {/* 미션 아이콘 버튼 */}
+          {iconButtons.map(renderIconButton)}
 
           {/* 코스 그만두기 플로팅 버튼들 */}
           <View className="absolute bottom-8 left-6">
