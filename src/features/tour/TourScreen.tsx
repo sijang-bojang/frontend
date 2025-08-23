@@ -101,10 +101,7 @@ export default function TourScreen() {
   return (
     <SafeAreaView className="flex-1 bg-white" edges={["top", "left", "right"]}>
       {step === "intro" ? (
-        <ScrollView className="flex-1">
-          <IntroStep onStart={() => setStep("region")} />
-          <View className="h-10" />
-        </ScrollView>
+        <IntroStep onStart={() => setStep("region")} />
       ) : step === "region" ? (
         <RegionSelect
           regions={uniqueRegions}
