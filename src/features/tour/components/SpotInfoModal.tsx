@@ -65,12 +65,14 @@ export default function SpotInfoModal({
     <Modal
       visible={visible}
       transparent
-      animationType="fade"
+      animationType="slide"
       onRequestClose={onClose}
+      statusBarTranslucent={true}
+      hardwareAccelerated={true}
     >
-      <View className="flex-1 bg-black/50 justify-center items-center">
+      <View className="flex-1 bg-black/40 justify-center items-center">
         <View
-          className="bg-white rounded-2xl mx-6"
+          className="bg-white rounded-2xl mx-6 shadow-2xl"
           style={{ width: screenWidth * 0.85 }}
         >
           {/* 헤더 */}

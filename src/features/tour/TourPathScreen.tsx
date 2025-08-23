@@ -84,9 +84,13 @@ export default function TourPathScreen({
   // 지도에서 보기 기능
   const handleShowOnMap = () => {
     if (selectedSpotInfo) {
-      // 모달 닫기
+      // 모달을 먼저 닫고, 완전히 닫힌 후 상태 정리
       setIsSpotModalVisible(false);
-      setSelectedSpotInfo(null);
+
+      // 모달이 완전히 닫힌 후 상태 정리 (애니메이션 완료 후)
+      setTimeout(() => {
+        setSelectedSpotInfo(null);
+      }, 300); // slide 애니메이션 완료 후
 
       // 지도 화면으로 이동하고 해당 스팟 정보 전달
       // detailedCourseData에서 해당 스팟의 GPS 좌표를 찾아서 전달
@@ -466,7 +470,10 @@ export default function TourPathScreen({
         spotInfo={selectedSpotInfo}
         onClose={() => {
           setIsSpotModalVisible(false);
-          setSelectedSpotInfo(null);
+          // 모달이 완전히 닫힌 후 상태 정리 (애니메이션 완료 후)
+          setTimeout(() => {
+            setSelectedSpotInfo(null);
+          }, 300); // slide 애니메이션 완료 후
         }}
         onChallenge={handleChallenge}
         onShowOnMap={handleShowOnMap}
