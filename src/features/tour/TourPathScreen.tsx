@@ -124,7 +124,7 @@ export default function TourPathScreen({
             { left: 0.4, top: 0.15 },
             { left: 0.58, top: 0.35 },
             { left: 0.38, top: 0.5 },
-            { left: 0.67, top: 0.72 },
+            { left: 0.6, top: 0.72 },
           ];
           leftRatio = positions[index]?.left || 0.5;
           topRatio = positions[index]?.top || 0.5;
@@ -135,7 +135,7 @@ export default function TourPathScreen({
             { left: 0.35, top: 0.18 },
             { left: 0.58, top: 0.33 },
             { left: 0.22, top: 0.58 },
-            { left: 0.67, top: 0.72 },
+            { left: 0.6, top: 0.72 },
           ];
           leftRatio = positions[index]?.left || 0.5;
           topRatio = positions[index]?.top || 0.5;
@@ -197,9 +197,10 @@ export default function TourPathScreen({
             missionType: mission.missionType,
             rewardPoints: mission.rewardPoints,
             spotId: courseSpot.spotId,
-            spotName: mission.spotNames && mission.spotNames.length > 0 
-              ? mission.spotNames[0] 
-              : courseSpot.spotName,
+            spotName:
+              mission.spotNames && mission.spotNames.length > 0
+                ? mission.spotNames[0]
+                : courseSpot.spotName,
             description: mission.description || "미션 설명이 준비 중입니다.",
           })),
         };

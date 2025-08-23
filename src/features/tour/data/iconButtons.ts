@@ -84,7 +84,7 @@ export const iconButtonsData4Spots: IconButtonData[] = [
   {
     id: "spot_4",
     image: require("../../../assets/images/course/spot.png"),
-    leftRatio: 0.67,
+    leftRatio: 0.6,
     topRatio: 0.72,
     onPress: () => console.log("스팟 3 버튼 클릭"),
   },
@@ -124,7 +124,7 @@ export const iconButtonsData5Spots: IconButtonData[] = [
   {
     id: "spot_5",
     image: require("../../../assets/images/course/spot.png"),
-    leftRatio: 0.67,
+    leftRatio: 0.6,
     topRatio: 0.72,
     onPress: () => console.log("스팟 4 버튼 클릭"),
   },
