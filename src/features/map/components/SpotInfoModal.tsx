@@ -101,7 +101,14 @@ export default function SpotInfoModal({
   }));
 
   const handleBackdropPress = () => {
-    onClose();
+    // backdrop 터치 시 모달을 아래로 부드럽게 닫기
+    translateY.value = withTiming(screenHeight, { duration: 300 });
+    opacity.value = withTiming(0, { duration: 300 });
+
+    // 애니메이션 완료 후 onClose 콜백 실행
+    setTimeout(() => {
+      onClose();
+    }, 300);
   };
 
   if (!spot) return null;
@@ -115,6 +122,19 @@ export default function SpotInfoModal({
       statusBarTranslucent={true}
     >
       <StatusBar backgroundColor="transparent" barStyle="dark-content" />
+
+      {/* Backdrop - 터치 시 모달 닫기 */}
+      <TouchableOpacity
+        style={{
+          position: "absolute",
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+        }}
+        activeOpacity={1}
+        onPress={handleBackdropPress}
+      />
 
       {/* 모달 컨텐츠 */}
       <Animated.View
