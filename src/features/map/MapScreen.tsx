@@ -182,36 +182,6 @@ export default function MapScreen() {
     }
   };
 
-  const handleCourseSelect = async (course: Course) => {
-    setSelectedCourse(course);
-    setShowCourseList(false);
-
-    // 지도에 표시된 다른 마커들 제거
-    if (webViewRef.current) {
-      webViewRef.current.postMessage(
-        JSON.stringify({
-          type: "clear_all_markers",
-        })
-      );
-    }
-
-    // courseStore에서 상세 정보 가져오기
-    const { fetchCourseDetail } = useCourseStore.getState();
-    await fetchCourseDetail(course.courseId);
-    
-    // 상세 정보가 업데이트된 후 지도에 표시
-    const { detailedCourse } = useCourseStore.getState();
-    const courseToDisplay = detailedCourse || course;
-    
-    if (courseToDisplay.courseSpots.length > 0) {
-      // 약간의 지연을 두어 마커 제거 후 새로운 코스 표시
-      setTimeout(() => {
-        showCourseSpotsOnMap(courseToDisplay.courseSpots);
-        // 지도를 코스 전체가 보이도록 조정
-        centerMapOnCourse(courseToDisplay.courseSpots);
-      }, 100);
-    }
-  };
 
   const loadCoursesForMarket = async (marketId: number) => {
     try {

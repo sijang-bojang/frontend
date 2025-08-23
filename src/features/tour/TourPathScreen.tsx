@@ -34,12 +34,14 @@ interface TourPathScreenProps {
   selectedMarket: Market;
   courseData: Course;
   onBack: () => void;
+  onReset: () => void;
 }
 
 export default function TourPathScreen({
   selectedMarket,
   courseData,
   onBack,
+  onReset,
 }: TourPathScreenProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [animation] = useState(new Animated.Value(0));
@@ -270,8 +272,8 @@ export default function TourPathScreen({
           onPress: () => {
             // courseStore에서 현재 코스 제거
             clearCourse();
-            // 이전 화면으로 돌아가기
-            onBack();
+            // 투어 처음 화면으로 돌아가기
+            onReset();
           },
         },
       ]

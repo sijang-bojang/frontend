@@ -80,6 +80,14 @@ export default function TourScreen() {
     setCourseData(null);
   };
 
+  const handleResetTour = () => {
+    // 투어를 처음부터 다시 시작
+    setStep("intro");
+    setSelectedMarket(null);
+    setCourseData(null);
+    setShowTourCompleteModal(false);
+  };
+
   const handleChallenge = () => {
     setShowTourCompleteModal(false);
     setStep("path");
@@ -131,6 +139,7 @@ export default function TourScreen() {
               isCoupleCourse: false,
             }}
             onBack={handleBackFromPath}
+            onReset={handleResetTour}
           />
         )
       ) : null}
