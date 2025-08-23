@@ -2,7 +2,7 @@ import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { NavigationContainer } from "@react-navigation/native";
 import React from "react";
 import { SafeAreaProvider } from "react-native-safe-area-context";
-import { Ionicons } from "@expo/vector-icons";
+import { Ionicons, Entypo } from "@expo/vector-icons";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 
 import "./global.css";
@@ -31,7 +31,8 @@ export default function App() {
                 } else if (route.name === "Mission") {
                   iconName = focused ? "warning" : "warning-outline";
                 } else if (route.name === "Tour") {
-                  iconName = focused ? "map" : "map-outline";
+                  // 투어 탭은 Entypo flag 아이콘 사용
+                  return <Entypo name="flag" size={size} color={color} />;
                 } else if (route.name === "Map") {
                   iconName = focused ? "location" : "location-outline";
                 } else if (route.name === "Profile") {
