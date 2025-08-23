@@ -115,21 +115,68 @@ export default function MapScreen() {
   // spotToShow 파라미터가 있을 때 해당 스팟을 지도에 표시
   useEffect(() => {
     if (spotToShow && webViewRef.current) {
-      // 지도를 해당 스팟 위치로 이동하고 확대
-      setTimeout(() => {
-        webViewRef.current?.postMessage(
-          JSON.stringify({
-            type: "show_spot_on_map",
-            spot: {
-              latitude: spotToShow.latitude, // 전달받은 실제 GPS 좌표 사용
-              longitude: spotToShow.longitude,
-              name: spotToShow.name,
-            },
-          })
+      // 진행중인 코스가 있다면 해당 코스의 시장으로 변경하고 코스 선택
+      if (currentCourse) {
+        // 진행중인 코스의 시장 찾기
+        const courseMarket = markets.find(
+          (market) => market.marketId === currentCourse.marketId
         );
-      }, 500); // WebView가 로드될 때까지 잠시 대기
+
+        if (courseMarket) {
+          // 선택된 시장을 진행중인 코스의 시장으로 변경
+          setSelectedMarket(courseMarket);
+
+          // 진행중인 코스 선택
+          setSelectedCourse(currentCourse);
+
+          // 코스 상세 정보 가져오기
+          const fetchAndDisplayCourse = async () => {
+            const { fetchCourseDetail } = useCourseStore.getState();
+            await fetchCourseDetail(currentCourse.courseId);
+
+            // 상세 정보가 업데이트된 후 지도에 표시
+            const { detailedCourse } = useCourseStore.getState();
+            const courseToDisplay = detailedCourse || currentCourse;
+
+            if (courseToDisplay.courseSpots.length > 0) {
+              // 코스 스팟들을 지도에 표시
+              showCourseSpotsOnMap(courseToDisplay.courseSpots);
+
+              // 잠시 후 해당 스팟 위치로 이동
+              setTimeout(() => {
+                webViewRef.current?.postMessage(
+                  JSON.stringify({
+                    type: "show_spot_on_map",
+                    spot: {
+                      latitude: spotToShow.latitude,
+                      longitude: spotToShow.longitude,
+                      name: spotToShow.name,
+                    },
+                  })
+                );
+              }, 1000); // 코스 스팟들이 표시된 후 이동
+            }
+          };
+
+          fetchAndDisplayCourse();
+        }
+      } else {
+        // 진행중인 코스가 없다면 단순히 해당 위치로만 이동
+        setTimeout(() => {
+          webViewRef.current?.postMessage(
+            JSON.stringify({
+              type: "show_spot_on_map",
+              spot: {
+                latitude: spotToShow.latitude,
+                longitude: spotToShow.longitude,
+                name: spotToShow.name,
+              },
+            })
+          );
+        }, 500);
+      }
     }
-  }, [spotToShow]);
+  }, [spotToShow, currentCourse, markets]);
 
   const moveToLocation = (lat: number, lng: number) => {
     if (webViewRef.current) {
