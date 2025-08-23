@@ -70,6 +70,7 @@ export default function TourPathScreen({
         image: require("../../assets/images/course/mission.png"),
         leftRatio: 0.25,
         topRatio: 0.38,
+        label: "",
         onPress: () => console.log("미션 버튼 클릭"),
       },
       {
@@ -77,6 +78,7 @@ export default function TourPathScreen({
         image: require("../../assets/images/course/mission.png"),
         leftRatio: 0.7,
         topRatio: 0.5,
+        label: "",
         onPress: () => console.log("미션 버튼 클릭"),
       },
       {
@@ -84,6 +86,7 @@ export default function TourPathScreen({
         image: require("../../assets/images/course/mission.png"),
         leftRatio: 0.05,
         topRatio: 0.07,
+        label: "",
         onPress: () => console.log("미션 버튼 클릭"),
       },
     ];
@@ -133,6 +136,7 @@ export default function TourPathScreen({
           image: require("../../assets/images/course/spot.png"),
           leftRatio,
           topRatio,
+          label: spot.spotName,
           onPress: () => handleSpotPress(`spot_${index}`),
         };
       });
@@ -243,6 +247,7 @@ export default function TourPathScreen({
               image={button.image}
               leftRatio={button.leftRatio}
               topRatio={button.topRatio}
+              label={button.label}
               onPress={button.onPress}
             />
           ))}
