@@ -36,6 +36,40 @@ export const KAKAO_MAP_HTML = (lat: number, lng: number) => `
         // 검색 서비스 초기화
         var ps = new kakao.maps.services.Places();
         
+        // 사용자 위치 마커 변수
+        window.userLocationMarker = null;
+        
+        // 사용자 위치 마커 생성 및 표시 함수
+        window.showUserLocation = function(lat, lng) {
+          // 기존 사용자 위치 마커 제거
+          if (window.userLocationMarker) {
+            window.userLocationMarker.setMap(null);
+          }
+          
+          // 좌표 정확도 향상을 위해 소수점 6자리까지 유지
+          var preciseLat = parseFloat(lat.toFixed(6));
+          var preciseLng = parseFloat(lng.toFixed(6));
+          
+          // 새로운 사용자 위치 마커 생성 (정확한 좌표 사용)
+          var userPosition = new kakao.maps.LatLng(preciseLat, preciseLng);
+          window.userLocationMarker = new kakao.maps.Marker({
+            position: userPosition,
+            map: map
+          });
+          
+          // 파란색 작은 동그라미 + 흰색 테두리 스타일 적용
+          var userMarkerImage = new kakao.maps.MarkerImage(
+            'data:image/svg+xml;base64,' + btoa('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8" fill="#3B82F6" stroke="#FFFFFF" stroke-width="2"/></svg>'),
+            new kakao.maps.Size(16, 16)
+          );
+          window.userLocationMarker.setImage(userMarkerImage);
+          
+          // 사용자 위치 마커는 클릭 불가능하게 설정
+          window.userLocationMarker.setClickable(false);
+          
+          console.log('✅ 사용자 위치 마커 생성 완료:', preciseLat, preciseLng);
+        };
+        
         // 스팟 마커들을 저장할 배열
         window.spotMarkers = [];
         // 코스 스팟 마커들을 저장할 배열
@@ -256,6 +290,12 @@ export const KAKAO_MAP_HTML = (lat: number, lng: number) => `
         
         // 모든 마커 제거
         window.clearAllMarkers = function() {
+          // 사용자 위치 마커 제거
+          if (window.userLocationMarker) {
+            window.userLocationMarker.setMap(null);
+            window.userLocationMarker = null;
+          }
+          
           // 스팟 마커들 제거
           if (window.spotMarkers) {
             window.spotMarkers.forEach(function(marker) {
@@ -309,6 +349,8 @@ export const KAKAO_MAP_HTML = (lat: number, lng: number) => `
               window.clearAllMarkers();
             } else if (data.type === 'show_spot_on_map') {
               window.showSpotOnMap(data.spot);
+            } else if (data.type === 'show_user_location') {
+              window.showUserLocation(data.lat, data.lng);
             }
           } catch (error) {
             console.error('메시지 파싱 오류:', error);

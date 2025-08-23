@@ -5,10 +5,12 @@ import {
   TouchableOpacity,
   ScrollView,
   ActivityIndicator,
+  Alert,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { WebView } from "react-native-webview";
 import { Ionicons } from "@expo/vector-icons";
+import * as Location from "expo-location";
 import { KAKAO_MAP_HTML } from "../../shared/constants/kakao";
 import { Market } from "../tour/types";
 import { Spot } from "../../shared/types/market";
@@ -36,9 +38,21 @@ export default function MapScreen() {
     return colorMap[color] || "bg-gray-500";
   };
 
-  const initialLat = 36.3681; // 충남대학교 근처
-  const initialLng = 127.345;
-  const mapHtml = useMemo(() => KAKAO_MAP_HTML(initialLat, initialLng), []);
+  // 사용자 위치 상태
+  const [userLocation, setUserLocation] = useState<{
+    latitude: number;
+    longitude: number;
+  } | null>(null);
+  const [locationLoading, setLocationLoading] = useState(true);
+
+  // 지도 HTML 생성 (사용자 위치가 있을 때만)
+  const mapHtml = useMemo(() => {
+    if (userLocation) {
+      return KAKAO_MAP_HTML(userLocation.latitude, userLocation.longitude);
+    }
+    // 사용자 위치가 없으면 기본 위치(대전역) 사용
+    return KAKAO_MAP_HTML(36.3322, 127.4342);
+  }, [userLocation]);
 
   const { markets, loading, error } = useMarkets();
   const { currentCourse } = useCourseStore();
@@ -62,6 +76,60 @@ export default function MapScreen() {
   const [coursesLoading, setCoursesLoading] = useState(false);
 
   const webViewRef = useRef<WebView>(null);
+
+  // 사용자 위치 가져오기
+  const getUserLocation = async () => {
+    try {
+      setLocationLoading(true);
+
+      // 위치 권한 요청
+      const { status } = await Location.requestForegroundPermissionsAsync();
+
+      if (status !== "granted") {
+        console.log("위치 권한이 거부되었습니다. 기본 위치를 사용합니다.");
+        setLocationLoading(false);
+        return;
+      }
+
+      // 현재 위치 가져오기
+      const location = await Location.getCurrentPositionAsync({
+        accuracy: Location.Accuracy.Balanced,
+        timeInterval: 10000,
+        distanceInterval: 10,
+      });
+
+      const { latitude, longitude } = location.coords;
+      console.log("사용자 위치 가져오기 성공:", { latitude, longitude });
+
+      setUserLocation({ latitude, longitude });
+
+      // WebView에 사용자 위치 마커 표시 요청
+      if (webViewRef.current) {
+        setTimeout(() => {
+          webViewRef.current?.postMessage(
+            JSON.stringify({
+              type: "show_user_location",
+              lat: latitude,
+              lng: longitude,
+            })
+          );
+        }, 500); // WebView 로딩 완료 후 실행
+      }
+    } catch (error) {
+      console.error("사용자 위치 가져오기 실패:", error);
+      Alert.alert(
+        "위치 정보 오류",
+        "현재 위치를 가져올 수 없습니다. 기본 위치를 사용합니다."
+      );
+    } finally {
+      setLocationLoading(false);
+    }
+  };
+
+  // 앱 시작 시 사용자 위치 가져오기
+  useEffect(() => {
+    getUserLocation();
+  }, []);
 
   // 현재 진행중인 코스가 있으면 자동으로 선택하고 지도에 표시
   useEffect(() => {
