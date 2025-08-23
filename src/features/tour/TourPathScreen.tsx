@@ -12,9 +12,10 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { Market } from "./types";
-import { Course, fetchCourseDetail } from "../../shared/api";
+import { Course } from "../../shared/api";
 import IconButton from "./components/IconButton";
 import SpotInfoModal, { SpotInfo } from "./components/SpotInfoModal";
+import { useCourseStore } from "../../shared/stores/courseStore";
 const { width: screenWidth, height: screenHeight } = Dimensions.get("window");
 
 interface TourPathScreenProps {
@@ -34,29 +35,23 @@ export default function TourPathScreen({
     null
   );
   const [isSpotModalVisible, setIsSpotModalVisible] = useState(false);
-  const [detailedCourseData, setDetailedCourseData] = useState<Course | null>(
-    null
-  );
-  const [isLoading, setIsLoading] = useState(true);
+
+  // Course store 사용
+  const {
+    detailedCourse: detailedCourseData,
+    isLoading,
+    setCurrentCourse,
+    fetchCourseDetail,
+  } = useCourseStore();
 
   // 코스 상세 정보 가져오기
   useEffect(() => {
-    const fetchCourseData = async () => {
-      try {
-        setIsLoading(true);
-        const detailedData = await fetchCourseDetail(courseData.courseId);
-        setDetailedCourseData(detailedData);
-      } catch (error) {
-        console.error("코스 상세 정보 가져오기 실패:", error);
-        // 실패 시 기본 데이터 사용
-        setDetailedCourseData(courseData);
-      } finally {
-        setIsLoading(false);
-      }
-    };
+    // 현재 코스를 store에 설정
+    setCurrentCourse(courseData);
 
-    fetchCourseData();
-  }, [courseData.courseId]);
+    // 코스 상세 정보 가져오기 (store에서 중복 호출 방지)
+    fetchCourseDetail(courseData.courseId.toString());
+  }, [courseData.courseId, setCurrentCourse, fetchCourseDetail]);
 
   // API 데이터를 사용한 실제 아이콘 버튼 생성
   const currentIconButtons = useMemo(() => {
@@ -145,13 +140,13 @@ export default function TourPathScreen({
     return [...missionButtons, ...spotButtons];
   }, [detailedCourseData]);
 
-  // spot 버튼 클릭 핸들러
+  // spot 버튼 핸들러
   const handleSpotPress = (spotId: string) => {
     if (!detailedCourseData?.courseSpots) {
       return;
     }
 
-    // courseSpots에서 해당 spot 정보 찾기ㄴ
+    // courseSpots에서 해당 spot 정보 찾기
     const spotIndex = parseInt(spotId.split("_")[1]);
 
     // API의 courseSpots 배열에서 해당 인덱스의 spot 가져오기
