@@ -18,6 +18,7 @@ export interface CourseMission {
   spotNames: string[];
   isVisitType: boolean;
   isNonVisitType: boolean;
+  isCompleted: boolean;
 }
 
 export interface StampData {

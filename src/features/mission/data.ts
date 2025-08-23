@@ -68,6 +68,7 @@ export const courseMissions: CourseMission[] = [
     spotNames: ["스모프치킨"],
     isVisitType: true,
     isNonVisitType: false,
+    isCompleted: true,
   },
 ];
 
