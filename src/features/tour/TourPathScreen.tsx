@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   View,
   Text,
@@ -7,6 +7,7 @@ import {
   ImageBackground,
   ScrollView,
   Alert,
+  Animated,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
@@ -26,6 +27,28 @@ export default function TourPathScreen({
   courseData,
   onBack,
 }: TourPathScreenProps) {
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [animation] = useState(new Animated.Value(0));
+
+  const toggleMenu = () => {
+    if (isMenuOpen) {
+      // 메뉴 닫기
+      Animated.timing(animation, {
+        toValue: 0,
+        duration: 200,
+        useNativeDriver: true,
+      }).start(() => setIsMenuOpen(false));
+    } else {
+      // 메뉴 열기
+      setIsMenuOpen(true);
+      Animated.timing(animation, {
+        toValue: 1,
+        duration: 200,
+        useNativeDriver: true,
+      }).start();
+    }
+  };
+
   const handleQuitCourse = () => {
     Alert.alert(
       "코스 그만두기",
@@ -65,11 +88,50 @@ export default function TourPathScreen({
             </Text>
           </View>
 
-          {/* 코스 그만두기 플로팅 버튼 */}
+          {/* 코스 그만두기 플로팅 버튼들 */}
           <View className="absolute bottom-8 left-6">
+            {/* X 버튼 (위로 튀어나옴) */}
+            {isMenuOpen && (
+              <Animated.View
+                style={{
+                  transform: [
+                    {
+                      translateY: animation.interpolate({
+                        inputRange: [0, 1],
+                        outputRange: [20, -60],
+                      }),
+                    },
+                    {
+                      scale: animation.interpolate({
+                        inputRange: [0, 1],
+                        outputRange: [0.5, 1],
+                      }),
+                    },
+                  ],
+                  opacity: animation,
+                }}
+                className="mb-4"
+              >
+                <TouchableOpacity
+                  onPress={handleQuitCourse}
+                  className="bg-rose-400 rounded-full p-4 shadow-lg"
+                  style={{
+                    shadowColor: "#000",
+                    shadowOffset: { width: 0, height: 2 },
+                    shadowOpacity: 0.25,
+                    shadowRadius: 3.84,
+                    elevation: 5,
+                  }}
+                >
+                  <Ionicons name="close" size={24} color="white" />
+                </TouchableOpacity>
+              </Animated.View>
+            )}
+
+            {/* ... 버튼 (메인) */}
             <TouchableOpacity
-              onPress={handleQuitCourse}
-              className="bg-red-500 rounded-full p-4 shadow-lg"
+              onPress={toggleMenu}
+              className="bg-gray-400 rounded-full p-4 shadow-lg"
               style={{
                 shadowColor: "#000",
                 shadowOffset: { width: 0, height: 2 },
@@ -78,7 +140,7 @@ export default function TourPathScreen({
                 elevation: 5,
               }}
             >
-              <Ionicons name="close" size={24} color="white" />
+              <Ionicons name="ellipsis-horizontal" size={24} color="white" />
             </TouchableOpacity>
           </View>
         </SafeAreaView>
