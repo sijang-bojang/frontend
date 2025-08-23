@@ -243,7 +243,8 @@ export default function TourPathScreen({
 
     if (courseSpot) {
       try {
-        setIsSpotLoading(true);
+        // 로딩 상태 없이 바로 모달 표시
+        // setIsSpotLoading(true); // 로딩 상태 제거
 
         // 스팟 미션 정보만 가져오기 (새로운 API 구조 사용)
         const spotMissions = await fetchSpotMissions(courseSpot.spotId);
@@ -288,9 +289,8 @@ export default function TourPathScreen({
           "스팟 정보 조회 실패",
           "스팟의 미션 정보를 불러오는데 실패했습니다.\n잠시 후 다시 시도해주세요."
         );
-      } finally {
-        setIsSpotLoading(false);
       }
+      // finally 블록 제거 (로딩 상태 설정하지 않음)
     }
   };
 
@@ -401,7 +401,7 @@ export default function TourPathScreen({
                 topRatio={button.topRatio}
                 label={button.label}
                 onPress={button.onPress}
-                disabled={isSpotLoading && button.id.startsWith("spot_")}
+                disabled={false} // 로딩 상태와 관계없이 항상 활성화
               />
             ))}
           </SafeAreaView>
@@ -478,21 +478,6 @@ export default function TourPathScreen({
         onChallenge={handleChallenge}
         onShowOnMap={handleShowOnMap}
       />
-
-      {/* 로딩 오버레이 */}
-      {isSpotLoading && (
-        <View className="absolute inset-0 bg-black/30 justify-center items-center z-50">
-          <View className="bg-white rounded-2xl p-6 items-center">
-            <View className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mb-3" />
-            <Text
-              className="text-gray-700 text-center"
-              style={{ fontFamily: "ChosunCentennial" }}
-            >
-              스팟 정보를 불러오는 중...
-            </Text>
-          </View>
-        </View>
-      )}
     </View>
   );
 }
