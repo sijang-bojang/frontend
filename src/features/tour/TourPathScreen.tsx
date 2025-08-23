@@ -55,6 +55,7 @@ export default function TourPathScreen({
     isLoading,
     setCurrentCourse,
     fetchCourseDetail,
+    clearCourse,
   } = useCourseStore();
 
   // 코스 상세 정보 가져오기
@@ -266,7 +267,12 @@ export default function TourPathScreen({
         {
           text: "그만두기",
           style: "destructive",
-          onPress: onBack,
+          onPress: () => {
+            // courseStore에서 현재 코스 제거
+            clearCourse();
+            // 이전 화면으로 돌아가기
+            onBack();
+          },
         },
       ]
     );

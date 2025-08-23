@@ -89,6 +89,19 @@ export default function MapScreen() {
       };
       
       fetchAndDisplayCourse();
+    } else {
+      // 진행중인 코스가 없으면 선택된 코스와 시장을 초기화
+      setSelectedCourse(null);
+      setSelectedMarket(null);
+      
+      // 지도에서 모든 마커 제거
+      if (webViewRef.current) {
+        webViewRef.current.postMessage(
+          JSON.stringify({
+            type: "clear_all_markers",
+          })
+        );
+      }
     }
   }, [currentCourse]);
 
@@ -115,7 +128,7 @@ export default function MapScreen() {
         latitude: courseSpot.latitude,
         longitude: courseSpot.longitude,
         stepNumber: courseSpot.stepNumber,
-        color: getCourseSpotColor(index, courseSpots.length),
+        color: getCourseSpotColor(index),
       }));
 
       webViewRef.current.postMessage(
@@ -142,7 +155,7 @@ export default function MapScreen() {
     }
   };
 
-  const getCourseSpotColor = (index: number, total: number) => {
+  const getCourseSpotColor = (index: number) => {
     const colors = ["green", "blue", "red", "orange", "purple"];
     return colors[index % colors.length];
   };
