@@ -14,7 +14,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { Market } from "./types";
 import { Course, fetchSpotDetail, fetchSpotMissions } from "../../shared/api";
 import IconButton from "./components/IconButton";
-import SpotInfoModal, { SpotInfo } from "./components/SpotInfoModal";
+import MissionInfoModal, { MissionInfo } from "./components/MissionInfoModal";
 import { useCourseStore } from "../../shared/stores/courseStore";
 import { useNavigation } from "@react-navigation/native";
 
@@ -63,7 +63,7 @@ export default function TourPathScreen({
 }: TourPathScreenProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [animation] = useState(new Animated.Value(0));
-  const [selectedSpotInfo, setSelectedSpotInfo] = useState<SpotInfo | null>(
+  const [selectedSpotInfo, setSelectedSpotInfo] = useState<MissionInfo | null>(
     null
   );
   const [isSpotModalVisible, setIsSpotModalVisible] = useState(false);
@@ -256,7 +256,7 @@ export default function TourPathScreen({
         );
 
         // 새로운 API 구조에 맞게 SpotInfo 형식으로 변환
-        const spotInfo: SpotInfo = {
+        const spotInfo: MissionInfo = {
           id: courseSpot.spotId.toString(),
           name: courseSpot.spotName,
           description: courseSpot.description,
@@ -465,7 +465,7 @@ export default function TourPathScreen({
       </View>
 
       {/* Spot 정보 모달 */}
-      <SpotInfoModal
+      <MissionInfoModal
         visible={isSpotModalVisible}
         spotInfo={selectedSpotInfo}
         onClose={() => {

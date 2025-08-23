@@ -11,7 +11,7 @@ import { Ionicons } from "@expo/vector-icons";
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get("window");
 
-export interface SpotInfo {
+export interface MissionInfo {
   id: string;
   name: string;
   description: string;
@@ -32,21 +32,21 @@ export interface SpotInfo {
   }>;
 }
 
-interface SpotInfoModalProps {
+interface MissionInfoModalProps {
   visible: boolean;
-  spotInfo: SpotInfo | null;
+  spotInfo: MissionInfo | null;
   onClose: () => void;
   onChallenge?: () => void; // 도전하기 버튼 핸들러 추가
   onShowOnMap?: () => void; // 지도에서 보기 기능 추가
 }
 
-export default function SpotInfoModal({
+export default function MissionInfoModal({
   visible,
   spotInfo,
   onClose,
   onChallenge,
   onShowOnMap,
-}: SpotInfoModalProps) {
+}: MissionInfoModalProps) {
   if (!spotInfo) return null;
 
   const handleChallenge = () => {
