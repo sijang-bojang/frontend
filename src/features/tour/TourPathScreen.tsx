@@ -9,8 +9,8 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
-import { Market } from "../types";
-import { Course } from "../../../shared/api";
+import { Market } from "./types";
+import { Course } from "../../shared/api";
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get("window");
 
@@ -28,7 +28,7 @@ export default function TourPathScreen({
   return (
     <View className="flex-1">
       <ImageBackground
-        source={require("../../../assets/images/course_background.jpg")}
+        source={require("../../assets/images/course_background.jpg")}
         style={{
           width: screenWidth,
           height: screenHeight * 0.9,
