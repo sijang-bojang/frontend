@@ -39,6 +39,7 @@ interface SpotInfoModalProps {
   };
   onSpotVisitComplete?: () => void;
   onNavigateToSpot?: () => void;
+  onShowOnMap?: () => void; // 지도에서 보기 기능 추가
   isLoading?: boolean;
 }
 
@@ -50,6 +51,7 @@ export default function SpotInfoModal({
   courseInfo,
   onSpotVisitComplete,
   onNavigateToSpot,
+  onShowOnMap,
   isLoading = false,
 }: SpotInfoModalProps) {
   const translateY = useSharedValue(screenHeight);
@@ -232,6 +234,18 @@ export default function SpotInfoModal({
                       <Ionicons name="navigate" size={20} color="white" />
                       <Text className="text-white font-bold text-lg ml-2">
                         길찾기
+                      </Text>
+                    </View>
+                  </TouchableOpacity>
+
+                  <TouchableOpacity
+                    onPress={onShowOnMap}
+                    className="bg-gradient-to-r from-purple-500 to-indigo-500 py-4 px-6 rounded-2xl shadow-lg"
+                  >
+                    <View className="flex-row items-center justify-center">
+                      <Ionicons name="map" size={20} color="white" />
+                      <Text className="text-white font-bold text-lg ml-2">
+                        지도에서 보기
                       </Text>
                     </View>
                   </TouchableOpacity>

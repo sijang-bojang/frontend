@@ -37,6 +37,7 @@ interface SpotInfoModalProps {
   spotInfo: SpotInfo | null;
   onClose: () => void;
   onChallenge?: () => void; // 도전하기 버튼 핸들러 추가
+  onShowOnMap?: () => void; // 지도에서 보기 기능 추가
 }
 
 export default function SpotInfoModal({
@@ -44,12 +45,19 @@ export default function SpotInfoModal({
   spotInfo,
   onClose,
   onChallenge,
+  onShowOnMap,
 }: SpotInfoModalProps) {
   if (!spotInfo) return null;
 
   const handleChallenge = () => {
     if (onChallenge) {
       onChallenge();
+    }
+  };
+
+  const handleShowOnMap = () => {
+    if (onShowOnMap) {
+      onShowOnMap();
     }
   };
 
@@ -77,6 +85,12 @@ export default function SpotInfoModal({
                   : "미션 정보"}
               </Text>
             </View>
+            {/* 지도에서 보기 버튼 */}
+            {onShowOnMap && (
+              <TouchableOpacity onPress={handleShowOnMap}>
+                <Ionicons name="map-outline" size={24} color="#6B7280" />
+              </TouchableOpacity>
+            )}
           </View>
 
           {/* 내용 */}

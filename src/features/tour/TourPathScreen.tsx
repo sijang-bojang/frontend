@@ -16,6 +16,26 @@ import { Course, fetchSpotDetail, fetchSpotMissions } from "../../shared/api";
 import IconButton from "./components/IconButton";
 import SpotInfoModal, { SpotInfo } from "./components/SpotInfoModal";
 import { useCourseStore } from "../../shared/stores/courseStore";
+import { useNavigation } from "@react-navigation/native";
+
+// 네비게이션 타입 정의
+type RootStackParamList = {
+  Map: {
+    spotToShow?: {
+      spotId: string;
+      name: string;
+      latitude: number;
+      longitude: number;
+    };
+  };
+};
+
+type NavigationProp = {
+  navigate: (
+    screen: keyof RootStackParamList,
+    params?: RootStackParamList[keyof RootStackParamList]
+  ) => void;
+};
 
 // API 응답 구조에 맞는 타입 정의
 interface ApiMissionResponse {
@@ -57,6 +77,57 @@ export default function TourPathScreen({
     fetchCourseDetail,
     clearCourse,
   } = useCourseStore();
+
+  // 네비게이션 훅 사용
+  const navigation = useNavigation<NavigationProp>();
+
+  // 지도에서 보기 기능
+  const handleShowOnMap = () => {
+    if (selectedSpotInfo) {
+      // 모달 닫기
+      setIsSpotModalVisible(false);
+      setSelectedSpotInfo(null);
+
+      // 지도 화면으로 이동하고 해당 스팟 정보 전달
+      // detailedCourseData에서 해당 스팟의 GPS 좌표를 찾아서 전달
+      if (detailedCourseData?.courseSpots) {
+        const courseSpot = detailedCourseData.courseSpots.find(
+          (spot) => spot.spotId.toString() === selectedSpotInfo.id
+        );
+
+        if (courseSpot) {
+          navigation.navigate("Map", {
+            spotToShow: {
+              spotId: selectedSpotInfo.id,
+              name: selectedSpotInfo.name,
+              latitude: courseSpot.latitude,
+              longitude: courseSpot.longitude,
+            },
+          });
+        } else {
+          // GPS 좌표를 찾을 수 없는 경우 기본값 사용
+          navigation.navigate("Map", {
+            spotToShow: {
+              spotId: selectedSpotInfo.id,
+              name: selectedSpotInfo.name,
+              latitude: 36.3681, // 기본값
+              longitude: 127.345,
+            },
+          });
+        }
+      } else {
+        // courseSpots가 없는 경우 기본값 사용
+        navigation.navigate("Map", {
+          spotToShow: {
+            spotId: selectedSpotInfo.id,
+            name: selectedSpotInfo.name,
+            latitude: 36.3681, // 기본값
+            longitude: 127.345,
+          },
+        });
+      }
+    }
+  };
 
   // 코스 상세 정보 가져오기
   useEffect(() => {
@@ -398,6 +469,7 @@ export default function TourPathScreen({
           setSelectedSpotInfo(null);
         }}
         onChallenge={handleChallenge}
+        onShowOnMap={handleShowOnMap}
       />
 
       {/* 로딩 오버레이 */}

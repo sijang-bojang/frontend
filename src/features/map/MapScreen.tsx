@@ -21,6 +21,7 @@ import {
 } from "../../shared/api";
 import { useCourseStore } from "../../shared/stores/courseStore";
 import SpotInfoModal from "./components/SpotInfoModal";
+import { useRoute } from "@react-navigation/native";
 
 export default function MapScreen() {
   const getColorClass = (color: string) => {
@@ -41,6 +42,10 @@ export default function MapScreen() {
 
   const { markets, loading, error } = useMarkets();
   const { currentCourse } = useCourseStore();
+
+  // 네비게이션 파라미터 받기
+  const route = useRoute();
+  const spotToShow = (route.params as any)?.spotToShow;
 
   const [selectedMarket, setSelectedMarket] = useState<Market | null>(null);
   const [showMarketList, setShowMarketList] = useState(false);
@@ -106,6 +111,25 @@ export default function MapScreen() {
       }
     }
   }, [currentCourse]);
+
+  // spotToShow 파라미터가 있을 때 해당 스팟을 지도에 표시
+  useEffect(() => {
+    if (spotToShow && webViewRef.current) {
+      // 지도를 해당 스팟 위치로 이동하고 확대
+      setTimeout(() => {
+        webViewRef.current?.postMessage(
+          JSON.stringify({
+            type: "show_spot_on_map",
+            spot: {
+              latitude: spotToShow.latitude, // 전달받은 실제 GPS 좌표 사용
+              longitude: spotToShow.longitude,
+              name: spotToShow.name,
+            },
+          })
+        );
+      }, 500); // WebView가 로드될 때까지 잠시 대기
+    }
+  }, [spotToShow]);
 
   const moveToLocation = (lat: number, lng: number) => {
     if (webViewRef.current) {
@@ -355,6 +379,28 @@ export default function MapScreen() {
     }
   };
 
+  // 지도에서 보기 기능
+  const handleShowOnMap = () => {
+    if (selectedSpot) {
+      // 모달 닫기
+      setShowSpotModal(false);
+
+      // 지도를 해당 스팟 위치로 이동하고 확대
+      if (webViewRef.current) {
+        webViewRef.current.postMessage(
+          JSON.stringify({
+            type: "show_spot_on_map",
+            spot: {
+              latitude: selectedSpot.latitude,
+              longitude: selectedSpot.longitude,
+              name: selectedSpot.name,
+            },
+          })
+        );
+      }
+    }
+  };
+
   return (
     <SafeAreaView className="flex-1 bg-white" edges={["left", "right"]}>
       {/* 상단 고정 시장/코스 선택 */}
@@ -591,6 +637,7 @@ export default function MapScreen() {
         }
         onSpotVisitComplete={handleSpotVisitComplete}
         onNavigateToSpot={handleNavigateToSpot}
+        onShowOnMap={handleShowOnMap}
         isLoading={spotDetailLoading}
       />
     </SafeAreaView>

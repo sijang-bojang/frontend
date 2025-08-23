@@ -215,6 +215,19 @@ export const KAKAO_MAP_HTML = (lat: number, lng: number) => `
           window.currentMarker.setMap(map);
         };
         
+        // 스팟 위치로 이동하고 확대하는 함수
+        window.showSpotOnMap = function(spot) {
+          var position = new kakao.maps.LatLng(spot.latitude, spot.longitude);
+          
+          // 지도를 해당 위치로 이동
+          map.setCenter(position);
+          
+          // 적절한 줌 레벨로 확대 (레벨 2는 상당히 확대된 상태)
+          map.setLevel(2);
+          
+          // 기존 마커들은 그대로 유지 (새로운 마커 추가하지 않음)
+        };
+        
         // 여러 스팟을 포함하도록 지도 범위 조정
         window.fitBoundsToSpots = function(spots) {
           if (spots.length === 0) return;
@@ -288,6 +301,8 @@ export const KAKAO_MAP_HTML = (lat: number, lng: number) => `
               window.fitBoundsToSpots(data.spots);
             } else if (data.type === 'clear_all_markers') {
               window.clearAllMarkers();
+            } else if (data.type === 'show_spot_on_map') {
+              window.showSpotOnMap(data.spot);
             }
           } catch (error) {
             console.error('메시지 파싱 오류:', error);
