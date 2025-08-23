@@ -58,6 +58,8 @@ export const KAKAO_MAP_HTML = (lat: number, lng: number) => `
         
         // 코스 스팟 마커 표시 함수
         window.showCourseSpots = function(spots) {
+          console.log('🎯 showCourseSpots 호출됨:', spots.length, '개 스팟');
+          
           // 기존 코스 스팟 마커들 제거
           if (window.courseSpotMarkers) {
             window.courseSpotMarkers.forEach(function(marker) {
@@ -74,6 +76,8 @@ export const KAKAO_MAP_HTML = (lat: number, lng: number) => `
           
           // 새로운 코스 스팟 마커들 추가 (순서 없이)
           spots.forEach(function(spot, index) {
+            console.log('🎯 스팟 마커 생성:', spot.spotName, '위치:', spot.latitude, spot.longitude);
+            
             var position = new kakao.maps.LatLng(spot.latitude, spot.longitude);
             
             var marker = new kakao.maps.Marker({
@@ -90,6 +94,7 @@ export const KAKAO_MAP_HTML = (lat: number, lng: number) => `
             
             // 마커 클릭 이벤트
             kakao.maps.event.addListener(marker, 'click', function() {
+              console.log('🎯 스팟 마커 클릭됨:', spot.spotName);
               // 코스 스팟 정보를 React Native로 전송
               window.ReactNativeWebView.postMessage(JSON.stringify({
                 type: 'spot_clicked',
@@ -115,6 +120,15 @@ export const KAKAO_MAP_HTML = (lat: number, lng: number) => `
             
             window.courseSpotMarkers.push(marker);
           });
+          
+          console.log('✅ 코스 스팟 마커 생성 완료:', window.courseSpotMarkers.length, '개');
+          
+          // React Native로 완료 응답 전송
+          window.ReactNativeWebView.postMessage(JSON.stringify({
+            type: 'show_course_spots_response',
+            count: window.courseSpotMarkers.length,
+            message: '코스 스팟 마커 표시 완료'
+          }));
         };
         
         // 스팟 마커 표시 함수
