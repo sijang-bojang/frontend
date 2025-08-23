@@ -8,6 +8,18 @@ export interface User {
   level: number;
 }
 
+// API 응답 타입 정의 (실제 서버에서 받는 데이터)
+export interface UserApiResponse {
+  userId: number;
+  username: string;
+  email: string;
+  totalReward: number;
+  exp: number;
+  completedMissionCount: number;
+  completedCourseCount: number;
+  completeStamp: number;
+}
+
 // 사용자 생성 요청 타입
 export interface CreateUserRequest {
   username: string;

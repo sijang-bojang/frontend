@@ -1,7 +1,7 @@
 // API 관련 상수들
 export const API_CONFIG = {
   // 환경 변수에서 백엔드 URL 가져오기 (기본값 제공)
-  BASE_URL: process.env.EXPO_PUBLIC_BACKEND_URL || "http://3.34.186.143:5000",
+  BASE_URL: process.env.EXPO_PUBLIC_BACKEND_URL,
 
   // API 엔드포인트들
   ENDPOINTS: {
