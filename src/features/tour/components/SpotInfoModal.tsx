@@ -85,12 +85,10 @@ export default function SpotInfoModal({
                   : "미션 정보"}
               </Text>
             </View>
-            {/* 지도에서 보기 버튼 */}
-            {onShowOnMap && (
-              <TouchableOpacity onPress={handleShowOnMap}>
-                <Ionicons name="map-outline" size={24} color="#6B7280" />
-              </TouchableOpacity>
-            )}
+            {/* 닫기 버튼 */}
+            <TouchableOpacity onPress={onClose}>
+              <Ionicons name="close" size={24} color="#6B7280" />
+            </TouchableOpacity>
           </View>
 
           {/* 내용 */}
@@ -162,16 +160,16 @@ export default function SpotInfoModal({
               </TouchableOpacity>
             )}
 
-            {/* 닫기 버튼 */}
+            {/* 지도에서 보기 버튼 */}
             <TouchableOpacity
-              onPress={onClose}
-              className="flex-1 bg-gray-100 py-3 rounded-xl ml-2"
+              onPress={onShowOnMap}
+              className="flex-1 border-2 border-orange-500 bg-white py-3 rounded-xl ml-2"
             >
               <Text
-                className="text-center text-gray-700 font-medium"
+                className="text-center text-orange-500 font-medium"
                 style={{ fontFamily: "ChosunCentennial" }}
               >
-                닫기
+                지도에서 보기
               </Text>
             </TouchableOpacity>
           </View>
