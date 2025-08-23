@@ -4,17 +4,21 @@ import { ScrollView, View } from "react-native";
 import IntroStep from "./components/IntroStep";
 import RegionSelect from "./components/RegionSelect";
 import FilterStep from "./components/FilterStep";
-import TourPathScreen from "./components/TourPathScreen";
+import TourPathScreen from "./TourPathScreen";
+import TourCompleteModal from "./components/TourCompleteModal";
 import { TourFilters, Market } from "./types";
 import { useMarkets } from "../../shared/hooks/useMarkets";
-import { fetchCoursesByMarket, Course } from "../../shared/api";
+import { recommendCourse, CourseRecommendResponse } from "../../shared/api";
 
 export default function TourScreen() {
   const [step, setStep] = useState<"intro" | "region" | "filter" | "path">(
     "intro"
   );
   const [selectedMarket, setSelectedMarket] = useState<Market | null>(null);
-  const [courseData, setCourseData] = useState<Course | null>(null);
+  const [courseData, setCourseData] = useState<CourseRecommendResponse | null>(
+    null
+  );
+  const [showTourCompleteModal, setShowTourCompleteModal] = useState(false);
   const { markets, loading, error } = useMarkets();
 
   // 고유한 지역 목록 추출 (중복 제거) - 주소에서 지역 추출
@@ -39,33 +43,51 @@ export default function TourScreen() {
     }
 
     try {
-      console.log("🚀 시장별 코스 조회 요청:", selectedMarket.marketId);
+      console.log("🚀 AI 코스 추천 요청:", selectedMarket.marketId);
 
-      const courses = await fetchCoursesByMarket(selectedMarket.marketId);
+      const requestBody = {
+        marketId: selectedMarket.marketId,
+        marketName: selectedMarket.name,
+        tags: [
+          ...(filters.vehicle || []),
+          ...(filters.companion || []),
+          ...(filters.duration || []),
+          ...(filters.theme || []),
+        ],
+      };
 
-      console.log(
-        "✅ 시장별 코스 조회 응답:",
-        JSON.stringify(courses, null, 2)
-      );
+      console.log("📤 요청 Body:", JSON.stringify(requestBody, null, 2));
 
-      if (courses.length > 0) {
-        // 첫 번째 코스 선택
-        const firstCourse = courses[0];
-        console.log("📋 선택된 코스:", firstCourse.name);
+      const course = await recommendCourse(requestBody);
 
-        setCourseData(firstCourse);
-        setStep("path");
+      console.log("✅ AI 코스 추천 응답:", JSON.stringify(course, null, 2));
+
+      if (course) {
+        console.log("📋 추천된 코스:", course.courseName);
+
+        setCourseData(course);
+        setShowTourCompleteModal(true); // 모달 표시
       } else {
-        console.log("❌ 해당 시장에 코스가 없습니다.");
+        console.log("❌ 코스 추천을 받을 수 없습니다.");
       }
     } catch (error) {
-      console.error("❌ 시장별 코스 조회 실패:", error);
+      console.error("❌ AI 코스 추천 실패:", error);
     }
   };
 
   const handleBackFromPath = () => {
     setStep("filter");
     setCourseData(null);
+  };
+
+  const handleChallenge = () => {
+    setShowTourCompleteModal(false);
+    setStep("path");
+  };
+
+  const handleOtherChoice = () => {
+    setShowTourCompleteModal(false);
+    // 모달만 닫고 현재 필터 단계 유지
   };
 
   return (
@@ -96,11 +118,31 @@ export default function TourScreen() {
         courseData && (
           <TourPathScreen
             selectedMarket={selectedMarket}
-            courseData={courseData}
+            courseData={{
+              courseId: courseData.courseId,
+              marketId: selectedMarket.marketId,
+              marketName: courseData.marketName,
+              name: courseData.courseName,
+              description: courseData.description,
+              typeNames: [],
+              spotCount: 0,
+              courseSpots: [],
+              isFamilyCourse: false,
+              isCoupleCourse: false,
+            }}
             onBack={handleBackFromPath}
           />
         )
       ) : null}
+
+      {/* 투어 생성 완료 모달 */}
+      <TourCompleteModal
+        visible={showTourCompleteModal}
+        tourName={courseData?.courseName || ""}
+        tourDescription={courseData?.description || ""}
+        onChallenge={handleChallenge}
+        onOtherChoice={handleOtherChoice}
+      />
     </SafeAreaView>
   );
 }
