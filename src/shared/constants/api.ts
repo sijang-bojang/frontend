@@ -21,7 +21,10 @@ export const API_CONFIG = {
     USER_EXP: "/api/users",
     // 사용자 미션 관련 엔드포인트 추가
     USER_MISSIONS: "/api/user-missions",
+    USER_MISSIONS_BY_USER: "/api/user-missions/user",
     USER_MISSION_START: "/api/user-missions/start",
+    // 미션 상세 정보 엔드포인트
+    MISSIONS: "/api/missions",
   },
 
   // 타임아웃 설정 (밀리초)

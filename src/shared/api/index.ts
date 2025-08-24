@@ -337,6 +337,18 @@ export interface UserMissionResponse {
   inProgress: boolean;
 }
 
+// 미션 상세 정보 타입
+export interface MissionDetail {
+  missionId: number;
+  title: string;
+  description: string;
+  rewardPoints: number;
+  missionType: "VISIT" | "NON_VISIT";
+  spotNames: string[];
+  isVisitType: boolean;
+  isNonVisitType: boolean;
+}
+
 // 사용자 미션 시작
 export const startUserMission = async (
   userId: number,
@@ -349,6 +361,36 @@ export const startUserMission = async (
     return response.data;
   } catch (error) {
     console.error(`사용자 미션 시작 실패 (userId: ${userId}, missionId: ${missionId}):`, error);
+    throw error;
+  }
+};
+
+// 사용자별 미션 조회
+export const fetchUserMissions = async (
+  userId: number
+): Promise<UserMissionResponse[]> => {
+  try {
+    const response = await api.get<UserMissionResponse[]>(
+      `${API_CONFIG.ENDPOINTS.USER_MISSIONS_BY_USER}/${userId}`
+    );
+    return response.data;
+  } catch (error) {
+    console.error(`사용자 미션 조회 실패 (userId: ${userId}):`, error);
+    throw error;
+  }
+};
+
+// 미션 상세 정보 조회
+export const fetchMissionDetail = async (
+  missionId: number
+): Promise<MissionDetail> => {
+  try {
+    const response = await api.get<MissionDetail>(
+      `${API_CONFIG.ENDPOINTS.MISSIONS}/${missionId}`
+    );
+    return response.data;
+  } catch (error) {
+    console.error(`미션 상세 정보 조회 실패 (missionId: ${missionId}):`, error);
     throw error;
   }
 };
