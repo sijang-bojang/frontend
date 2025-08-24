@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -12,6 +12,8 @@ import {
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { Spot } from "../../../shared/types/market";
+import { getSpotImageId, hasSpotImage } from "../../../shared/constants/spotImageMapping";
+import { getImageUrl, hasImageUrl } from "../../../shared/constants/imageMapping";
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -56,6 +58,8 @@ export default function SpotInfoModal({
 }: SpotInfoModalProps) {
   const translateY = useSharedValue(screenHeight);
   const opacity = useSharedValue(0);
+  const [imageUri, setImageUri] = useState<string | null>(null);
+  const [imageLoading, setImageLoading] = useState(false);
 
   useEffect(() => {
     if (visible) {
@@ -68,6 +72,32 @@ export default function SpotInfoModal({
       translateY.value = withTiming(screenHeight, { duration: 400 });
     }
   }, [visible]);
+
+  useEffect(() => {
+    const loadSpotImage = () => {
+      if (!spot || !hasSpotImage(spot.spotId)) {
+        setImageUri(null);
+        return;
+      }
+
+      setImageLoading(true);
+      
+      const imageId = getSpotImageId(spot.spotId);
+      
+      if (hasImageUrl(imageId)) {
+        const imageUrl = getImageUrl(imageId);
+        setImageUri(imageUrl);
+      } else {
+        setImageUri(null);
+      }
+      
+      setImageLoading(false);
+    };
+
+    if (visible && spot) {
+      loadSpotImage();
+    }
+  }, [visible, spot]);
 
   const gestureHandler =
     useAnimatedGestureHandler<PanGestureHandlerGestureEvent>({
@@ -219,6 +249,24 @@ export default function SpotInfoModal({
                   </View>
                 </View>
               </View>
+
+              {/* 스팟 이미지 */}
+              {(imageLoading || imageUri) && (
+                <View className="mb-6">
+                  {imageLoading ? (
+                    <View className="h-48 bg-gray-100 rounded-2xl items-center justify-center">
+                      <ActivityIndicator size="large" color="#10B981" />
+                      <Text className="text-gray-500 mt-2">이미지 로딩 중...</Text>
+                    </View>
+                  ) : imageUri ? (
+                    <Image
+                      source={{ uri: imageUri }}
+                      className="w-full h-48 rounded-2xl"
+                      resizeMode="cover"
+                    />
+                  ) : null}
+                </View>
+              )}
 
               {/* 설명 */}
               <View className="mb-6 p-4 bg-gray-50 rounded-2xl">

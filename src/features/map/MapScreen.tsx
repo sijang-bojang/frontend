@@ -171,7 +171,7 @@ export default function MapScreen() {
 
     try {
       setSpotsLoading(true);
-      
+
       // courseStore에서 상세 정보 가져오기
       const { fetchCourseDetail } = useCourseStore.getState();
       await fetchCourseDetail(currentCourse.courseId);
@@ -188,7 +188,10 @@ export default function MapScreen() {
           centerMapOnCourse(courseToDisplay.courseSpots);
           // 사용자 위치도 함께 표시
           if (userLocation) {
-            showUserLocationOnMap(userLocation.latitude, userLocation.longitude);
+            showUserLocationOnMap(
+              userLocation.latitude,
+              userLocation.longitude
+            );
           }
         }, 500);
       }
@@ -229,7 +232,10 @@ export default function MapScreen() {
             centerMapOnCourse(courseToDisplay.courseSpots);
             // 사용자 위치도 함께 표시
             if (userLocation) {
-              showUserLocationOnMap(userLocation.latitude, userLocation.longitude);
+              showUserLocationOnMap(
+                userLocation.latitude,
+                userLocation.longitude
+              );
             }
           }, 100);
         }
@@ -299,7 +305,10 @@ export default function MapScreen() {
                     );
                     // 사용자 위치도 함께 표시
                     if (userLocation) {
-                      showUserLocationOnMap(userLocation.latitude, userLocation.longitude);
+                      showUserLocationOnMap(
+                        userLocation.latitude,
+                        userLocation.longitude
+                      );
                     }
                   }, 100);
                 } else {
@@ -329,7 +338,10 @@ export default function MapScreen() {
             );
             // 사용자 위치도 함께 표시
             if (userLocation) {
-              showUserLocationOnMap(userLocation.latitude, userLocation.longitude);
+              showUserLocationOnMap(
+                userLocation.latitude,
+                userLocation.longitude
+              );
             }
           }, 100);
         }
@@ -457,7 +469,7 @@ export default function MapScreen() {
             spots: spotsData,
           })
         );
-        
+
         // 사용자 위치도 함께 표시
         if (userLocation) {
           showUserLocationOnMap(userLocation.latitude, userLocation.longitude);
@@ -469,8 +481,6 @@ export default function MapScreen() {
       setSpotsLoading(false);
     }
   };
-
-
 
   // WebView 메시지 핸들러 업데이트
   const handleWebViewMessage = async (event: any) => {
@@ -700,7 +710,10 @@ export default function MapScreen() {
                             centerMapOnCourse(courseToDisplay.courseSpots);
                             // 사용자 위치도 함께 표시
                             if (userLocation) {
-                              showUserLocationOnMap(userLocation.latitude, userLocation.longitude);
+                              showUserLocationOnMap(
+                                userLocation.latitude,
+                                userLocation.longitude
+                              );
                             }
                           }, 100);
                         }
@@ -786,7 +799,10 @@ export default function MapScreen() {
             // WebView 로드 완료 후 사용자 위치 표시
             if (userLocation) {
               setTimeout(() => {
-                showUserLocationOnMap(userLocation.latitude, userLocation.longitude);
+                showUserLocationOnMap(
+                  userLocation.latitude,
+                  userLocation.longitude
+                );
               }, 500);
             }
           }}
