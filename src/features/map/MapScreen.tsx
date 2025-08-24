@@ -61,7 +61,6 @@ export default function MapScreen() {
   const route = useRoute();
   const spotToShow = (route.params as any)?.spotToShow;
   const paramsCourseData = (route.params as any)?.courseData;
-  
 
   const [selectedMarket, setSelectedMarket] = useState<Market | null>(null);
   const [showMarketList, setShowMarketList] = useState(false);
@@ -90,6 +89,30 @@ export default function MapScreen() {
           lng,
         })
       );
+    }
+  };
+
+  // 사용자 위치로 이동하는 함수
+  const moveToUserLocation = async () => {
+    try {
+      if (!userLocation) {
+        // 사용자 위치가 없으면 새로 가져오기
+        await getUserLocation();
+        return;
+      }
+
+      // WebView에 사용자 위치로 이동하는 메시지 전송
+      if (webViewRef.current) {
+        webViewRef.current.postMessage(
+          JSON.stringify({
+            type: "move_to_user_location",
+            lat: userLocation.latitude,
+            lng: userLocation.longitude,
+          })
+        );
+      }
+    } catch (error) {
+      Alert.alert("위치 이동 오류", "사용자 위치로 이동할 수 없습니다.");
     }
   };
 
@@ -171,7 +194,7 @@ export default function MapScreen() {
   // 진행중인 코스가 있거나 파라미터로 코스 데이터가 전달된 경우 해당 코스의 spot들을 로드하는 함수
   const loadCurrentCourseSpots = async () => {
     if (!markets || markets.length === 0) return;
-    
+
     const courseToUse = currentCourse || paramsCourseData;
     if (!courseToUse) return;
 
@@ -180,12 +203,12 @@ export default function MapScreen() {
 
       // 파라미터로 전달된 코스 데이터가 이미 상세 정보를 포함하고 있는지 확인
       let courseToDisplay = courseToUse;
-      
+
       // 파라미터 코스가 상세 정보(courseSpots)를 포함하지 않는다면 API로 가져오기
       if (!courseToUse.courseSpots || courseToUse.courseSpots.length === 0) {
         const { fetchCourseDetail } = useCourseStore.getState();
         await fetchCourseDetail(courseToUse.courseId);
-        
+
         // 상세 정보가 업데이트된 후 코스 스팟들만 지도에 표시
         const { detailedCourse } = useCourseStore.getState();
         courseToDisplay = detailedCourse || courseToUse;
@@ -232,7 +255,7 @@ export default function MapScreen() {
       const fetchAndDisplayCourse = async () => {
         // 파라미터로 전달된 코스 데이터가 이미 상세 정보를 포함하고 있는지 확인
         let courseToDisplay = courseToUse;
-        
+
         // 파라미터 코스가 상세 정보(courseSpots)를 포함하지 않는다면 API로 가져오기
         if (!courseToUse.courseSpots || courseToUse.courseSpots.length === 0) {
           const { fetchCourseDetail } = useCourseStore.getState();
@@ -279,11 +302,17 @@ export default function MapScreen() {
   // spotToShow 파라미터가 있을 때 해당 스팟을 지도에 표시
   useEffect(() => {
     // markets 데이터와 WebView가 완전히 로드될 때까지 대기
-    if (spotToShow && webViewRef.current && webViewLoaded && markets && markets.length > 0) {
+    if (
+      spotToShow &&
+      webViewRef.current &&
+      webViewLoaded &&
+      markets &&
+      markets.length > 0
+    ) {
       // WebView가 로드될 때까지 기다린 후 실행 (빠른 반응)
       const executeSpotShow = () => {
         const courseToUse = currentCourse || paramsCourseData;
-        
+
         // 진행중인 코스나 파라미터 코스가 있다면 3단계로 처리
         if (courseToUse) {
           // 진행중인 코스의 시장 찾기
@@ -303,9 +332,12 @@ export default function MapScreen() {
               try {
                 // 파라미터로 전달된 코스 데이터가 이미 상세 정보를 포함하고 있는지 확인
                 let courseToDisplay = courseToUse;
-                
+
                 // 파라미터 코스가 상세 정보(courseSpots)를 포함하지 않는다면 API로 가져오기
-                if (!courseToUse.courseSpots || courseToUse.courseSpots.length === 0) {
+                if (
+                  !courseToUse.courseSpots ||
+                  courseToUse.courseSpots.length === 0
+                ) {
                   const { fetchCourseDetail } = useCourseStore.getState();
                   await fetchCourseDetail(courseToUse.courseId);
 
@@ -387,7 +419,14 @@ export default function MapScreen() {
         setTimeout(executeSpotShow, 200);
       }
     }
-  }, [spotToShow, currentCourse, paramsCourseData, markets, loading, webViewLoaded]);
+  }, [
+    spotToShow,
+    currentCourse,
+    paramsCourseData,
+    markets,
+    loading,
+    webViewLoaded,
+  ]);
 
   const moveToLocation = (lat: number, lng: number) => {
     if (webViewRef.current) {
@@ -828,7 +867,7 @@ export default function MapScreen() {
           javaScriptEnabled={true}
           onLoadEnd={() => {
             setWebViewLoaded(true);
-            
+
             // WebView 로드 완료 후 사용자 위치 표시
             if (userLocation) {
               setTimeout(() => {
@@ -840,6 +879,20 @@ export default function MapScreen() {
             }
           }}
         />
+
+        {/* 내 위치로 이동 버튼 */}
+        <TouchableOpacity
+          onPress={moveToUserLocation}
+          className="absolute bottom-6 left-4 bg-white rounded-full shadow-lg p-3 border border-gray-200"
+          activeOpacity={0.8}
+          disabled={locationLoading}
+        >
+          {locationLoading ? (
+            <ActivityIndicator size="small" color="#3B82F6" />
+          ) : (
+            <Ionicons name="locate" size={24} color="#3B82F6" />
+          )}
+        </TouchableOpacity>
       </View>
 
       {/* 스팟 정보 모달 */}

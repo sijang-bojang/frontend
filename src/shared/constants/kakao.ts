@@ -250,6 +250,34 @@ export const KAKAO_MAP_HTML = (lat: number, lng: number) => `
             window.currentMarker = null;
           }
         };
+
+        // 사용자 위치로 이동하는 함수
+        window.moveToUserLocation = function(lat, lng) {
+          var userPosition = new kakao.maps.LatLng(lat, lng);
+          map.setCenter(userPosition);
+          map.setLevel(4); // 사용자 위치는 적당한 줌 레벨로 설정
+          
+          // 사용자 위치 마커가 보이도록 확실히 표시
+          if (window.userLocationMarker) {
+            window.userLocationMarker.setMap(null);
+          }
+          
+          // 새로운 사용자 위치 마커 생성
+          window.userLocationMarker = new kakao.maps.Marker({
+            position: userPosition,
+            map: map
+          });
+          
+          // 파란색 작은 동그라미 + 흰색 테두리 스타일 적용
+          var userMarkerImage = new kakao.maps.MarkerImage(
+            'data:image/svg+xml;base64,' + btoa('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8" fill="#3B82F6" stroke="#FFFFFF" stroke-width="2"/></svg>'),
+            new kakao.maps.Size(16, 16)
+          );
+          window.userLocationMarker.setImage(userMarkerImage);
+          
+          // 사용자 위치 마커는 클릭 불가능하게 설정
+          window.userLocationMarker.setClickable(false);
+        };
         
         // 스팟 위치로 이동하고 확대하는 함수
         window.showSpotOnMap = function(spot) {
@@ -336,6 +364,8 @@ export const KAKAO_MAP_HTML = (lat: number, lng: number) => `
             
             if (data.type === 'move_to_location') {
               window.moveToLocation(data.lat, data.lng);
+            } else if (data.type === 'move_to_user_location') {
+              window.moveToUserLocation(data.lat, data.lng);
             } else if (data.type === 'show_spots') {
               window.showSpots(data.spots);
             } else if (data.type === 'show_course_spots') {
