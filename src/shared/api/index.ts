@@ -411,5 +411,111 @@ export const fetchMissionDetail = async (
   }
 };
 
+// 사용자 코스 진행도 관련 타입 정의
+export interface UserCourseProgressResponse {
+  id: number;
+  userId: number;
+  courseId: number;
+  courseName: string;
+  status: "NOT_STARTED" | "IN_PROGRESS" | "COMPLETED";
+  currentStep: number;
+  totalSteps: number;
+  progressPercentage: number;
+  startedAt: string | null;
+  completedAt: string | null;
+}
+
+// 사용자 코스 시작
+export const startUserCourse = async (
+  userId: number,
+  courseId: number
+): Promise<UserCourseProgressResponse> => {
+  try {
+    const response = await api.post<UserCourseProgressResponse>(
+      `${API_CONFIG.ENDPOINTS.USER_COURSE_PROGRESS_START}?userId=${userId}&courseId=${courseId}`
+    );
+    return response.data;
+  } catch (error) {
+    console.error(`사용자 코스 시작 실패 (userId: ${userId}, courseId: ${courseId}):`, error);
+    throw error;
+  }
+};
+
+// 사용자 코스 진행도 업데이트
+export const updateUserCourseProgress = async (
+  userId: number,
+  courseId: number,
+  currentStep: number
+): Promise<UserCourseProgressResponse> => {
+  try {
+    const response = await api.put<UserCourseProgressResponse>(
+      `${API_CONFIG.ENDPOINTS.USER_COURSE_PROGRESS_UPDATE}?userId=${userId}&courseId=${courseId}&currentStep=${currentStep}`
+    );
+    return response.data;
+  } catch (error) {
+    console.error(`사용자 코스 진행도 업데이트 실패 (userId: ${userId}, courseId: ${courseId}):`, error);
+    throw error;
+  }
+};
+
+// 사용자 코스 완료
+export const completeUserCourse = async (
+  userId: number,
+  courseId: number
+): Promise<UserCourseProgressResponse> => {
+  try {
+    const response = await api.post<UserCourseProgressResponse>(
+      `${API_CONFIG.ENDPOINTS.USER_COURSE_PROGRESS_COMPLETE}?userId=${userId}&courseId=${courseId}`
+    );
+    return response.data;
+  } catch (error) {
+    console.error(`사용자 코스 완료 실패 (userId: ${userId}, courseId: ${courseId}):`, error);
+    throw error;
+  }
+};
+
+// 사용자별 코스 진행도 조회
+export const fetchUserCourseProgress = async (
+  userId: number
+): Promise<UserCourseProgressResponse[]> => {
+  try {
+    const response = await api.get<UserCourseProgressResponse[]>(
+      `${API_CONFIG.ENDPOINTS.USER_COURSE_PROGRESS_BY_USER}/${userId}`
+    );
+    return response.data;
+  } catch (error) {
+    console.error(`사용자 코스 진행도 조회 실패 (userId: ${userId}):`, error);
+    throw error;
+  }
+};
+
+// 사용자 미션 완료
+export const completeUserMission = async (
+  userId: number,
+  missionId: number
+): Promise<UserMissionResponse> => {
+  try {
+    const response = await api.post<UserMissionResponse>(
+      `${API_CONFIG.ENDPOINTS.USER_MISSION_COMPLETE}?userId=${userId}&missionId=${missionId}`
+    );
+    return response.data;
+  } catch (error) {
+    console.error(`사용자 미션 완료 실패 (userId: ${userId}, missionId: ${missionId}):`, error);
+    throw error;
+  }
+};
+
+// 사용자 미션 삭제
+export const deleteUserMission = async (
+  userMissionId: number
+): Promise<void> => {
+  try {
+    await api.delete(`${API_CONFIG.ENDPOINTS.USER_MISSIONS}/${userMissionId}`);
+  } catch (error) {
+    console.error(`사용자 미션 삭제 실패 (userMissionId: ${userMissionId}):`, error);
+    throw error;
+  }
+};
+
 // API 인스턴스 내보내기 (다른 곳에서 사용할 경우)
 export default api;

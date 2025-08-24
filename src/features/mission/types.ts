@@ -7,6 +7,8 @@ export interface Mission {
   iconName: string;
   iconColor: string;
   isCompleted: boolean;
+  userMissionId?: number; // 사용자 미션 ID 추가
+  rewardPoints?: number; // 보상 포인트 추가
 }
 
 export interface CourseMission {
@@ -19,6 +21,7 @@ export interface CourseMission {
   isVisitType: boolean;
   isNonVisitType: boolean;
   isCompleted: boolean;
+  userMissionId?: number; // 사용자 미션 ID 추가
 }
 
 export interface StampData {

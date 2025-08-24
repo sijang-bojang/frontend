@@ -61,6 +61,7 @@ export default function MissionInfoModal({
     }
   };
 
+
   return (
     <Modal
       visible={visible}

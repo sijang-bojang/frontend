@@ -25,6 +25,14 @@ export const API_CONFIG = {
     USER_MISSION_START: "/api/user-missions/start",
     // 미션 상세 정보 엔드포인트
     MISSIONS: "/api/missions",
+    // 사용자 코스 진행도 관련 엔드포인트
+    USER_COURSE_PROGRESS: "/api/user-course-progress",
+    USER_COURSE_PROGRESS_BY_USER: "/api/user-course-progress/user",
+    USER_COURSE_PROGRESS_START: "/api/user-course-progress/start",
+    USER_COURSE_PROGRESS_UPDATE: "/api/user-course-progress/progress",
+    USER_COURSE_PROGRESS_COMPLETE: "/api/user-course-progress/complete",
+    // 사용자 미션 완료
+    USER_MISSION_COMPLETE: "/api/user-missions/complete",
   },
 
   // 타임아웃 설정 (밀리초)

@@ -12,7 +12,7 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { Market } from "./types";
-import { Course, fetchSpotDetail, fetchSpotMissions, startUserMission, fetchUserMissionsByStatus, fetchMissionDetail } from "../../shared/api";
+import { Course, fetchSpotDetail, fetchSpotMissions, startUserMission, fetchUserMissionsByStatus, fetchMissionDetail, fetchUserCourseProgress } from "../../shared/api";
 import IconButton from "./components/IconButton";
 import MissionInfoModal, { MissionInfo } from "./components/MissionInfoModal";
 import GeneralMissionModal, { GeneralMission } from "./components/GeneralMissionModal";
@@ -75,6 +75,7 @@ export default function TourPathScreen({
   const [generalMissions, setGeneralMissions] = useState<GeneralMission[]>([]);
   const [selectedMission, setSelectedMission] = useState<GeneralMission | null>(null);
   const [isGeneralMissionModalVisible, setIsGeneralMissionModalVisible] = useState(false);
+  const [courseProgress, setCourseProgress] = useState({ current: 0, total: 0, percentage: 0 });
 
   // Course store 사용
   const {
@@ -148,6 +149,30 @@ export default function TourPathScreen({
     // 코스 상세 정보 가져오기 (store에서 중복 호출 방지)
     fetchCourseDetail(courseData.courseId);
   }, [courseData.courseId, setCurrentCourse, fetchCourseDetail]);
+
+  // 코스 진행도 가져오기
+  useEffect(() => {
+    const loadCourseProgress = async () => {
+      if (!currentUser || !courseData.courseId) return;
+
+      try {
+        const userCourses = await fetchUserCourseProgress(currentUser.userId);
+        const currentCourse = userCourses.find(course => course.courseId === courseData.courseId);
+        
+        if (currentCourse) {
+          setCourseProgress({
+            current: currentCourse.currentStep,
+            total: currentCourse.totalSteps,
+            percentage: currentCourse.progressPercentage
+          });
+        }
+      } catch (error) {
+        console.error('코스 진행도 조회 실패:', error);
+      }
+    };
+
+    loadCourseProgress();
+  }, [currentUser, courseData.courseId]);
 
   // API 데이터를 사용한 실제 아이콘 버튼 생성
   const currentIconButtons = useMemo(() => {
@@ -409,6 +434,7 @@ export default function TourPathScreen({
     }
   };
 
+
   const toggleMenu = () => {
     if (isMenuOpen) {
       // 메뉴 닫기
@@ -463,10 +489,10 @@ export default function TourPathScreen({
 
   return (
     <View className="flex-1">
-      {/* 고정 제목 */}
+      {/* 고정 제목과 진행도 */}
       <View className="absolute top-0 left-0 right-0 z-10 px-4 py-4 mx-4">
         <Text
-          className="text-2xl text-black text-left"
+          className="text-2xl text-black text-left mb-2"
           style={{
             fontFamily: "ChosunCentennial",
             textShadowColor: "white",
@@ -476,6 +502,42 @@ export default function TourPathScreen({
         >
           {detailedCourseData?.name || courseData.name}
         </Text>
+        
+        {/* 코스 진행도 바 */}
+        {courseProgress.total > 0 && (
+          <View className="mt-2">
+            <View className="flex-row justify-between items-center mb-1">
+              <Text
+                className="text-sm text-gray-700"
+                style={{
+                  fontFamily: "ChosunCentennial",
+                  textShadowColor: "white",
+                  textShadowOffset: { width: 1, height: 1 },
+                  textShadowRadius: 3,
+                }}
+              >
+                진행도: {courseProgress.current}/{courseProgress.total}
+              </Text>
+              <Text
+                className="text-sm text-gray-700"
+                style={{
+                  fontFamily: "ChosunCentennial",
+                  textShadowColor: "white",
+                  textShadowOffset: { width: 1, height: 1 },
+                  textShadowRadius: 3,
+                }}
+              >
+                {Math.round(courseProgress.percentage)}%
+              </Text>
+            </View>
+            <View className="w-full bg-white/70 rounded-full h-2">
+              <View
+                className="bg-orange-500 h-2 rounded-full transition-all duration-300"
+                style={{ width: `${courseProgress.percentage}%` }}
+              />
+            </View>
+          </View>
+        )}
       </View>
 
       <ScrollView

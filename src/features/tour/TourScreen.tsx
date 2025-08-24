@@ -8,7 +8,7 @@ import TourPathScreen from "./TourPathScreen";
 import TourCompleteModal from "./components/TourCompleteModal";
 import { TourFilters, Market } from "./types";
 import { useMarkets } from "../../shared/hooks/useMarkets";
-import { recommendCourse, CourseRecommendResponse } from "../../shared/api";
+import { recommendCourse, CourseRecommendResponse, startUserCourse } from "../../shared/api";
 
 export default function TourScreen() {
   const [step, setStep] = useState<"intro" | "region" | "filter" | "path">(
@@ -77,9 +77,26 @@ export default function TourScreen() {
     setShowTourCompleteModal(false);
   };
 
-  const handleChallenge = () => {
-    setShowTourCompleteModal(false);
-    setStep("path");
+  const handleChallenge = async () => {
+    if (!courseData) {
+      return;
+    }
+
+    try {
+      // 임시로 사용자 ID를 1로 설정 (추후 인증 시스템과 연동)
+      const userId = 1;
+      
+      // 사용자에게 코스 등록
+      await startUserCourse(userId, courseData.courseId);
+      
+      setShowTourCompleteModal(false);
+      setStep("path");
+    } catch (error) {
+      console.error("코스 등록 실패:", error);
+      // 에러가 발생해도 일단 화면은 전환
+      setShowTourCompleteModal(false);
+      setStep("path");
+    }
   };
 
   const handleOtherChoice = () => {

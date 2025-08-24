@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { View, Text, ScrollView, Image, Alert } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { useFocusEffect } from "@react-navigation/native";
 
 import StampGrid from "./components/StampGrid";
 import MissionCard from "./components/MissionCard";
 import CourseMissionCard from "./components/CourseMissionCard";
 import { missions, stampData } from "./data";
-import { fetchUserMissions, fetchMissionDetail, MissionDetail, UserMissionResponse } from "../../shared/api";
+import { fetchUserMissions, fetchMissionDetail, MissionDetail, UserMissionResponse, deleteUserMission } from "../../shared/api";
 import { useUserStore } from "../../shared/stores/userStore";
 import { Mission, CourseMission } from "./types";
 
@@ -18,8 +19,7 @@ export default function MissionScreen() {
   const [isLoading, setIsLoading] = useState(true);
 
   // 사용자 미션 데이터 가져오기
-  useEffect(() => {
-    const loadUserMissions = async () => {
+  const loadUserMissions = async () => {
       if (!currentUser) {
         setIsLoading(false);
         return;
@@ -70,7 +70,8 @@ export default function MissionScreen() {
               spotNames: detail.spotNames,
               isVisitType: detail.isVisitType,
               isNonVisitType: detail.isNonVisitType,
-              isCompleted: userMission.completed
+              isCompleted: userMission.completed,
+              userMissionId: userMission.userMissionId // userMissionId 추가
             });
           } else if (detail.isNonVisitType) {
             console.log('일반 미션으로 분류:', detail.title);
@@ -83,7 +84,9 @@ export default function MissionScreen() {
               targetProgress: 1,
               iconName: "map.png", // 기본 아이콘
               iconColor: "#4CAF50",
-              isCompleted: userMission.completed
+              isCompleted: userMission.completed,
+              userMissionId: userMission.userMissionId, // userMissionId 추가
+              rewardPoints: detail.rewardPoints // 보상 포인트 추가
             });
           }
         });
@@ -107,8 +110,12 @@ export default function MissionScreen() {
       }
     };
 
-    loadUserMissions();
-  }, [currentUser]);
+  // 화면이 포커스될 때마다 미션 데이터 새로고침
+  useFocusEffect(
+    React.useCallback(() => {
+      loadUserMissions();
+    }, [currentUser])
+  );
 
   const handleMissionPress = (missionId: number) => {
     console.log(`Mission ${missionId} pressed`);
@@ -119,6 +126,68 @@ export default function MissionScreen() {
     console.log(`Course Mission ${missionId} pressed`);
     // TODO: 코스 미션 상세 화면으로 이동 또는 미션 완료 처리
   };
+
+  // 미션 삭제 핸들러
+  const handleMissionDelete = async (userMissionId: number) => {
+    try {
+      await deleteUserMission(userMissionId);
+      
+      // 삭제 후 미션 목록 새로고침
+      if (currentUser) {
+        const missions = await fetchUserMissions(currentUser.userId);
+        setUserMissions(missions);
+
+        // 미션 상세 정보 다시 가져와서 분류
+        const missionDetails = await Promise.all(
+          missions.map(mission => fetchMissionDetail(mission.missionId))
+        );
+
+        const courseList: CourseMission[] = [];
+        const generalList: Mission[] = [];
+
+        missionDetails.forEach((detail, index) => {
+          const userMission = missions[index];
+          
+          if (detail.isVisitType) {
+            courseList.push({
+              missionId: detail.missionId,
+              title: detail.title,
+              description: detail.description,
+              rewardPoints: detail.rewardPoints,
+              missionType: detail.missionType,
+              spotNames: detail.spotNames,
+              isVisitType: detail.isVisitType,
+              isNonVisitType: detail.isNonVisitType,
+              isCompleted: userMission.completed,
+              userMissionId: userMission.userMissionId
+            });
+          } else if (detail.isNonVisitType) {
+            generalList.push({
+              id: detail.missionId,
+              title: detail.title,
+              description: detail.description,
+              currentProgress: userMission.completed ? 1 : 0,
+              targetProgress: 1,
+              iconName: "map.png",
+              iconColor: "#4CAF50",
+              isCompleted: userMission.completed,
+              userMissionId: userMission.userMissionId,
+              rewardPoints: detail.rewardPoints
+            });
+          }
+        });
+
+        setCourseMissions(courseList);
+        setGeneralMissions(generalList);
+      }
+      
+      Alert.alert('삭제 완료', '미션이 삭제되었습니다.');
+    } catch (error) {
+      console.error('미션 삭제 실패:', error);
+      Alert.alert('삭제 실패', '미션 삭제에 실패했습니다.');
+    }
+  };
+
 
   if (isLoading) {
     return (
@@ -157,7 +226,9 @@ export default function MissionScreen() {
               <CourseMissionCard
                 key={mission.missionId}
                 mission={mission}
+                userMissionId={mission.userMissionId}
                 onPress={() => handleCourseMissionPress(mission.missionId)}
+                onDelete={handleMissionDelete}
               />
             ))}
           </View>
@@ -179,7 +250,11 @@ export default function MissionScreen() {
                 targetProgress={mission.targetProgress}
                 iconName={mission.iconName}
                 iconColor={mission.iconColor}
+                userMissionId={mission.userMissionId}
+                isCompleted={mission.isCompleted}
+                rewardPoints={mission.rewardPoints}
                 onPress={() => handleMissionPress(mission.id)}
+                onDelete={handleMissionDelete}
               />
             ))}
           </View>
