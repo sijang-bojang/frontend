@@ -151,7 +151,7 @@ export default function MissionInfoModal({
             {spotInfo.missions && spotInfo.missions.length > 0 && (
               <TouchableOpacity
                 onPress={handleChallenge}
-                className="flex-1 bg-orange-500 py-3 rounded-xl mr-2"
+                className="flex-1 bg-orange-400 py-3 rounded-xl mr-2"
               >
                 <Text
                   className="text-center text-white font-medium"
@@ -165,10 +165,10 @@ export default function MissionInfoModal({
             {/* 지도에서 보기 버튼 */}
             <TouchableOpacity
               onPress={onShowOnMap}
-              className="flex-1 border-2 border-orange-500 bg-white py-3 rounded-xl ml-2"
+              className="flex-1 border-2 border-orange-400 bg-white py-3 rounded-xl ml-2"
             >
               <Text
-                className="text-center text-orange-500 font-medium"
+                className="text-center text-orange-400 font-medium"
                 style={{ fontFamily: "ChosunCentennial" }}
               >
                 지도에서 보기
