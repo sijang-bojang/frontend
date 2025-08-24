@@ -39,7 +39,17 @@
       ]
     ],
     "extra": {
-      "KAKAO_JAVASCRIPT_KEY": "${EXPO_PUBLIC_KAKAO_JAVASCRIPT_KEY}"
+      "KAKAO_JAVASCRIPT_KEY": "${EXPO_PUBLIC_KAKAO_JAVASCRIPT_KEY}",
+      "eas": {
+        "projectId": "4f61d3cc-53c2-4ca0-a19a-29dc60cbf600"
+      }
+    },
+    "owner": "als8921",
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/4f61d3cc-53c2-4ca0-a19a-29dc60cbf600"
     }
   }
 }
