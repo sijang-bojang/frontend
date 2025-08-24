@@ -2,12 +2,15 @@ import React from "react";
 import { ScrollView, View, Text, Image, TouchableOpacity } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
+import { useNavigation } from "@react-navigation/native";
 import HeaderBar from "./components/HeaderBar";
 import MarketNewsCard from "./components/HeroCarousel";
 import NoticesSection from "./components/NoticesSection";
 import { Notice } from "./types";
 
 export default function HomeScreen() {
+  const navigation = useNavigation();
+
   const notices: Notice[] = [
     { id: 1, text: "[행사] OX 퀴즈 참여 EVENT" },
     { id: 2, text: "[시장] 2025년 9월 대전 중앙시장 오일장 개최" },
@@ -15,7 +18,7 @@ export default function HomeScreen() {
 
   const handleAICourseRecommendation = () => {
     console.log("AI 코스 추천 버튼 클릭됨");
-    // 여기에 AI 코스 추천 기능을 추가할 수 있습니다
+    navigation.navigate("Tour" as never);
   };
 
   return (
