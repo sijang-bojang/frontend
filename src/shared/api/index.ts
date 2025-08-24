@@ -551,5 +551,67 @@ export const deleteUserMission = async (
   }
 };
 
+// 코스의 모든 사용자 미션 삭제
+export const deleteAllUserMissionsForCourse = async (
+  userId: number,
+  courseId: number
+): Promise<void> => {
+  try {
+    // 1. 코스 상세 정보 가져오기 (spots 포함)
+    const courseDetail = await fetchCourseDetail(courseId);
+
+    // 2. 각 spot의 미션들을 가져와서 사용자 미션 ID 찾기
+    const allUserMissionIds: number[] = [];
+
+    for (const spot of courseDetail.courseSpots) {
+      try {
+        const spotMissions = await fetchSpotMissions(spot.spotId);
+
+        // 각 미션에 대해 사용자 미션 ID 찾기
+        for (const mission of spotMissions) {
+          try {
+            // 사용자별 미션 조회하여 userMissionId 찾기
+            const userMissions = await fetchUserMissionsByStatus(
+              userId,
+              "IN_PROGRESS"
+            );
+            const userMission = userMissions.find(
+              (um) => um.missionId === mission.missionId
+            );
+
+            if (userMission) {
+              allUserMissionIds.push(userMission.userMissionId);
+            }
+          } catch (missionError) {
+            console.error(
+              `미션 ${mission.missionId} 사용자 미션 조회 실패:`,
+              missionError
+            );
+          }
+        }
+      } catch (spotError) {
+        console.error(`Spot ${spot.spotId} 미션 조회 실패:`, spotError);
+      }
+    }
+
+    // 3. 모든 사용자 미션 삭제
+    if (allUserMissionIds.length > 0) {
+      const deletePromises = allUserMissionIds.map((userMissionId) =>
+        deleteUserMission(userMissionId)
+      );
+
+      await Promise.all(deletePromises);
+      console.log(
+        `${allUserMissionIds.length}개의 사용자 미션이 삭제되었습니다.`
+      );
+    } else {
+      console.log("삭제할 사용자 미션이 없습니다.");
+    }
+  } catch (error) {
+    console.error(`코스 ${courseId}의 모든 사용자 미션 삭제 실패:`, error);
+    throw error;
+  }
+};
+
 // API 인스턴스 내보내기 (다른 곳에서 사용할 경우)
 export default api;

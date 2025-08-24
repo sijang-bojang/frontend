@@ -20,6 +20,7 @@ import {
   fetchUserMissionsByStatus,
   fetchMissionDetail,
   fetchUserCourseProgress,
+  deleteAllUserMissionsForCourse,
 } from "../../shared/api";
 import IconButton from "./components/IconButton";
 import MissionInfoModal, { MissionInfo } from "./components/MissionInfoModal";
@@ -472,7 +473,22 @@ export default function TourPathScreen({
         {
           text: "그만두기",
           style: "destructive",
-          onPress: () => {
+          onPress: async () => {
+            try {
+              // 현재 사용자와 코스 정보 확인
+              if (currentUser && courseData) {
+                // 코스의 모든 사용자 미션 삭제
+                await deleteAllUserMissionsForCourse(
+                  currentUser.userId,
+                  courseData.courseId
+                );
+                console.log("코스의 모든 미션이 삭제되었습니다.");
+              }
+            } catch (error) {
+              console.error("미션 삭제 실패:", error);
+              // 미션 삭제가 실패해도 코스는 그만둘 수 있도록 함
+            }
+
             // courseStore에서 현재 코스 제거
             clearCourse();
             // 투어 처음 화면으로 돌아가기
