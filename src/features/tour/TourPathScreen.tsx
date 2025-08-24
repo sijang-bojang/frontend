@@ -305,34 +305,24 @@ export default function TourPathScreen({
         // 스팟 미션 정보만 가져오기 (새로운 API 구조 사용)
         const spotMissions = await fetchSpotMissions(courseSpot.spotId);
 
-        // 새로운 API 구조에 맞게 SpotInfo 형식으로 변환
-        const spotInfo: MissionInfo = {
-          id: courseSpot.spotId.toString(),
-          name: courseSpot.spotName,
-          description: courseSpot.description,
-          category: courseSpot.category,
-          address: `${detailedCourseData.marketName} 내부`,
-          missionCount: spotMissions.length,
-          visitMissionTitles: spotMissions
-            .filter((mission: any) => mission.missionType === "VISIT")
-            .map((mission: any) => mission.title),
-          missions: spotMissions.map((mission: any) => ({
-            id: mission.missionId,
-            missionId: mission.missionId,
-            missionTitle: mission.title,
-            missionType: mission.missionType,
-            rewardPoints: mission.rewardPoints,
-            spotId: courseSpot.spotId,
-            spotName:
-              mission.spotNames && mission.spotNames.length > 0
-                ? mission.spotNames[0]
-                : courseSpot.spotName,
-            description: mission.description || "미션 설명이 준비 중입니다.",
-          })),
-        };
+        if (spotMissions.length > 0) {
+          // 첫 번째 미션을 선택하여 미션 제출 모달에 표시
+          const firstMission = spotMissions[0];
 
-        setSelectedSpotInfo(spotInfo);
-        setIsSpotModalVisible(true);
+          setSelectedMissionForSubmit({
+            title: firstMission.title,
+            description:
+              firstMission.description || "미션 설명이 준비 중입니다.",
+            rewardPoints: firstMission.rewardPoints,
+            missionId: firstMission.missionId,
+            spotName: courseSpot.spotName,
+          });
+
+          // 미션 제출 모달 표시
+          setShowMissionSubmitModal(true);
+        } else {
+          Alert.alert("미션 없음", "이 스팟에는 현재 미션이 없습니다.");
+        }
       } catch (error) {
         Alert.alert(
           "스팟 정보 조회 실패",
