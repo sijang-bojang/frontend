@@ -100,7 +100,7 @@ export default function MissionInfoModal({
               spotInfo.missions.map((mission, index) => (
                 <View key={index} className="mb-4">
                   {/* 미션 제목과 포인트를 한 줄에 표시 */}
-                  <View className="flex-row items-center justify-between mb-3">
+                  <View className="flex-row items-center justify-between mb-0">
                     <Text
                       className="text-lg font-bold text-gray-800 flex-1 mr-3"
                       style={{ fontFamily: "ChosunCentennial" }}
