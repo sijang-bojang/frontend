@@ -87,15 +87,16 @@ const MissionCard: React.FC<MissionCardProps> = ({
         <View className="flex-row items-center">
           {/* 아이콘 */}
           <View className="mr-4 justify-center">
-            <Image
-              source={missionIcons[iconName]}
-              className="w-16 h-16"
-              resizeMode="contain"
-              style={{
-                opacity: 1,
-                tintColor: iconColor,
-              }}
-            />
+            <View className="w-16 h-16 rounded-full items-center justify-center">
+              <Image
+                source={missionIcons[iconName]}
+                className="w-12 h-12"
+                resizeMode="contain"
+                style={{
+                  opacity: 1,
+                }}
+              />
+            </View>
           </View>
 
           {/* 미션 정보 */}
