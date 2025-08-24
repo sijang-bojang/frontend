@@ -160,8 +160,19 @@ export default function MissionScreen() {
       console.log("분류된 코스 미션:", courseList);
       console.log("분류된 일반 미션:", generalList);
 
-      setCourseMissions(courseList);
-      setGeneralMissions([...generalList]); // API에서 가져온 일반 미션만 표시
+      // 완료된 미션을 아래로 정렬
+      const sortedCourseMissions = [...courseList].sort((a, b) => {
+        if (a.isCompleted === b.isCompleted) return 0;
+        return a.isCompleted ? 1 : -1; // 완료되지 않은 미션이 위로
+      });
+
+      const sortedGeneralMissions = [...generalList].sort((a, b) => {
+        if (a.isCompleted === b.isCompleted) return 0;
+        return a.isCompleted ? 1 : -1; // 완료되지 않은 미션이 위로
+      });
+
+      setCourseMissions(sortedCourseMissions);
+      setGeneralMissions(sortedGeneralMissions);
     } catch (error) {
       console.error("사용자 미션 데이터 로드 실패:", error);
       Alert.alert("미션 로드 실패", "미션 데이터를 불러오는데 실패했습니다.");
@@ -244,8 +255,19 @@ export default function MissionScreen() {
           }
         });
 
-        setCourseMissions(courseList);
-        setGeneralMissions(generalList);
+        // 완료된 미션을 아래로 정렬
+        const sortedCourseMissions = [...courseList].sort((a, b) => {
+          if (a.isCompleted === b.isCompleted) return 0;
+          return a.isCompleted ? 1 : -1; // 완료되지 않은 미션이 위로
+        });
+
+        const sortedGeneralMissions = [...generalList].sort((a, b) => {
+          if (a.isCompleted === b.isCompleted) return 0;
+          return a.isCompleted ? 1 : -1; // 완료되지 않은 미션이 위로
+        });
+
+        setCourseMissions(sortedCourseMissions);
+        setGeneralMissions(sortedGeneralMissions);
       }
 
       Alert.alert("삭제 완료", "미션이 삭제되었습니다.");
