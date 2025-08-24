@@ -1,5 +1,5 @@
 import React from "react";
-import { View, Text, TouchableOpacity, Alert } from "react-native";
+import { View, Text, Pressable, Alert } from "react-native";
 import { CourseMission } from "../types";
 import MissionCompleteBadge from "./MissionCompleteBadge";
 
@@ -35,14 +35,12 @@ const CourseMissionCard: React.FC<CourseMissionCardProps> = ({
 
   return (
     <View className="relative">
-      <TouchableOpacity
+      <Pressable
         className={`rounded-2xl p-5 mb-3 shadow-sm border border-gray-100 ${
           mission.isCompleted ? "bg-gray-100" : "bg-white"
         }`}
-        activeOpacity={1}
-        onPress={mission.isCompleted ? handleLongPress : onPress}
+        onPress={onPress}
         onLongPress={handleLongPress}
-        delayLongPress={500} // 0.5초로 단축
         style={{
           opacity: mission.isCompleted ? 0.6 : 1,
         }}
@@ -70,7 +68,7 @@ const CourseMissionCard: React.FC<CourseMissionCardProps> = ({
             </Text>
           </View>
         </View>
-      </TouchableOpacity>
+      </Pressable>
 
       {/* 완료 배지 - 미션이 완료되었을 때만 표시 */}
       {mission.isCompleted && <MissionCompleteBadge />}

@@ -1,5 +1,5 @@
 import React from "react";
-import { View, Text, TouchableOpacity, Image, Alert } from "react-native";
+import { View, Text, Pressable, Image, Alert } from "react-native";
 import { missionIcons, MissionIconName } from "../data";
 import MissionCompleteBadge from "./MissionCompleteBadge";
 
@@ -53,33 +53,14 @@ const MissionCard: React.FC<MissionCardProps> = ({
     ]);
   };
 
-  // 완료된 미션 터치 시 삭제 확인
-  const handleCompletedMissionPress = () => {
-    if (!userMissionId || !onDelete) return;
-
-    Alert.alert("미션 삭제", "이 미션을 삭제하시겠습니까?", [
-      {
-        text: "취소",
-        style: "cancel",
-      },
-      {
-        text: "삭제",
-        style: "destructive",
-        onPress: () => onDelete(userMissionId),
-      },
-    ]);
-  };
-
   return (
     <View className="relative">
-      <TouchableOpacity
+      <Pressable
         className={`rounded-2xl p-4 mb-3 shadow-sm border border-gray-100 ${
           isCompleted ? "bg-gray-100" : "bg-white"
         }`}
-        activeOpacity={1}
-        onPress={isCompleted ? handleCompletedMissionPress : onPress}
+        onPress={onPress}
         onLongPress={handleLongPress}
-        delayLongPress={500} // 0.5초로 단축
         style={{
           opacity: isCompleted ? 0.6 : 1,
         }}
@@ -142,7 +123,7 @@ const MissionCard: React.FC<MissionCardProps> = ({
             </View>
           </View>
         </View>
-      </TouchableOpacity>
+      </Pressable>
 
       {/* 완료 배지 - 미션이 완료되었을 때만 표시 */}
       {isCompleted && <MissionCompleteBadge />}
