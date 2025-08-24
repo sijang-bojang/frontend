@@ -2,7 +2,7 @@
 
 ## 📋 개요
 
-- **Base URL**: `http://0.0.0.0:8080`
+- **Base URL**: `http://3.34.186.143:8080`
 - **Content-Type**: `application/json`
 - **인증**: 현재 인증 없음 (모든 API 공개)
 
@@ -39,7 +39,13 @@ GET /api/markets
 GET /api/markets/{marketId}
 ```
 
-### 1.3 시장 생성
+### 1.3 시장 검색
+
+```http
+GET /api/markets/search?name={name}&address={address}
+```
+
+### 1.4 시장 생성
 
 ```http
 POST /api/markets
@@ -52,6 +58,27 @@ Content-Type: application/json
   "latitude": 36.3308,
   "longitude": 127.4325
 }
+```
+
+### 1.5 시장 수정
+
+```http
+PUT /api/markets/{marketId}
+Content-Type: application/json
+
+{
+  "name": "수정된 시장",
+  "description": "수정된 설명",
+  "address": "수정된 주소",
+  "latitude": 36.3308,
+  "longitude": 127.4325
+}
+```
+
+### 1.6 시장 삭제
+
+```http
+DELETE /api/markets/{marketId}
 ```
 
 ---
@@ -99,6 +126,40 @@ GET /api/missions/type/{missionType}
 
 ```http
 GET /api/missions/search?title={title}&minRewardPoints={points}
+```
+
+### 2.5 미션 생성
+
+```http
+POST /api/missions
+Content-Type: application/json
+
+{
+  "title": "새로운 미션",
+  "description": "미션 설명",
+  "missionType": "VISIT",
+  "rewardPoints": 100
+}
+```
+
+### 2.6 미션 수정
+
+```http
+PUT /api/missions/{missionId}
+Content-Type: application/json
+
+{
+  "title": "수정된 미션",
+  "description": "수정된 설명",
+  "missionType": "VISIT",
+  "rewardPoints": 150
+}
+```
+
+### 2.7 미션 삭제
+
+```http
+DELETE /api/missions/{missionId}
 ```
 
 ---
@@ -152,7 +213,47 @@ GET /api/spots/category/{category}
 ### 3.5 스팟 검색
 
 ```http
-GET /api/spots/search?name={name}&category={category}
+GET /api/spots/search?name={name}&category={category}&marketId={marketId}
+```
+
+### 3.6 스팟 생성
+
+```http
+POST /api/spots
+Content-Type: application/json
+
+{
+  "marketId": 1,
+  "name": "새로운 스팟",
+  "description": "스팟 설명",
+  "category": "맛집",
+  "latitude": 36.3308,
+  "longitude": 127.4325,
+  "imageUrl": "https://example.com/image.jpg"
+}
+```
+
+### 3.7 스팟 수정
+
+```http
+PUT /api/spots/{spotId}
+Content-Type: application/json
+
+{
+  "marketId": 1,
+  "name": "수정된 스팟",
+  "description": "수정된 설명",
+  "category": "맛집",
+  "latitude": 36.3308,
+  "longitude": 127.4325,
+  "imageUrl": "https://example.com/updated-image.jpg"
+}
+```
+
+### 3.8 스팟 삭제
+
+```http
+DELETE /api/spots/{spotId}
 ```
 
 ---
@@ -201,10 +302,46 @@ GET /api/courses/{courseId}
 GET /api/courses/market/{marketId}
 ```
 
-### 4.4 타입별 코스 조회
+### 4.4 코스 검색
 
 ```http
-GET /api/courses/type/{typeName}
+GET /api/courses/search?name={name}&description={description}
+```
+
+### 4.5 코스 생성
+
+```http
+POST /api/courses
+Content-Type: application/json
+
+{
+  "marketId": 1,
+  "name": "새로운 코스",
+  "description": "코스 설명",
+  "isFamilyCourse": true,
+  "isCoupleCourse": false
+}
+```
+
+### 4.6 코스 수정
+
+```http
+PUT /api/courses/{courseId}
+Content-Type: application/json
+
+{
+  "marketId": 1,
+  "name": "수정된 코스",
+  "description": "수정된 설명",
+  "isFamilyCourse": true,
+  "isCoupleCourse": false
+}
+```
+
+### 4.7 코스 삭제
+
+```http
+DELETE /api/courses/{courseId}
 ```
 
 ---
@@ -252,7 +389,13 @@ GET /api/users/username/{username}
 GET /api/users/email/{email}
 ```
 
-### 5.5 사용자 생성
+### 5.5 사용자 스탬프 조회
+
+```http
+GET /api/users/{userId}/stamps
+```
+
+### 5.6 사용자 생성
 
 ```http
 POST /api/users
@@ -265,7 +408,7 @@ Content-Type: application/json
 }
 ```
 
-### 5.6 사용자 수정
+### 5.7 사용자 수정
 
 ```http
 PUT /api/users/{userId}
@@ -278,26 +421,22 @@ Content-Type: application/json
 }
 ```
 
-### 5.7 보상 포인트 업데이트
+### 5.8 보상 포인트 업데이트
 
 ```http
-PUT /api/users/{userId}/reward
-Content-Type: application/json
-
-{
-  "totalReward": 1000
-}
+PUT /api/users/{userId}/reward?rewardPoints={rewardPoints}
 ```
 
-### 5.8 경험치 업데이트
+### 5.9 경험치 업데이트
 
 ```http
-PUT /api/users/{userId}/exp
-Content-Type: application/json
+PUT /api/users/{userId}/exp?exp={exp}
+```
 
-{
-  "exp": 1500
-}
+### 5.10 사용자 삭제
+
+```http
+DELETE /api/users/{userId}
 ```
 
 ---
@@ -355,7 +494,20 @@ GET /api/user-missions/user/{userId}/status/{status}
 GET /api/user-missions/user/{userId}/mission/{missionId}
 ```
 
-### 6.6 미션 시작 ⭐
+### 6.6 사용자 미션 생성
+
+```http
+POST /api/user-missions
+Content-Type: application/json
+
+{
+  "userId": 1,
+  "missionId": 1,
+  "status": "NOT_STARTED"
+}
+```
+
+### 6.7 미션 시작 ⭐
 
 ```http
 POST /api/user-missions/start?userId={userId}&missionId={missionId}
@@ -378,7 +530,7 @@ POST /api/user-missions/start?userId={userId}&missionId={missionId}
 }
 ```
 
-### 6.7 미션 완료 ⭐
+### 6.8 미션 완료 ⭐
 
 ```http
 POST /api/user-missions/complete?userId={userId}&missionId={missionId}
@@ -400,6 +552,17 @@ POST /api/user-missions/complete?userId={userId}&missionId={missionId}
   "inProgress": false
 }
 ```
+
+### 6.9 사용자 미션 삭제
+
+```http
+DELETE /api/user-missions/{userMissionId}
+```
+
+**응답:**
+
+- `200 OK`: 삭제 성공
+- `404 Not Found`: 해당 userMissionId를 찾을 수 없음
 
 ---
 
@@ -430,40 +593,66 @@ GET /api/user-course-progress
 ]
 ```
 
-### 7.2 사용자별 코스 진행도 조회
+### 7.2 특정 코스 진행도 조회
+
+```http
+GET /api/user-course-progress/{id}
+```
+
+### 7.3 사용자별 코스 진행도 조회
 
 ```http
 GET /api/user-course-progress/user/{userId}
 ```
 
-### 7.3 사용자별 상태별 코스 진행도 조회
+### 7.4 사용자별 상태별 코스 진행도 조회
 
 ```http
 GET /api/user-course-progress/user/{userId}/status/{status}
 ```
 
-### 7.4 특정 사용자의 특정 코스 진행도 조회
+### 7.5 특정 사용자의 특정 코스 진행도 조회
 
 ```http
 GET /api/user-course-progress/user/{userId}/course/{courseId}
 ```
 
-### 7.5 코스 시작 ⭐
+### 7.6 코스 진행도 생성
+
+```http
+POST /api/user-course-progress
+Content-Type: application/json
+
+{
+  "userId": 1,
+  "courseId": 1,
+  "status": "NOT_STARTED",
+  "currentStep": 1
+}
+```
+
+### 7.7 코스 시작 ⭐
 
 ```http
 POST /api/user-course-progress/start?userId={userId}&courseId={courseId}
 ```
 
-### 7.6 진행도 업데이트 ⭐
+### 7.8 진행도 업데이트 ⭐
 
 ```http
 PUT /api/user-course-progress/progress?userId={userId}&courseId={courseId}&currentStep={currentStep}
 ```
 
-### 7.7 코스 완료 ⭐
+### 7.9 코스 완료 ⭐
 
 ```http
 POST /api/user-course-progress/complete?userId={userId}&courseId={courseId}
+```
+
+### 7.10 코스 진행도 삭제
+
+```http
+DELETE /api/user-course-progress/{id}
 ```
 
 ---
