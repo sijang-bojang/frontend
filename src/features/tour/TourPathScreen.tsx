@@ -21,6 +21,7 @@ import {
   fetchMissionDetail,
   fetchUserCourseProgress,
   deleteAllUserMissionsForCourse,
+  completeUserMission,
 } from "../../shared/api";
 import IconButton from "./components/IconButton";
 import MissionInfoModal, { MissionInfo } from "./components/MissionInfoModal";
@@ -596,15 +597,43 @@ export default function TourPathScreen({
     }
 
     try {
-      // 미션 완료 후 추가 처리가 필요한 경우 여기에 구현
-      // 현재는 MissionSubmitModal에서 모든 처리를 완료하므로
-      // 여기서는 추가 작업 없이 모달만 닫음
+      // 먼저 사용자 미션을 시작 상태로 만들기
+      await startUserMission(currentUser.userId, selectedMissionForSubmit.missionId);
+      
+      // 미션 완료 API 호출
+      const completedMission = await completeUserMission(currentUser.userId, selectedMissionForSubmit.missionId);
+      
+      console.log('미션 완료 성공:', completedMission);
 
-      // 모달 닫기
-      setShowMissionSubmitModal(false);
-      setSelectedMissionForSubmit(null);
+      // 성공 알림 표시
+      Alert.alert(
+        "미션 완료!",
+        `미션을 성공적으로 완료했습니다!\n+${selectedMissionForSubmit.rewardPoints}P를 획득했습니다.`,
+        [
+          {
+            text: "확인",
+            onPress: () => {
+              // 모달 닫기
+              setShowMissionSubmitModal(false);
+              setSelectedMissionForSubmit(null);
+            }
+          }
+        ]
+      );
     } catch (error) {
-      console.error("미션 제출 후 처리 실패:", error);
+      console.error("미션 제출 실패:", error);
+      Alert.alert(
+        "오류",
+        "미션 제출 중 오류가 발생했습니다. 다시 시도해주세요.",
+        [
+          {
+            text: "확인",
+            onPress: () => {
+              // 실패해도 모달은 닫지 않음
+            }
+          }
+        ]
+      );
     }
   };
 
