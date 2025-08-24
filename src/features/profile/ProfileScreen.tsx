@@ -150,7 +150,7 @@ export default function ProfileScreen() {
 
         {/* 포인트 박스 */}
         <View className="px-6 mb-6">
-          <View className="bg-gradient-to-r from-blue-50 to-blue-100 rounded-xl border border-blue-200 p-6">
+          <View className="bg-gradient-to-r from-blue-50 to-blue-100 rounded-xl border border-blue-500 p-6">
             <View className="flex-row items-center justify-between">
               <View>
                 <Text className="text-lg font-semibold text-gray-900 mb-1">
@@ -188,7 +188,7 @@ export default function ProfileScreen() {
         </View>
 
         {/* 완주한 투어 */}
-        <View className="px-6 mb-6">
+        <View className="px-6 mb-3">
           <View className="bg-white rounded-lg border border-gray-200 p-4">
             <View className="flex-row items-center justify-between mb-4">
               <Text className="text-lg font-semibold text-gray-900">
@@ -212,7 +212,7 @@ export default function ProfileScreen() {
         </View>
 
         {/* 작성한 리뷰 */}
-        <View className="px-6 mb-6">
+        <View className="px-6 mb-3">
           <TouchableOpacity className="bg-white rounded-lg border border-gray-200 p-4 flex-row items-center justify-between">
             <Text className="text-lg font-semibold text-gray-900">
               내가 작성한 리뷰
@@ -231,22 +231,56 @@ export default function ProfileScreen() {
           </TouchableOpacity>
         </View>
 
-        {/* 문의 및 알림 */}
-        <View className="px-6 mb-6">
-          <Text className="text-lg font-bold text-gray-900 mb-4">
+        {/* 문의 및 알림 섹션 */}
+        <View className="px-6 mb-6 pt-10">
+          <Text className="text-lg font-semibold text-gray-900 mb-3">
             문의 및 알림
           </Text>
-          <View className="flex-row space-x-3">
-            <TouchableOpacity className="flex-1 bg-white rounded-lg border border-gray-200 p-4 items-center">
-              <Text className="text-gray-900 font-medium">고객센터</Text>
-            </TouchableOpacity>
-            <TouchableOpacity className="flex-1 bg-white rounded-lg border border-gray-200 p-4 items-center">
-              <Text className="text-gray-900 font-medium">자주 묻는 질문</Text>
-            </TouchableOpacity>
-            <TouchableOpacity className="flex-1 bg-white rounded-lg border border-gray-200 p-4 items-center">
-              <Text className="text-gray-900 font-medium">약관 및 정책</Text>
-            </TouchableOpacity>
-          </View>
+
+          {/* 구분선 */}
+          <View className="h-px bg-gray-200 mb-2" />
+
+          {/* 고객센터 */}
+          <TouchableOpacity className="bg-white rounded-lg border border-gray-200 p-4 flex-row items-center justify-between mb-2">
+            <View className="flex-row items-center">
+              <Ionicons
+                name="headset"
+                size={20}
+                color="#6B6B6BFF"
+                className="mr-3"
+              />
+              <Text className="text-base text-gray-900">고객센터</Text>
+            </View>
+            <Ionicons name="chevron-forward" size={20} color="#9CA3AF" />
+          </TouchableOpacity>
+
+          {/* 자주 묻는 질문 */}
+          <TouchableOpacity className="bg-white rounded-lg border border-gray-200 p-4 flex-row items-center justify-between mb-2">
+            <View className="flex-row items-center">
+              <Ionicons
+                name="help-circle"
+                size={20}
+                color="#6B6B6BFF"
+                className="mr-3"
+              />
+              <Text className="text-base text-gray-900">자주 묻는 질문</Text>
+            </View>
+            <Ionicons name="chevron-forward" size={20} color="#9CA3AF" />
+          </TouchableOpacity>
+
+          {/* 약관 및 정책 */}
+          <TouchableOpacity className="bg-white rounded-lg border border-gray-200 p-4 flex-row items-center justify-between">
+            <View className="flex-row items-center">
+              <Ionicons
+                name="document-text"
+                size={20}
+                color="#6B6B6BFF"
+                className="mr-3"
+              />
+              <Text className="text-base text-gray-900">약관 및 정책</Text>
+            </View>
+            <Ionicons name="chevron-forward" size={20} color="#9CA3AF" />
+          </TouchableOpacity>
         </View>
       </ScrollView>
     </SafeAreaView>
