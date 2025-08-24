@@ -337,6 +337,7 @@ export const KAKAO_MAP_HTML = (lat: number, lng: number) => `
         window.addEventListener('message', function(event) {
           try {
             var data = JSON.parse(event.data);
+            
             if (data.type === 'move_to_location') {
               window.moveToLocation(data.lat, data.lng);
             } else if (data.type === 'show_spots') {

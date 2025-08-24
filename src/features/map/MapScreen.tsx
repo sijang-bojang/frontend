@@ -60,6 +60,8 @@ export default function MapScreen() {
   // 네비게이션 파라미터 받기
   const route = useRoute();
   const spotToShow = (route.params as any)?.spotToShow;
+  const paramsCourseData = (route.params as any)?.courseData;
+  
 
   const [selectedMarket, setSelectedMarket] = useState<Market | null>(null);
   const [showMarketList, setShowMarketList] = useState(false);
@@ -74,6 +76,7 @@ export default function MapScreen() {
   const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
   const [showCourseList, setShowCourseList] = useState(false);
   const [coursesLoading, setCoursesLoading] = useState(false);
+  const [webViewLoaded, setWebViewLoaded] = useState(false);
 
   const webViewRef = useRef<WebView>(null);
 
@@ -158,27 +161,35 @@ export default function MapScreen() {
     }
   }, [currentCourse, userLocation]);
 
-  // markets 데이터가 로드된 후 진행중인 코스가 있을 때만 코스 spot 데이터 로드
+  // markets 데이터가 로드된 후 진행중인 코스가 있거나 파라미터로 코스 데이터가 전달된 경우 코스 spot 데이터 로드
   useEffect(() => {
-    if (markets && markets.length > 0 && currentCourse) {
+    if (markets && markets.length > 0 && (currentCourse || paramsCourseData)) {
       loadCurrentCourseSpots();
     }
-  }, [markets, currentCourse]);
+  }, [markets, currentCourse, paramsCourseData]);
 
-  // 진행중인 코스가 있을 때만 해당 코스의 spot들을 로드하는 함수
+  // 진행중인 코스가 있거나 파라미터로 코스 데이터가 전달된 경우 해당 코스의 spot들을 로드하는 함수
   const loadCurrentCourseSpots = async () => {
-    if (!markets || markets.length === 0 || !currentCourse) return;
+    if (!markets || markets.length === 0) return;
+    
+    const courseToUse = currentCourse || paramsCourseData;
+    if (!courseToUse) return;
 
     try {
       setSpotsLoading(true);
 
-      // courseStore에서 상세 정보 가져오기
-      const { fetchCourseDetail } = useCourseStore.getState();
-      await fetchCourseDetail(currentCourse.courseId);
-
-      // 상세 정보가 업데이트된 후 코스 스팟들만 지도에 표시
-      const { detailedCourse } = useCourseStore.getState();
-      const courseToDisplay = detailedCourse || currentCourse;
+      // 파라미터로 전달된 코스 데이터가 이미 상세 정보를 포함하고 있는지 확인
+      let courseToDisplay = courseToUse;
+      
+      // 파라미터 코스가 상세 정보(courseSpots)를 포함하지 않는다면 API로 가져오기
+      if (!courseToUse.courseSpots || courseToUse.courseSpots.length === 0) {
+        const { fetchCourseDetail } = useCourseStore.getState();
+        await fetchCourseDetail(courseToUse.courseId);
+        
+        // 상세 정보가 업데이트된 후 코스 스팟들만 지도에 표시
+        const { detailedCourse } = useCourseStore.getState();
+        courseToDisplay = detailedCourse || courseToUse;
+      }
 
       if (courseToDisplay.courseSpots.length > 0) {
         // 코스 스팟들을 지도에 표시
@@ -202,10 +213,11 @@ export default function MapScreen() {
     }
   };
 
-  // 현재 진행중인 코스가 있으면 자동으로 선택하고 지도에 표시
+  // 현재 진행중인 코스가 있거나 파라미터로 코스 데이터가 전달된 경우 자동으로 선택하고 지도에 표시
   useEffect(() => {
-    if (currentCourse) {
-      setSelectedCourse(currentCourse);
+    const courseToUse = currentCourse || paramsCourseData;
+    if (courseToUse) {
+      setSelectedCourse(courseToUse);
 
       // 기존 마커들 제거
       if (webViewRef.current) {
@@ -218,12 +230,18 @@ export default function MapScreen() {
 
       // API를 통해 상세 정보 가져오기
       const fetchAndDisplayCourse = async () => {
-        const { fetchCourseDetail } = useCourseStore.getState();
-        await fetchCourseDetail(currentCourse.courseId);
+        // 파라미터로 전달된 코스 데이터가 이미 상세 정보를 포함하고 있는지 확인
+        let courseToDisplay = courseToUse;
+        
+        // 파라미터 코스가 상세 정보(courseSpots)를 포함하지 않는다면 API로 가져오기
+        if (!courseToUse.courseSpots || courseToUse.courseSpots.length === 0) {
+          const { fetchCourseDetail } = useCourseStore.getState();
+          await fetchCourseDetail(courseToUse.courseId);
 
-        // 상세 정보가 업데이트된 후 지도에 표시
-        const { detailedCourse } = useCourseStore.getState();
-        const courseToDisplay = detailedCourse || currentCourse;
+          // 상세 정보가 업데이트된 후 지도에 표시
+          const { detailedCourse } = useCourseStore.getState();
+          courseToDisplay = detailedCourse || courseToUse;
+        }
 
         if (courseToDisplay.courseSpots.length > 0) {
           setTimeout(() => {
@@ -243,7 +261,7 @@ export default function MapScreen() {
 
       fetchAndDisplayCourse();
     } else {
-      // 진행중인 코스가 없으면 선택된 코스와 시장을 초기화
+      // 진행중인 코스가 없고 파라미터 코스도 없으면 선택된 코스와 시장을 초기화
       setSelectedCourse(null);
       setSelectedMarket(null);
 
@@ -256,18 +274,21 @@ export default function MapScreen() {
         );
       }
     }
-  }, [currentCourse]);
+  }, [currentCourse, paramsCourseData]);
 
   // spotToShow 파라미터가 있을 때 해당 스팟을 지도에 표시
   useEffect(() => {
-    if (spotToShow && webViewRef.current) {
+    // markets 데이터와 WebView가 완전히 로드될 때까지 대기
+    if (spotToShow && webViewRef.current && webViewLoaded && markets && markets.length > 0) {
       // WebView가 로드될 때까지 기다린 후 실행 (빠른 반응)
       const executeSpotShow = () => {
-        // 진행중인 코스가 있다면 3단계로 처리
-        if (currentCourse) {
+        const courseToUse = currentCourse || paramsCourseData;
+        
+        // 진행중인 코스나 파라미터 코스가 있다면 3단계로 처리
+        if (courseToUse) {
           // 진행중인 코스의 시장 찾기
           const courseMarket = markets.find(
-            (market) => market.marketId === currentCourse.marketId
+            (market) => market.marketId === courseToUse.marketId
           );
 
           if (courseMarket) {
@@ -275,34 +296,42 @@ export default function MapScreen() {
             setSelectedMarket(courseMarket);
 
             // 진행중인 코스 선택
-            setSelectedCourse(currentCourse);
+            setSelectedCourse(courseToUse);
 
             // 2단계: 코스 상세 정보 가져오기 및 스팟 시각화
             const fetchAndDisplayCourse = async () => {
               try {
-                const { fetchCourseDetail } = useCourseStore.getState();
-                await fetchCourseDetail(currentCourse.courseId);
+                // 파라미터로 전달된 코스 데이터가 이미 상세 정보를 포함하고 있는지 확인
+                let courseToDisplay = courseToUse;
+                
+                // 파라미터 코스가 상세 정보(courseSpots)를 포함하지 않는다면 API로 가져오기
+                if (!courseToUse.courseSpots || courseToUse.courseSpots.length === 0) {
+                  const { fetchCourseDetail } = useCourseStore.getState();
+                  await fetchCourseDetail(courseToUse.courseId);
 
-                // 상세 정보가 업데이트된 후 지도에 표시
-                const { detailedCourse } = useCourseStore.getState();
-                const courseToDisplay = detailedCourse || currentCourse;
+                  // 상세 정보가 업데이트된 후 지도에 표시
+                  const { detailedCourse } = useCourseStore.getState();
+                  courseToDisplay = detailedCourse || courseToUse;
+                }
 
                 if (courseToDisplay.courseSpots.length > 0) {
                   // 코스 스팟들을 지도에 표시
                   showCourseSpotsOnMap(courseToDisplay.courseSpots);
 
-                  // 3단계: 해당 스팟 위치로 이동 (즉시 실행)
+                  // 3단계: 해당 스팟 위치로 이동 (충분한 지연시간 후 실행)
                   setTimeout(() => {
-                    webViewRef.current?.postMessage(
-                      JSON.stringify({
-                        type: "show_spot_on_map",
-                        spot: {
-                          latitude: spotToShow.latitude,
-                          longitude: spotToShow.longitude,
-                          name: spotToShow.name,
-                        },
-                      })
-                    );
+                    if (webViewRef.current) {
+                      webViewRef.current.postMessage(
+                        JSON.stringify({
+                          type: "show_spot_on_map",
+                          spot: {
+                            latitude: spotToShow.latitude,
+                            longitude: spotToShow.longitude,
+                            name: spotToShow.name,
+                          },
+                        })
+                      );
+                    }
                     // 사용자 위치도 함께 표시
                     if (userLocation) {
                       showUserLocationOnMap(
@@ -310,7 +339,7 @@ export default function MapScreen() {
                         userLocation.longitude
                       );
                     }
-                  }, 100);
+                  }, 1000); // 1초로 지연시간 증가
                 } else {
                   // 에러 처리 (로그 없이)
                 }
@@ -324,18 +353,20 @@ export default function MapScreen() {
             // 에러 처리 (로그 없이)
           }
         } else {
-          // 진행중인 코스가 없다면 단순히 해당 위치로만 이동
+          // 진행중인 코스나 파라미터 코스가 없다면 단순히 해당 위치로만 이동
           setTimeout(() => {
-            webViewRef.current?.postMessage(
-              JSON.stringify({
-                type: "show_spot_on_map",
-                spot: {
-                  latitude: spotToShow.latitude,
-                  longitude: spotToShow.longitude,
-                  name: spotToShow.name,
-                },
-              })
-            );
+            if (webViewRef.current) {
+              webViewRef.current.postMessage(
+                JSON.stringify({
+                  type: "show_spot_on_map",
+                  spot: {
+                    latitude: spotToShow.latitude,
+                    longitude: spotToShow.longitude,
+                    name: spotToShow.name,
+                  },
+                })
+              );
+            }
             // 사용자 위치도 함께 표시
             if (userLocation) {
               showUserLocationOnMap(
@@ -343,7 +374,7 @@ export default function MapScreen() {
                 userLocation.longitude
               );
             }
-          }, 100);
+          }, 1000); // 1초로 지연시간 증가
         }
       };
 
@@ -353,10 +384,10 @@ export default function MapScreen() {
         executeSpotShow();
       } else {
         // WebView가 아직 준비되지 않았다면 짧게 대기
-        setTimeout(executeSpotShow, 200); // 0.2초로 단축
+        setTimeout(executeSpotShow, 200);
       }
     }
-  }, [spotToShow, currentCourse, markets]);
+  }, [spotToShow, currentCourse, paramsCourseData, markets, loading, webViewLoaded]);
 
   const moveToLocation = (lat: number, lng: number) => {
     if (webViewRef.current) {
@@ -796,6 +827,8 @@ export default function MapScreen() {
           onMessage={handleWebViewMessage}
           javaScriptEnabled={true}
           onLoadEnd={() => {
+            setWebViewLoaded(true);
+            
             // WebView 로드 완료 후 사용자 위치 표시
             if (userLocation) {
               setTimeout(() => {

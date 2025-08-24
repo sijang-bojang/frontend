@@ -44,6 +44,7 @@ type RootStackParamList = {
       latitude: number;
       longitude: number;
     };
+    courseData?: Course;
   };
 };
 
@@ -137,7 +138,7 @@ export default function TourPathScreen({
         setShowMissionSubmitModal(false);
         setSelectedMissionForSubmit(null);
 
-        // 지도 화면으로 이동하면서 선택한 위치 정보 전달
+        // 지도 화면으로 이동하면서 선택한 위치 정보와 코스 정보 전달
         navigation.navigate("Map", {
           spotToShow: {
             spotId: courseSpot.spotId.toString(),
@@ -145,6 +146,7 @@ export default function TourPathScreen({
             latitude: courseSpot.latitude,
             longitude: courseSpot.longitude,
           },
+          courseData: detailedCourseData || courseData,
         });
         return;
       }
@@ -175,6 +177,7 @@ export default function TourPathScreen({
               latitude: courseSpot.latitude,
               longitude: courseSpot.longitude,
             },
+            courseData: detailedCourseData || courseData,
           });
         } else {
           // GPS 좌표를 찾을 수 없는 경우 기본값 사용
@@ -185,6 +188,7 @@ export default function TourPathScreen({
               latitude: 36.3681, // 기본값
               longitude: 127.345,
             },
+            courseData: detailedCourseData || courseData,
           });
         }
       } else {
@@ -196,6 +200,7 @@ export default function TourPathScreen({
             latitude: 36.3681, // 기본값
             longitude: 127.345,
           },
+          courseData: detailedCourseData || courseData,
         });
       }
     }
