@@ -19,6 +19,9 @@ export const API_CONFIG = {
     USER_BY_EMAIL: "/api/users/email",
     USER_REWARD: "/api/users",
     USER_EXP: "/api/users",
+    // 사용자 미션 관련 엔드포인트 추가
+    USER_MISSIONS: "/api/user-missions",
+    USER_MISSION_START: "/api/user-missions/start",
   },
 
   // 타임아웃 설정 (밀리초)

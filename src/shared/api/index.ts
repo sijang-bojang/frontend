@@ -318,5 +318,40 @@ export const deleteUser = async (userId: number): Promise<void> => {
   }
 };
 
+// 사용자 미션 관련 타입 정의
+export interface UserMissionStartRequest {
+  userId: number;
+  missionId: number;
+}
+
+export interface UserMissionResponse {
+  userMissionId: number;
+  userId: number;
+  userName: string;
+  missionId: number;
+  missionTitle: string;
+  status: "NOT_STARTED" | "IN_PROGRESS" | "COMPLETED";
+  startedAt: string | null;
+  completedAt: string | null;
+  completed: boolean;
+  inProgress: boolean;
+}
+
+// 사용자 미션 시작
+export const startUserMission = async (
+  userId: number,
+  missionId: number
+): Promise<UserMissionResponse> => {
+  try {
+    const response = await api.post<UserMissionResponse>(
+      `${API_CONFIG.ENDPOINTS.USER_MISSION_START}?userId=${userId}&missionId=${missionId}`
+    );
+    return response.data;
+  } catch (error) {
+    console.error(`사용자 미션 시작 실패 (userId: ${userId}, missionId: ${missionId}):`, error);
+    throw error;
+  }
+};
+
 // API 인스턴스 내보내기 (다른 곳에서 사용할 경우)
 export default api;

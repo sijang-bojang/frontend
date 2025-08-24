@@ -12,10 +12,11 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { Market } from "./types";
-import { Course, fetchSpotDetail, fetchSpotMissions } from "../../shared/api";
+import { Course, fetchSpotDetail, fetchSpotMissions, startUserMission } from "../../shared/api";
 import IconButton from "./components/IconButton";
 import MissionInfoModal, { MissionInfo } from "./components/MissionInfoModal";
 import { useCourseStore } from "../../shared/stores/courseStore";
+import { useUserStore } from "../../shared/stores/userStore";
 import { useNavigation } from "@react-navigation/native";
 
 // 네비게이션 타입 정의
@@ -281,13 +282,60 @@ export default function TourPathScreen({
     }
   };
 
+  // User store 사용
+  const { currentUser } = useUserStore();
+
   // 도전하기 버튼 핸들러
-  const handleChallenge = () => {
-    // TODO: 실제 미션 도전 로직 구현
-    Alert.alert(
-      "미션 도전",
-      "미션 도전이 시작되었습니다!\n(현재는 로그만 출력됩니다)"
-    );
+  const handleChallenge = async () => {
+    if (!selectedSpotInfo || !selectedSpotInfo.missions || selectedSpotInfo.missions.length === 0) {
+      Alert.alert(
+        "미션 도전 실패",
+        "선택된 스팟의 미션 정보를 찾을 수 없습니다."
+      );
+      return;
+    }
+
+    if (!currentUser) {
+      Alert.alert(
+        "로그인 필요",
+        "미션을 도전하려면 로그인이 필요합니다."
+      );
+      return;
+    }
+
+    try {
+      // 첫 번째 미션을 도전 (예: VISIT 타입)
+      const firstMission = selectedSpotInfo.missions[0];
+      
+      // 미션 시작 API 호출
+      const userMissionResponse = await startUserMission(
+        currentUser.userId,
+        firstMission.missionId
+      );
+
+      Alert.alert(
+        "미션 도전 시작!",
+        `"${firstMission.missionTitle}" 미션을 시작했습니다!\n\n보상: ${firstMission.rewardPoints}포인트`,
+        [
+          {
+            text: "확인",
+            onPress: () => {
+              // 모달 닫기
+              setIsSpotModalVisible(false);
+              setTimeout(() => {
+                setSelectedSpotInfo(null);
+              }, 300);
+            },
+          },
+        ]
+      );
+    } catch (error) {
+      console.error("미션 시작 실패:", error);
+      Alert.alert(
+        "미션 도전 실패",
+        "미션 도전을 시작하는데 실패했습니다.\n잠시 후 다시 시도해주세요."
+      );
+    }
   };
 
   const toggleMenu = () => {
