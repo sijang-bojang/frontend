@@ -1,6 +1,6 @@
 import React from "react";
 import { View, Text, TouchableOpacity, Image, Alert } from "react-native";
-import { missionIcons } from "../data";
+import { missionIcons, MissionIconName } from "../data";
 import MissionCompleteBadge from "./MissionCompleteBadge";
 
 interface MissionCardProps {
@@ -9,7 +9,7 @@ interface MissionCardProps {
   description: string;
   currentProgress: number;
   targetProgress: number;
-  iconName: string;
+  iconName: MissionIconName;
   iconColor: string;
   userMissionId?: number; // 삭제용 ID 추가
   isCompleted?: boolean; // 완료 상태 추가
@@ -53,24 +53,48 @@ const MissionCard: React.FC<MissionCardProps> = ({
     ]);
   };
 
+  // 완료된 미션 터치 시 삭제 확인
+  const handleCompletedMissionPress = () => {
+    if (!userMissionId || !onDelete) return;
+
+    Alert.alert("미션 삭제", "이 미션을 삭제하시겠습니까?", [
+      {
+        text: "취소",
+        style: "cancel",
+      },
+      {
+        text: "삭제",
+        style: "destructive",
+        onPress: () => onDelete(userMissionId),
+      },
+    ]);
+  };
+
   return (
     <View className="relative">
       <TouchableOpacity
-        className={`bg-white rounded-2xl p-4 mb-3 shadow-sm border border-gray-100 ${
-          isCompleted ? "opacity-50" : ""
+        className={`rounded-2xl p-4 mb-3 shadow-sm border border-gray-100 ${
+          isCompleted ? "bg-gray-100" : "bg-white"
         }`}
-        activeOpacity={isCompleted ? 1.0 : 0.7}
-        onPress={isCompleted ? handleLongPress : onPress}
+        activeOpacity={1}
+        onPress={isCompleted ? handleCompletedMissionPress : onPress}
         onLongPress={handleLongPress}
         delayLongPress={500} // 0.5초로 단축
+        style={{
+          opacity: isCompleted ? 0.6 : 1,
+        }}
       >
         <View className="flex-row items-center">
           {/* 아이콘 */}
           <View className="mr-4 justify-center">
             <Image
-              source={missionIcons[iconName as keyof typeof missionIcons]}
+              source={missionIcons[iconName]}
               className="w-16 h-16"
               resizeMode="contain"
+              style={{
+                opacity: 1,
+                tintColor: iconColor,
+              }}
             />
           </View>
 
@@ -78,46 +102,28 @@ const MissionCard: React.FC<MissionCardProps> = ({
           <View className="flex-1">
             {/* 제목과 포인트를 한 줄에 표시 */}
             <View className="flex-row items-start justify-between mb-1">
-              <Text
-                className={`text-lg font-bold flex-1 mr-3 ${
-                  isCompleted ? "text-gray-500" : "text-gray-900"
-                }`}
-              >
+              <Text className="text-lg font-bold flex-1 mr-3 text-gray-900">
                 {title}
               </Text>
 
               {/* 보상 포인트 */}
               {rewardPoints > 0 && (
-                <View
-                  className={`px-3 py-1 rounded-full ${
-                    isCompleted ? "bg-gray-100" : "bg-blue-100"
-                  }`}
-                >
-                  <Text
-                    className={`text-sm font-bold ${
-                      isCompleted ? "text-gray-500" : "text-blue-700"
-                    }`}
-                  >
+                <View className="px-3 py-1 rounded-full bg-blue-100">
+                  <Text className="text-sm font-bold text-blue-700">
                     {rewardPoints}P
                   </Text>
                 </View>
               )}
             </View>
 
-            <Text
-              className={`text-sm mb-3 ${
-                isCompleted ? "text-gray-400" : "text-gray-600"
-              }`}
-            >
-              {description}
-            </Text>
+            <Text className="text-sm mb-3 text-gray-600">{description}</Text>
 
             {/* 진행률 바 */}
             <View className="mb-2">
               <View className="relative">
-                <View className="h-4 bg-gray-200 rounded-full overflow-hidden">
+                <View className="h-4 rounded-full overflow-hidden bg-gray-200">
                   <View
-                    className="h-full bg-blue-500 rounded-full"
+                    className="h-full rounded-full bg-blue-500"
                     style={{ width: `${progressPercentage}%` }}
                   />
                 </View>
@@ -137,7 +143,7 @@ const MissionCard: React.FC<MissionCardProps> = ({
         </View>
       </TouchableOpacity>
 
-      {/* 완료 배지 */}
+      {/* 완료 배지 - 미션이 완료되었을 때만 표시 */}
       {isCompleted && <MissionCompleteBadge />}
     </View>
   );

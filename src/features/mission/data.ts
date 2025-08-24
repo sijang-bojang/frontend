@@ -7,12 +7,14 @@ export const stampData: StampData = {
 };
 
 // 미션 아이콘 매핑
-const missionIcons = {
+export const missionIcons = {
   "calendar.png": require("../../assets/images/mission_icons/calendar.png"),
   "map.png": require("../../assets/images/mission_icons/map.png"),
   "money.png": require("../../assets/images/mission_icons/money.png"),
   "cake.png": require("../../assets/images/mission_icons/cake.png"),
-};
+} as const;
+
+export type MissionIconName = keyof typeof missionIcons;
 
 export const missions: Mission[] = [
   {
@@ -75,5 +77,3 @@ export const courseMissions: CourseMission[] = [
     isCompleted: true,
   },
 ];
-
-export { missionIcons };
