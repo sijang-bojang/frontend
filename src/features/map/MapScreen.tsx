@@ -77,6 +77,19 @@ export default function MapScreen() {
 
   const webViewRef = useRef<WebView>(null);
 
+  // 사용자 위치를 지도에 표시하는 함수
+  const showUserLocationOnMap = (lat: number, lng: number) => {
+    if (webViewRef.current) {
+      webViewRef.current.postMessage(
+        JSON.stringify({
+          type: "show_user_location",
+          lat,
+          lng,
+        })
+      );
+    }
+  };
+
   // 사용자 위치 가져오기
   const getUserLocation = async () => {
     try {
@@ -101,18 +114,8 @@ export default function MapScreen() {
 
       setUserLocation({ latitude, longitude });
 
-      // WebView에 사용자 위치 마커 표시 요청
-      if (webViewRef.current) {
-        setTimeout(() => {
-          webViewRef.current?.postMessage(
-            JSON.stringify({
-              type: "show_user_location",
-              lat: latitude,
-              lng: longitude,
-            })
-          );
-        }, 500); // WebView 로딩 완료 후 실행
-      }
+      // WebView에 사용자 위치 마커 표시 요청 (항상 표시)
+      showUserLocationOnMap(latitude, longitude);
     } catch (error) {
       Alert.alert(
         "위치 정보 오류",
@@ -127,6 +130,80 @@ export default function MapScreen() {
   useEffect(() => {
     getUserLocation();
   }, []);
+
+  // 사용자 위치가 설정될 때마다 지도에 표시
+  useEffect(() => {
+    if (userLocation && webViewRef.current) {
+      setTimeout(() => {
+        showUserLocationOnMap(userLocation.latitude, userLocation.longitude);
+      }, 500);
+    }
+  }, [userLocation]);
+
+  // currentCourse 변경 시 지도 상태 관리
+  useEffect(() => {
+    if (!currentCourse && webViewRef.current) {
+      // 진행중인 코스가 없으면 spot 마커들만 제거하고 사용자 위치는 유지
+      setTimeout(() => {
+        webViewRef.current?.postMessage(
+          JSON.stringify({
+            type: "clear_spots_only",
+          })
+        );
+        // 사용자 위치 다시 표시
+        if (userLocation) {
+          showUserLocationOnMap(userLocation.latitude, userLocation.longitude);
+        }
+      }, 100);
+    }
+  }, [currentCourse, userLocation]);
+
+  // markets 데이터가 로드된 후 진행중인 코스가 있을 때만 spot 데이터 로드
+  useEffect(() => {
+    if (markets && markets.length > 0 && currentCourse) {
+      loadAllSpotsAndCourses();
+    }
+  }, [markets, currentCourse]);
+
+  // 진행중인 코스가 있을 때만 해당 코스의 spot과 코스 데이터를 로드하는 함수
+  const loadAllSpotsAndCourses = async () => {
+    if (!markets || markets.length === 0 || !currentCourse) return;
+
+    try {
+      setSpotsLoading(true);
+      
+      // 진행중인 코스의 시장 찾기
+      const courseMarket = markets.find(market => market.marketId === currentCourse.marketId);
+      if (!courseMarket) return;
+
+      // 진행중인 코스의 시장 spot 데이터만 로드
+      const marketSpots = await fetchSpotsByMarket(courseMarket.marketId);
+      const spotsWithMarketName = marketSpots.map(spot => ({ ...spot, marketName: courseMarket.name }));
+      
+      setSpots(spotsWithMarketName);
+
+      // 지도에 spot 표시 및 사용자 위치 표시
+      if (webViewRef.current && spotsWithMarketName.length > 0) {
+        setTimeout(() => {
+          webViewRef.current?.postMessage(
+            JSON.stringify({
+              type: "show_spots",
+              spots: spotsWithMarketName,
+            })
+          );
+          
+          // 사용자 위치도 함께 표시
+          if (userLocation) {
+            showUserLocationOnMap(userLocation.latitude, userLocation.longitude);
+          }
+        }, 500);
+      }
+    } catch (error) {
+      // 에러 처리
+    } finally {
+      setSpotsLoading(false);
+    }
+  };
 
   // 현재 진행중인 코스가 있으면 자동으로 선택하고 지도에 표시
   useEffect(() => {
@@ -156,6 +233,10 @@ export default function MapScreen() {
             showCourseSpotsOnMap(courseToDisplay.courseSpots);
             // 지도를 코스 전체가 보이도록 조정
             centerMapOnCourse(courseToDisplay.courseSpots);
+            // 사용자 위치도 함께 표시
+            if (userLocation) {
+              showUserLocationOnMap(userLocation.latitude, userLocation.longitude);
+            }
           }, 100);
         }
       };
@@ -222,7 +303,11 @@ export default function MapScreen() {
                         },
                       })
                     );
-                  }, 100); // 즉시 실행 (0.1초로 단축)
+                    // 사용자 위치도 함께 표시
+                    if (userLocation) {
+                      showUserLocationOnMap(userLocation.latitude, userLocation.longitude);
+                    }
+                  }, 100);
                 } else {
                   // 에러 처리 (로그 없이)
                 }
@@ -248,7 +333,11 @@ export default function MapScreen() {
                 },
               })
             );
-          }, 100); // 즉시 실행 (0.1초로 단축)
+            // 사용자 위치도 함께 표시
+            if (userLocation) {
+              showUserLocationOnMap(userLocation.latitude, userLocation.longitude);
+            }
+          }, 100);
         }
       };
 
@@ -334,6 +423,11 @@ export default function MapScreen() {
     // 해당 시장의 코스 데이터 로드
     await loadCoursesForMarket(market.marketId);
 
+    // 사용자 위치도 함께 표시
+    if (userLocation) {
+      showUserLocationOnMap(userLocation.latitude, userLocation.longitude);
+    }
+
     // 코스가 있으면 코스 선택 UI 표시
     if (courses.length > 0) {
       setShowCourseList(true);
@@ -369,6 +463,11 @@ export default function MapScreen() {
             spots: spotsData,
           })
         );
+        
+        // 사용자 위치도 함께 표시
+        if (userLocation) {
+          showUserLocationOnMap(userLocation.latitude, userLocation.longitude);
+        }
       }
     } catch (error) {
       // 에러 처리 (로그 없이)
@@ -377,50 +476,7 @@ export default function MapScreen() {
     }
   };
 
-  // 코스 스팟 정보를 Spot 형태로 변환하는 함수
-  const convertCourseSpotToSpot = (
-    courseSpot: Course["courseSpots"][0] | any
-  ): Spot => {
-    // WebView에서 받은 데이터인지 확인
-    if (courseSpot.spotName) {
-      // WebView에서 받은 데이터
-      return {
-        spotId: courseSpot.spotId,
-        marketId: selectedMarket?.marketId || 0,
-        name: courseSpot.spotName,
-        category: courseSpot.category,
-        description: courseSpot.description,
-        latitude: courseSpot.latitude,
-        longitude: courseSpot.longitude,
-        marketName: selectedMarket?.name || "",
-        imageUrl: null,
-        missionCount: 0,
-        courseNames: [selectedCourse?.name || currentCourse?.name || ""],
-      };
-    } else {
-      // 기존 Course 타입의 데이터
-      return {
-        spotId: courseSpot.spotId,
-        marketId: selectedMarket?.marketId || 0,
-        name: courseSpot.spotName,
-        category: courseSpot.category,
-        description: courseSpot.description,
-        latitude: courseSpot.latitude,
-        longitude: courseSpot.longitude,
-        marketName: selectedMarket?.name || "",
-        imageUrl: null,
-        missionCount: 0,
-        courseNames: [selectedCourse?.name || ""],
-      };
-    }
-  };
 
-  // 코스 스팟 클릭 핸들러
-  const handleCourseSpotClick = (courseSpot: Course["courseSpots"][0]) => {
-    const spotData = convertCourseSpotToSpot(courseSpot);
-    setSelectedSpot(spotData);
-    setShowSpotModal(true);
-  };
 
   // WebView 메시지 핸들러 업데이트
   const handleWebViewMessage = async (event: any) => {
@@ -648,6 +704,10 @@ export default function MapScreen() {
                             showCourseSpotsOnMap(courseToDisplay.courseSpots);
                             // 지도를 코스 전체가 보이도록 조정
                             centerMapOnCourse(courseToDisplay.courseSpots);
+                            // 사용자 위치도 함께 표시
+                            if (userLocation) {
+                              showUserLocationOnMap(userLocation.latitude, userLocation.longitude);
+                            }
                           }, 100);
                         }
                       }}
@@ -728,6 +788,14 @@ export default function MapScreen() {
           source={{ html: mapHtml }}
           onMessage={handleWebViewMessage}
           javaScriptEnabled={true}
+          onLoadEnd={() => {
+            // WebView 로드 완료 후 사용자 위치 표시
+            if (userLocation) {
+              setTimeout(() => {
+                showUserLocationOnMap(userLocation.latitude, userLocation.longitude);
+              }, 500);
+            }
+          }}
         />
       </View>
 
