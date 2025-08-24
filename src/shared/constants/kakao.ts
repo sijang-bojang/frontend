@@ -80,10 +80,6 @@ export const KAKAO_MAP_HTML = (lat: number, lng: number) => `
         // 코스 스팟 색상 정의
         var courseSpotColors = {
           green: '#10B981',
-          blue: '#3B82F6',
-          red: '#EF4444',
-          orange: '#F59E0B',
-          purple: '#8B5CF6'
         };
         
         // 코스 스팟 마커 표시 함수
