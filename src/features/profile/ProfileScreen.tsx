@@ -19,12 +19,7 @@ import {
 export default function ProfileScreen() {
   const { currentUser, isLoading, error, loginAsUser } = useUserStore();
 
-  // 컴포넌트 마운트 시 사용자 ID 1번으로 로그인 (테스트용)
-  useEffect(() => {
-    if (!currentUser) {
-      loginAsUser(1);
-    }
-  }, [currentUser, loginAsUser]);
+  // App.tsx에서 이미 사용자 로그인을 처리하므로 여기서는 제거
 
   const completedTours = [
     {
@@ -71,7 +66,11 @@ export default function ProfileScreen() {
           <Text className="text-gray-600 text-center mb-4">{error}</Text>
           <TouchableOpacity
             className="bg-blue-500 px-6 py-3 rounded-lg"
-            onPress={() => loginAsUser(1)}
+            onPress={() => {
+              // 에러 발생 시 사용자 ID 1번으로 로그인 (테스트용)
+              // 실제 앱에서는 사용자 인증 흐름을 따라야 합니다.
+              loginAsUser(1);
+            }}
           >
             <Text className="text-white font-semibold">다시 시도</Text>
           </TouchableOpacity>

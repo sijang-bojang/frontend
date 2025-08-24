@@ -16,20 +16,33 @@ import TourScreen from "./src/features/tour/TourScreen";
 import MapScreen from "./src/features/map/MapScreen";
 import ProfileScreen from "./src/features/profile/ProfileScreen";
 
+// 사용자 스토어 import
+import { useUserStore } from "./src/shared/stores/userStore";
+
 const Tab = createBottomTabNavigator();
 
 export default function App() {
   const [fontsLoaded, setFontsLoaded] = useState(false);
+  const { loginAsUser } = useUserStore();
 
   useEffect(() => {
-    async function loadFonts() {
-      await Font.loadAsync({
-        ChosunCentennial: require("./src/assets/fonts/ChosunCentennial_ttf.ttf"),
-      });
-      setFontsLoaded(true);
+    async function initializeApp() {
+      try {
+        // 1. 폰트 로딩
+        await Font.loadAsync({
+          ChosunCentennial: require("./src/assets/fonts/ChosunCentennial_ttf.ttf"),
+        });
+        setFontsLoaded(true);
+
+        // 2. 사용자 자동 로그인 (ID: 1번)
+        await loginAsUser(1);
+      } catch (error) {
+        console.error("앱 초기화 실패:", error);
+      }
     }
-    loadFonts();
-  }, []);
+
+    initializeApp();
+  }, [loginAsUser]);
 
   if (!fontsLoaded) {
     return (
