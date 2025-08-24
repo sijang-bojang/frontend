@@ -12,6 +12,9 @@ import {
   recommendCourse,
   CourseRecommendResponse,
   startUserCourse,
+  fetchCourseDetail,
+  fetchSpotMissions,
+  startUserMission,
 } from "../../shared/api";
 
 export default function TourScreen() {
@@ -92,6 +95,42 @@ export default function TourScreen() {
 
       // 사용자에게 코스 등록
       await startUserCourse(userId, courseData.courseId);
+
+      // 코스의 모든 미션을 가져와서 사용자 미션으로 등록
+      try {
+        // 1. 코스 상세 정보 가져오기 (spots 포함)
+        const courseDetail = await fetchCourseDetail(courseData.courseId);
+
+        // 2. 각 spot의 미션들을 가져와서 사용자 미션으로 등록
+        const allMissions: any[] = [];
+
+        for (const spot of courseDetail.courseSpots) {
+          try {
+            const spotMissions = await fetchSpotMissions(spot.spotId);
+            allMissions.push(...spotMissions);
+          } catch (spotError) {
+            console.error(`Spot ${spot.spotId} 미션 조회 실패:`, spotError);
+            // 개별 spot 실패해도 계속 진행
+          }
+        }
+
+        // 3. 모든 미션을 사용자 미션으로 등록
+        if (allMissions.length > 0) {
+          const missionPromises = allMissions.map((mission: any) =>
+            startUserMission(userId, mission.missionId)
+          );
+
+          await Promise.all(missionPromises);
+          console.log(
+            `${allMissions.length}개의 미션이 자동으로 등록되었습니다.`
+          );
+        } else {
+          console.log("등록할 미션이 없습니다.");
+        }
+      } catch (missionError) {
+        console.error("미션 자동 등록 실패:", missionError);
+        // 미션 등록이 실패해도 코스는 시작할 수 있도록 함
+      }
 
       setShowTourCompleteModal(false);
       setStep("path");

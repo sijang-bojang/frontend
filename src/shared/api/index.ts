@@ -174,6 +174,19 @@ export const fetchCourseDetail = async (courseId: number): Promise<Course> => {
   }
 };
 
+// 코스의 모든 미션 가져오기
+export const fetchCourseMissions = async (courseId: number) => {
+  try {
+    const response = await api.get(
+      `${API_CONFIG.ENDPOINTS.COURSES}/${courseId}/missions`
+    );
+    return response.data;
+  } catch (error) {
+    console.error(`코스 미션 조회 실패 (courseId: ${courseId}):`, error);
+    throw error;
+  }
+};
+
 // 사용자 관련 API 함수들
 
 // 모든 사용자 조회
@@ -360,7 +373,10 @@ export const startUserMission = async (
     );
     return response.data;
   } catch (error) {
-    console.error(`사용자 미션 시작 실패 (userId: ${userId}, missionId: ${missionId}):`, error);
+    console.error(
+      `사용자 미션 시작 실패 (userId: ${userId}, missionId: ${missionId}):`,
+      error
+    );
     throw error;
   }
 };
@@ -391,7 +407,10 @@ export const fetchUserMissionsByStatus = async (
     );
     return response.data;
   } catch (error) {
-    console.error(`사용자 미션 상태별 조회 실패 (userId: ${userId}, status: ${status}):`, error);
+    console.error(
+      `사용자 미션 상태별 조회 실패 (userId: ${userId}, status: ${status}):`,
+      error
+    );
     throw error;
   }
 };
@@ -436,7 +455,10 @@ export const startUserCourse = async (
     );
     return response.data;
   } catch (error) {
-    console.error(`사용자 코스 시작 실패 (userId: ${userId}, courseId: ${courseId}):`, error);
+    console.error(
+      `사용자 코스 시작 실패 (userId: ${userId}, courseId: ${courseId}):`,
+      error
+    );
     throw error;
   }
 };
@@ -453,7 +475,10 @@ export const updateUserCourseProgress = async (
     );
     return response.data;
   } catch (error) {
-    console.error(`사용자 코스 진행도 업데이트 실패 (userId: ${userId}, courseId: ${courseId}):`, error);
+    console.error(
+      `사용자 코스 진행도 업데이트 실패 (userId: ${userId}, courseId: ${courseId}):`,
+      error
+    );
     throw error;
   }
 };
@@ -469,7 +494,10 @@ export const completeUserCourse = async (
     );
     return response.data;
   } catch (error) {
-    console.error(`사용자 코스 완료 실패 (userId: ${userId}, courseId: ${courseId}):`, error);
+    console.error(
+      `사용자 코스 완료 실패 (userId: ${userId}, courseId: ${courseId}):`,
+      error
+    );
     throw error;
   }
 };
@@ -500,7 +528,10 @@ export const completeUserMission = async (
     );
     return response.data;
   } catch (error) {
-    console.error(`사용자 미션 완료 실패 (userId: ${userId}, missionId: ${missionId}):`, error);
+    console.error(
+      `사용자 미션 완료 실패 (userId: ${userId}, missionId: ${missionId}):`,
+      error
+    );
     throw error;
   }
 };
@@ -512,7 +543,10 @@ export const deleteUserMission = async (
   try {
     await api.delete(`${API_CONFIG.ENDPOINTS.USER_MISSIONS}/${userMissionId}`);
   } catch (error) {
-    console.error(`사용자 미션 삭제 실패 (userMissionId: ${userMissionId}):`, error);
+    console.error(
+      `사용자 미션 삭제 실패 (userMissionId: ${userMissionId}):`,
+      error
+    );
     throw error;
   }
 };
