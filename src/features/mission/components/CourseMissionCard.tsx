@@ -42,10 +42,10 @@ const CourseMissionCard: React.FC<CourseMissionCardProps> = ({
       className={`rounded-2xl p-5 mb-3 shadow-sm border border-gray-100 ${
         mission.isCompleted ? "bg-gray-50" : "bg-white"
       }`}
-      activeOpacity={0.7}
-      onPress={onPress}
+      activeOpacity={mission.isCompleted ? 1.0 : 0.7}
+      onPress={mission.isCompleted ? handleLongPress : onPress}
       onLongPress={handleLongPress}
-      delayLongPress={800} // 0.8초 길게 누르기
+      delayLongPress={500} // 0.5초로 단축
     >
       <View className="relative">
         {/* 완료된 미션일 때 완료 배지 표시 */}

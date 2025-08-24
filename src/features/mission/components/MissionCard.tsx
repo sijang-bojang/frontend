@@ -59,10 +59,10 @@ const MissionCard: React.FC<MissionCardProps> = ({
         className={`bg-white rounded-2xl p-4 mb-3 shadow-sm border border-gray-100 ${
           isCompleted ? "opacity-50" : ""
         }`}
-        activeOpacity={0.7}
-        onPress={onPress}
+        activeOpacity={isCompleted ? 1.0 : 0.7}
+        onPress={isCompleted ? handleLongPress : onPress}
         onLongPress={handleLongPress}
-        delayLongPress={800} // 0.8초 길게 누르기
+        delayLongPress={500} // 0.5초로 단축
       >
         <View className="flex-row items-center">
           {/* 아이콘 */}

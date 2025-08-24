@@ -11,7 +11,10 @@ const MissionCompleteBadge: React.FC<MissionCompleteBadgeProps> = ({
   textSize = "text-lg",
 }) => {
   return (
-    <View className="absolute inset-0 items-center justify-center z-10">
+    <View 
+      className="absolute inset-0 items-center justify-center z-10"
+      pointerEvents="none"
+    >
       <Image
         source={require("../../../assets/images/mission_icons/mission_complete.png")}
         className="opacity-80"
