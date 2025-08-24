@@ -5,6 +5,7 @@ import {
   TouchableOpacity,
   ScrollView,
   SafeAreaView,
+  ActivityIndicator,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { TourFilters, Market } from "../types";
@@ -14,12 +15,14 @@ type FilterStepProps = {
   selectedMarket: Market;
   onBack: () => void;
   onStartTour: (filters: TourFilters) => void;
+  isLoading?: boolean;
 };
 
 const FilterStep: React.FC<FilterStepProps> = ({
   selectedMarket,
   onBack,
   onStartTour,
+  isLoading = false,
 }) => {
   const [filters, setFilters] = useState<TourFilters>({
     vehicle: [],
@@ -121,7 +124,7 @@ const FilterStep: React.FC<FilterStepProps> = ({
     </View>
   );
 
-  const hasAnySelection = Object.values(filters).some(
+  const hasMinimumSelection = Object.values(filters).every(
     (options) => options.length > 0
   );
 
@@ -200,17 +203,26 @@ const FilterStep: React.FC<FilterStepProps> = ({
             activeOpacity={0.8}
             onPress={handleStartTour}
             className={`flex-1 py-4 rounded-2xl items-center ${
-              hasAnySelection ? "bg-indigo-600" : "bg-gray-300"
+              hasMinimumSelection && !isLoading ? "bg-indigo-600" : "bg-gray-300"
             }`}
-            disabled={!hasAnySelection}
+            disabled={!hasMinimumSelection || isLoading}
           >
-            <Text
-              className={`font-semibold ${
-                hasAnySelection ? "text-white" : "text-gray-500"
-              }`}
-            >
-              투어 시작하기
-            </Text>
+            {isLoading ? (
+              <View className="flex-row items-center">
+                <ActivityIndicator size="small" color="#ffffff" />
+                <Text className="text-white font-semibold ml-2">
+                  AI 분석중...
+                </Text>
+              </View>
+            ) : (
+              <Text
+                className={`font-semibold ${
+                  hasMinimumSelection ? "text-white" : "text-gray-500"
+                }`}
+              >
+                투어 시작하기
+              </Text>
+            )}
           </TouchableOpacity>
         </View>
       </View>
