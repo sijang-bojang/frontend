@@ -7,7 +7,6 @@ import {
   Modal,
   Image,
   Dimensions,
-  StatusBar,
   ActivityIndicator,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
@@ -18,13 +17,7 @@ import Animated, {
   useSharedValue,
   useAnimatedStyle,
   withTiming,
-  runOnJS,
-  useAnimatedGestureHandler,
 } from "react-native-reanimated";
-import {
-  PanGestureHandler,
-  PanGestureHandlerGestureEvent,
-} from "react-native-gesture-handler";
 
 const { height: screenHeight } = Dimensions.get("window");
 
@@ -41,7 +34,7 @@ interface SpotInfoModalProps {
   };
   onSpotVisitComplete?: () => void;
   onNavigateToSpot?: () => void;
-  onShowOnMap?: () => void; // 지도에서 보기 기능 추가
+  onShowOnMap?: () => void;
   isLoading?: boolean;
 }
 
@@ -63,11 +56,9 @@ export default function SpotInfoModal({
 
   useEffect(() => {
     if (visible) {
-      // 모달이 열릴 때
       opacity.value = withTiming(1, { duration: 300 });
       translateY.value = withTiming(0, { duration: 400 });
     } else {
-      // 모달이 닫힐 때
       opacity.value = withTiming(0, { duration: 300 });
       translateY.value = withTiming(screenHeight, { duration: 400 });
     }
@@ -99,43 +90,14 @@ export default function SpotInfoModal({
     }
   }, [visible, spot]);
 
-  const gestureHandler =
-    useAnimatedGestureHandler<PanGestureHandlerGestureEvent>({
-      onStart: (_, context: any) => {
-        context.startY = translateY.value;
-      },
-      onActive: (event, context: any) => {
-        const newTranslateY = context.startY + event.translationY;
-        // 위로는 드래그하지 못하도록 제한
-        translateY.value = Math.max(0, newTranslateY);
-      },
-      onEnd: (event) => {
-        // 드래그 거리가 충분하면 모달 닫기
-        if (event.translationY > 100 || event.velocityY > 500) {
-          translateY.value = withTiming(screenHeight, { duration: 300 });
-          opacity.value = withTiming(0, { duration: 300 });
-          runOnJS(onClose)();
-        } else {
-          // 원래 위치로 돌아가기
-          translateY.value = withTiming(0, { duration: 300 });
-        }
-      },
-    });
-
-  const overlayStyle = useAnimatedStyle(() => ({
-    opacity: opacity.value,
-  }));
-
   const modalStyle = useAnimatedStyle(() => ({
     transform: [{ translateY: translateY.value }],
   }));
 
   const handleBackdropPress = () => {
-    // backdrop 터치 시 모달을 아래로 부드럽게 닫기
     translateY.value = withTiming(screenHeight, { duration: 300 });
     opacity.value = withTiming(0, { duration: 300 });
 
-    // 애니메이션 완료 후 onClose 콜백 실행
     setTimeout(() => {
       onClose();
     }, 300);
@@ -151,9 +113,7 @@ export default function SpotInfoModal({
       onRequestClose={onClose}
       statusBarTranslucent={true}
     >
-      <StatusBar backgroundColor="transparent" barStyle="dark-content" />
-
-      {/* Backdrop - 터치 시 모달 닫기 */}
+      {/* Backdrop */}
       <TouchableOpacity
         style={{
           position: "absolute",
@@ -172,28 +132,23 @@ export default function SpotInfoModal({
         className="absolute bottom-0 left-0 right-0 bg-white rounded-t-3xl max-h-[90%] shadow-2xl"
       >
         {/* 드래그 핸들 */}
-        <PanGestureHandler onGestureEvent={gestureHandler}>
-          <Animated.View className="items-center pt-3 pb-2">
-            <View className="w-12 h-1 bg-gray-300 rounded-full" />
-          </Animated.View>
-        </PanGestureHandler>
+        <View className="items-center pt-3 pb-2">
+          <View className="w-12 h-1 bg-gray-300 rounded-full" />
+        </View>
 
         <ScrollView
           className="flex-1 px-6 pt-4"
           showsVerticalScrollIndicator={false}
         >
           {/* 로딩 상태 */}
-          {isLoading && (
+          {isLoading ? (
             <View className="mb-6 p-8 items-center">
               <ActivityIndicator size="large" color="#10B981" />
               <Text className="text-gray-600 mt-4 text-center">
                 스팟 정보를 불러오는 중...
               </Text>
             </View>
-          )}
-
-          {/* 스팟 정보 (로딩이 완료된 경우에만 표시) */}
-          {!isLoading && spot && (
+          ) : (
             <>
               {/* 진행중인 코스 배지 */}
               {isCourseSpot && courseInfo && (
