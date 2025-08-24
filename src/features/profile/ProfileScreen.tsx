@@ -171,15 +171,12 @@ export default function ProfileScreen() {
         </View>
 
         {/* 찜한 시장/가게 */}
-        <View className="px-6 mb-6">
+        <View className="px-6 mb-3">
           <View className="bg-white rounded-lg border border-gray-200 p-4">
             <View className="flex-row items-center justify-between mb-4">
               <Text className="text-lg font-semibold text-gray-900">
                 내가 찜한 시장/가게
               </Text>
-              <TouchableOpacity>
-                <Text className="text-blue-500">더보기 &gt;</Text>
-              </TouchableOpacity>
             </View>
             <View className="h-32 border-2 border-dashed border-gray-300 rounded-lg items-center justify-center">
               <Ionicons name="add-circle-outline" size={48} color="#9CA3AF" />
