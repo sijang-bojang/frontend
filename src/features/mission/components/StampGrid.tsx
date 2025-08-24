@@ -16,7 +16,7 @@ const StampGrid: React.FC<StampGridProps> = ({
     const isCompleted = index < completedStamps;
 
     return (
-      <View key={index} className="items-center">
+      <View key={index} className="items-center px-1">
         <Image
           source={
             isCompleted
@@ -36,11 +36,11 @@ const StampGrid: React.FC<StampGridProps> = ({
   return (
     <View className="bg-gray-100 rounded-2xl p-6 mb-6 shadow-sm">
       <View className="mb-4">
-        {/* 2x4 그리드 레이아웃 */}
-        <View className="flex-row justify-around">
+        {/* 2x4 그리드 레이아웃 - 반응형 중앙 정렬 */}
+        <View className="flex-row justify-center space-x-6">
           {Array.from({ length: 4 }, (_, index) => renderStamp(index))}
         </View>
-        <View className="flex-row justify-around">
+        <View className="flex-row justify-center space-x-6 mt-1">
           {Array.from({ length: 4 }, (_, index) => renderStamp(index + 4))}
         </View>
       </View>
