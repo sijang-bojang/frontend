@@ -1,13 +1,13 @@
 // Spot ID와 Image ID 연결 매핑 테이블
 export const SPOT_IMAGE_MAPPING: { [key: number]: number } = {
-  1: 2,
+  1: 0,
   2: 17,
   3: 14,
   4: 18,
   5: 15,
   6: 10,
   7: 0, // image_id가 없는 경우 0으로 설정
-  8: 6,
+  8: 0,
   9: 21,
   10: 1,
   11: 23,
