@@ -12,10 +12,21 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { Market } from "./types";
-import { Course, fetchSpotDetail, fetchSpotMissions, startUserMission, fetchUserMissionsByStatus, fetchMissionDetail, fetchUserCourseProgress } from "../../shared/api";
+import {
+  Course,
+  fetchSpotDetail,
+  fetchSpotMissions,
+  startUserMission,
+  fetchUserMissionsByStatus,
+  fetchMissionDetail,
+  fetchUserCourseProgress,
+} from "../../shared/api";
 import IconButton from "./components/IconButton";
 import MissionInfoModal, { MissionInfo } from "./components/MissionInfoModal";
-import GeneralMissionModal, { GeneralMission } from "./components/GeneralMissionModal";
+import GeneralMissionModal, {
+  GeneralMission,
+} from "./components/GeneralMissionModal";
+import MissionSubmitModal from "./components/MissionSubmitModal";
 import { useCourseStore } from "../../shared/stores/courseStore";
 import { useUserStore } from "../../shared/stores/userStore";
 import { useNavigation } from "@react-navigation/native";
@@ -70,12 +81,24 @@ export default function TourPathScreen({
   );
   const [isSpotModalVisible, setIsSpotModalVisible] = useState(false);
   const [isSpotLoading, setIsSpotLoading] = useState(false);
-  
+
   // 일반 미션 모달 상태
   const [generalMissions, setGeneralMissions] = useState<GeneralMission[]>([]);
-  const [selectedMission, setSelectedMission] = useState<GeneralMission | null>(null);
-  const [isGeneralMissionModalVisible, setIsGeneralMissionModalVisible] = useState(false);
-  const [courseProgress, setCourseProgress] = useState({ current: 0, total: 0, percentage: 0 });
+  const [selectedMission, setSelectedMission] = useState<GeneralMission | null>(
+    null
+  );
+  const [isGeneralMissionModalVisible, setIsGeneralMissionModalVisible] =
+    useState(false);
+  const [courseProgress, setCourseProgress] = useState({
+    current: 0,
+    total: 0,
+    percentage: 0,
+  });
+
+  // 미션 제출 모달 상태
+  const [showMissionSubmitModal, setShowMissionSubmitModal] = useState(false);
+  const [selectedMissionForSubmit, setSelectedMissionForSubmit] =
+    useState<any>(null);
 
   // Course store 사용
   const {
@@ -85,6 +108,9 @@ export default function TourPathScreen({
     fetchCourseDetail,
     clearCourse,
   } = useCourseStore();
+
+  // User store 사용
+  const { currentUser } = useUserStore();
 
   // 네비게이션 훅 사용
   const navigation = useNavigation<NavigationProp>();
@@ -157,17 +183,19 @@ export default function TourPathScreen({
 
       try {
         const userCourses = await fetchUserCourseProgress(currentUser.userId);
-        const currentCourse = userCourses.find(course => course.courseId === courseData.courseId);
-        
+        const currentCourse = userCourses.find(
+          (course) => course.courseId === courseData.courseId
+        );
+
         if (currentCourse) {
           setCourseProgress({
             current: currentCourse.currentStep,
             total: currentCourse.totalSteps,
-            percentage: currentCourse.progressPercentage
+            percentage: currentCourse.progressPercentage,
           });
         }
       } catch (error) {
-        console.error('코스 진행도 조회 실패:', error);
+        console.error("코스 진행도 조회 실패:", error);
       }
     };
 
@@ -313,16 +341,10 @@ export default function TourPathScreen({
     }
   };
 
-  // User store 사용
-  const { currentUser } = useUserStore();
-
   // 미션 아이콘 버튼 핸들러
   const handleMissionPress = async (missionId: string) => {
     if (!currentUser) {
-      Alert.alert(
-        "로그인 필요",
-        "미션을 확인하려면 로그인이 필요합니다."
-      );
+      Alert.alert("로그인 필요", "미션을 확인하려면 로그인이 필요합니다.");
       return;
     }
 
@@ -335,15 +357,17 @@ export default function TourPathScreen({
 
       // 각 미션의 상세 정보 가져오기
       const missionDetails = await Promise.all(
-        inProgressMissions.map(mission => fetchMissionDetail(mission.missionId))
+        inProgressMissions.map((mission) =>
+          fetchMissionDetail(mission.missionId)
+        )
       );
 
       // NON_VISIT 타입 (일반 미션)만 필터링
       const generalMissionList: GeneralMission[] = [];
-      
+
       missionDetails.forEach((detail, index) => {
         const userMission = inProgressMissions[index];
-        
+
         if (detail.isNonVisitType) {
           generalMissionList.push({
             missionId: detail.missionId,
@@ -352,38 +376,39 @@ export default function TourPathScreen({
             rewardPoints: detail.rewardPoints,
             status: userMission.status,
             isCompleted: userMission.completed,
-            inProgress: userMission.inProgress
+            inProgress: userMission.inProgress,
           });
         }
       });
 
       setGeneralMissions(generalMissionList);
-      
+
       // 미션 버튼 ID에 따라 해당하는 미션 선택
-      const missionIndex = parseInt(missionId.split('_')[1]); // mission_0, mission_1, mission_2에서 인덱스 추출
+      const missionIndex = parseInt(missionId.split("_")[1]); // mission_0, mission_1, mission_2에서 인덱스 추출
       const selectedMissionData = generalMissionList[missionIndex] || null;
-      
+
       if (selectedMissionData) {
         setSelectedMission(selectedMissionData);
         setIsGeneralMissionModalVisible(true);
       } else {
         Alert.alert(
-          '미션 없음',
+          "미션 없음",
           `${missionIndex + 1}번째 진행 중인 일반 미션이 없습니다.`
         );
       }
     } catch (error) {
-      console.error('일반 미션 조회 실패:', error);
-      Alert.alert(
-        '미션 조회 실패',
-        '미션 정보를 불러오는데 실패했습니다.'
-      );
+      console.error("일반 미션 조회 실패:", error);
+      Alert.alert("미션 조회 실패", "미션 정보를 불러오는데 실패했습니다.");
     }
   };
 
   // 도전하기 버튼 핸들러
   const handleChallenge = async () => {
-    if (!selectedSpotInfo || !selectedSpotInfo.missions || selectedSpotInfo.missions.length === 0) {
+    if (
+      !selectedSpotInfo ||
+      !selectedSpotInfo.missions ||
+      selectedSpotInfo.missions.length === 0
+    ) {
       Alert.alert(
         "미션 도전 실패",
         "선택된 스팟의 미션 정보를 찾을 수 없습니다."
@@ -392,48 +417,29 @@ export default function TourPathScreen({
     }
 
     if (!currentUser) {
-      Alert.alert(
-        "로그인 필요",
-        "미션을 도전하려면 로그인이 필요합니다."
-      );
+      Alert.alert("로그인 필요", "미션을 도전하려면 로그인이 필요합니다.");
       return;
     }
 
-    try {
-      // 첫 번째 미션을 도전 (예: VISIT 타입)
-      const firstMission = selectedSpotInfo.missions[0];
-      
-      // 미션 시작 API 호출
-      const userMissionResponse = await startUserMission(
-        currentUser.userId,
-        firstMission.missionId
-      );
+    // 미션 제출 모달을 표시하기 위해 선택된 미션 정보 설정
+    const firstMission = selectedSpotInfo.missions[0];
+    setSelectedMissionForSubmit({
+      title: firstMission.missionTitle,
+      description: firstMission.description,
+      rewardPoints: firstMission.rewardPoints,
+      missionId: firstMission.missionId,
+      spotName: selectedSpotInfo.name,
+    });
 
-      Alert.alert(
-        "미션 도전 시작!",
-        `"${firstMission.missionTitle}" 미션을 시작했습니다!\n\n보상: ${firstMission.rewardPoints}포인트`,
-        [
-          {
-            text: "확인",
-            onPress: () => {
-              // 모달 닫기
-              setIsSpotModalVisible(false);
-              setTimeout(() => {
-                setSelectedSpotInfo(null);
-              }, 300);
-            },
-          },
-        ]
-      );
-    } catch (error) {
-      console.error("미션 시작 실패:", error);
-      Alert.alert(
-        "미션 도전 실패",
-        "미션 도전을 시작하는데 실패했습니다.\n잠시 후 다시 시도해주세요."
-      );
-    }
+    // 스팟 정보 모달 닫기
+    setIsSpotModalVisible(false);
+    setTimeout(() => {
+      setSelectedSpotInfo(null);
+    }, 300);
+
+    // 미션 제출 모달 표시
+    setShowMissionSubmitModal(true);
   };
-
 
   const toggleMenu = () => {
     if (isMenuOpen) {
@@ -477,6 +483,43 @@ export default function TourPathScreen({
     );
   };
 
+  // 미션 제출 처리
+  const handleMissionSubmit = async (imageUri: string) => {
+    if (!selectedMissionForSubmit || !currentUser) {
+      return;
+    }
+
+    try {
+      // 미션 시작 API 호출
+      await startUserMission(
+        currentUser.userId,
+        selectedMissionForSubmit.missionId
+      );
+
+      // 성공적으로 제출되면 모달 닫기
+      setShowMissionSubmitModal(false);
+      setSelectedMissionForSubmit(null);
+
+      Alert.alert(
+        "미션 도전 시작!",
+        `"${selectedMissionForSubmit.title}" 미션을 시작했습니다!\n\n보상: ${selectedMissionForSubmit.rewardPoints}포인트`,
+        [{ text: "확인" }]
+      );
+    } catch (error) {
+      console.error("미션 시작 실패:", error);
+      Alert.alert(
+        "미션 도전 실패",
+        "미션 도전을 시작하는데 실패했습니다.\n잠시 후 다시 시도해주세요."
+      );
+    }
+  };
+
+  // 미션 제출 모달 닫기
+  const handleMissionSubmitClose = () => {
+    setShowMissionSubmitModal(false);
+    setSelectedMissionForSubmit(null);
+  };
+
   if (isLoading) {
     return (
       <View className="flex-1 justify-center items-center bg-gray-100">
@@ -502,7 +545,7 @@ export default function TourPathScreen({
         >
           {detailedCourseData?.name || courseData.name}
         </Text>
-        
+
         {/* 코스 진행도 바 */}
         {courseProgress.total > 0 && (
           <View className="mt-2">
@@ -651,6 +694,19 @@ export default function TourPathScreen({
           setIsGeneralMissionModalVisible(false);
           setSelectedMission(null);
         }}
+      />
+
+      {/* 미션 제출 모달 */}
+      <MissionSubmitModal
+        visible={showMissionSubmitModal}
+        missionTitle={selectedMissionForSubmit?.title || "미션 도전하기"}
+        missionDescription={
+          selectedMissionForSubmit?.description ||
+          "미션을 완료하고 증명 사진을 제출해주세요."
+        }
+        rewardPoints={selectedMissionForSubmit?.rewardPoints || 0}
+        onClose={handleMissionSubmitClose}
+        onSubmit={handleMissionSubmit}
       />
     </View>
   );
