@@ -380,6 +380,22 @@ export const fetchUserMissions = async (
   }
 };
 
+// 사용자별 상태별 미션 조회 (IN_PROGRESS 상태만)
+export const fetchUserMissionsByStatus = async (
+  userId: number,
+  status: "NOT_STARTED" | "IN_PROGRESS" | "COMPLETED"
+): Promise<UserMissionResponse[]> => {
+  try {
+    const response = await api.get<UserMissionResponse[]>(
+      `${API_CONFIG.ENDPOINTS.USER_MISSIONS_BY_USER}/${userId}/status/${status}`
+    );
+    return response.data;
+  } catch (error) {
+    console.error(`사용자 미션 상태별 조회 실패 (userId: ${userId}, status: ${status}):`, error);
+    throw error;
+  }
+};
+
 // 미션 상세 정보 조회
 export const fetchMissionDetail = async (
   missionId: number

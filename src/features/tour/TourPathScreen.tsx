@@ -12,9 +12,10 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { Market } from "./types";
-import { Course, fetchSpotDetail, fetchSpotMissions, startUserMission } from "../../shared/api";
+import { Course, fetchSpotDetail, fetchSpotMissions, startUserMission, fetchUserMissionsByStatus, fetchMissionDetail } from "../../shared/api";
 import IconButton from "./components/IconButton";
 import MissionInfoModal, { MissionInfo } from "./components/MissionInfoModal";
+import GeneralMissionModal, { GeneralMission } from "./components/GeneralMissionModal";
 import { useCourseStore } from "../../shared/stores/courseStore";
 import { useUserStore } from "../../shared/stores/userStore";
 import { useNavigation } from "@react-navigation/native";
@@ -69,6 +70,11 @@ export default function TourPathScreen({
   );
   const [isSpotModalVisible, setIsSpotModalVisible] = useState(false);
   const [isSpotLoading, setIsSpotLoading] = useState(false);
+  
+  // 일반 미션 모달 상태
+  const [generalMissions, setGeneralMissions] = useState<GeneralMission[]>([]);
+  const [selectedMission, setSelectedMission] = useState<GeneralMission | null>(null);
+  const [isGeneralMissionModalVisible, setIsGeneralMissionModalVisible] = useState(false);
 
   // Course store 사용
   const {
@@ -147,7 +153,7 @@ export default function TourPathScreen({
   const currentIconButtons = useMemo(() => {
     if (!detailedCourseData?.courseSpots) return [];
 
-    // mission 버튼들 (고정)
+    // mission 버튼들 (고정) - 이제 일반 미션 모달을 열도록 설정
     const missionButtons = [
       {
         id: "mission_0",
@@ -155,7 +161,7 @@ export default function TourPathScreen({
         leftRatio: 0.25,
         topRatio: 0.38,
         label: "",
-        onPress: () => {},
+        onPress: () => handleMissionPress("mission_0"),
       },
       {
         id: "mission_1",
@@ -163,7 +169,7 @@ export default function TourPathScreen({
         leftRatio: 0.7,
         topRatio: 0.5,
         label: "",
-        onPress: () => {},
+        onPress: () => handleMissionPress("mission_1"),
       },
       {
         id: "mission_2",
@@ -171,7 +177,7 @@ export default function TourPathScreen({
         leftRatio: 0.05,
         topRatio: 0.07,
         label: "",
-        onPress: () => {},
+        onPress: () => handleMissionPress("mission_2"),
       },
     ];
 
@@ -284,6 +290,71 @@ export default function TourPathScreen({
 
   // User store 사용
   const { currentUser } = useUserStore();
+
+  // 미션 아이콘 버튼 핸들러
+  const handleMissionPress = async (missionId: string) => {
+    if (!currentUser) {
+      Alert.alert(
+        "로그인 필요",
+        "미션을 확인하려면 로그인이 필요합니다."
+      );
+      return;
+    }
+
+    try {
+      // 진행 중인 사용자 미션들 가져오기
+      const inProgressMissions = await fetchUserMissionsByStatus(
+        currentUser.userId,
+        "IN_PROGRESS"
+      );
+
+      // 각 미션의 상세 정보 가져오기
+      const missionDetails = await Promise.all(
+        inProgressMissions.map(mission => fetchMissionDetail(mission.missionId))
+      );
+
+      // NON_VISIT 타입 (일반 미션)만 필터링
+      const generalMissionList: GeneralMission[] = [];
+      
+      missionDetails.forEach((detail, index) => {
+        const userMission = inProgressMissions[index];
+        
+        if (detail.isNonVisitType) {
+          generalMissionList.push({
+            missionId: detail.missionId,
+            title: detail.title,
+            description: detail.description,
+            rewardPoints: detail.rewardPoints,
+            status: userMission.status,
+            isCompleted: userMission.completed,
+            inProgress: userMission.inProgress
+          });
+        }
+      });
+
+      setGeneralMissions(generalMissionList);
+      
+      // 미션 버튼 ID에 따라 해당하는 미션 선택
+      const missionIndex = parseInt(missionId.split('_')[1]); // mission_0, mission_1, mission_2에서 인덱스 추출
+      const selectedMissionData = generalMissionList[missionIndex] || null;
+      
+      if (selectedMissionData) {
+        setSelectedMission(selectedMissionData);
+        setIsGeneralMissionModalVisible(true);
+      } else {
+        Alert.alert(
+          '미션 없음',
+          `${missionIndex + 1}번째 진행 중인 일반 미션이 없습니다.`
+        );
+      }
+    } catch (error) {
+      console.error('일반 미션 조회 실패:', error);
+      Alert.alert(
+        '미션 조회 실패',
+        '미션 정보를 불러오는데 실패했습니다.'
+      );
+    }
+  };
 
   // 도전하기 버튼 핸들러
   const handleChallenge = async () => {
@@ -508,6 +579,16 @@ export default function TourPathScreen({
         }}
         onChallenge={handleChallenge}
         onShowOnMap={handleShowOnMap}
+      />
+
+      {/* 일반 미션 모달 */}
+      <GeneralMissionModal
+        visible={isGeneralMissionModalVisible}
+        mission={selectedMission}
+        onClose={() => {
+          setIsGeneralMissionModalVisible(false);
+          setSelectedMission(null);
+        }}
       />
     </View>
   );
