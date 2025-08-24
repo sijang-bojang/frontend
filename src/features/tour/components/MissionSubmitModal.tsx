@@ -19,8 +19,11 @@ interface MissionSubmitModalProps {
   missionTitle: string;
   missionDescription: string;
   rewardPoints: number;
+  spotId?: number; // spot ID 추가
+  spotName?: string; // spot 이름 추가
   onClose: () => void;
   onSubmit: (imageUri: string) => void;
+  onShowOnMap?: (spotId?: number, spotName?: string) => void; // 지도에서 보기 기능 추가
 }
 
 export default function MissionSubmitModal({
@@ -28,8 +31,11 @@ export default function MissionSubmitModal({
   missionTitle,
   missionDescription,
   rewardPoints,
+  spotId,
+  spotName,
   onClose,
   onSubmit,
+  onShowOnMap,
 }: MissionSubmitModalProps) {
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -103,6 +109,12 @@ export default function MissionSubmitModal({
     setSelectedImage(null);
   };
 
+  const handleShowOnMap = () => {
+    if (onShowOnMap) {
+      onShowOnMap(spotId, spotName);
+    }
+  };
+
   const handleSubmit = async () => {
     if (!selectedImage) {
       Alert.alert("알림", "사진을 선택해주세요.");
@@ -141,7 +153,7 @@ export default function MissionSubmitModal({
                 className="pl-1 pt-1 text-xl font-bold text-orange-800"
                 style={{ fontFamily: "ChosunCentennial" }}
               >
-                미션 도전하기
+                {spotName ? `${spotName} 미션 도전하기` : "미션 도전하기"}
               </Text>
             </View>
             {/* 닫기 버튼 */}
@@ -244,17 +256,17 @@ export default function MissionSubmitModal({
               </Text>
             </TouchableOpacity>
 
-            {/* 취소 버튼 */}
+            {/* 지도에서 보기 버튼 */}
             <TouchableOpacity
               className="flex-1 border-2 border-orange-400 bg-white py-3 rounded-xl ml-2 items-center justify-center"
-              onPress={onClose}
+              onPress={handleShowOnMap}
               disabled={isSubmitting}
             >
               <Text
                 className="text-center text-orange-400 font-medium"
                 style={{ fontFamily: "ChosunCentennial" }}
               >
-                취소
+                지도에서 보기
               </Text>
             </TouchableOpacity>
           </View>
