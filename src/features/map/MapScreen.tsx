@@ -158,40 +158,34 @@ export default function MapScreen() {
     }
   }, [currentCourse, userLocation]);
 
-  // markets 데이터가 로드된 후 진행중인 코스가 있을 때만 spot 데이터 로드
+  // markets 데이터가 로드된 후 진행중인 코스가 있을 때만 코스 spot 데이터 로드
   useEffect(() => {
     if (markets && markets.length > 0 && currentCourse) {
-      loadAllSpotsAndCourses();
+      loadCurrentCourseSpots();
     }
   }, [markets, currentCourse]);
 
-  // 진행중인 코스가 있을 때만 해당 코스의 spot과 코스 데이터를 로드하는 함수
-  const loadAllSpotsAndCourses = async () => {
+  // 진행중인 코스가 있을 때만 해당 코스의 spot들을 로드하는 함수
+  const loadCurrentCourseSpots = async () => {
     if (!markets || markets.length === 0 || !currentCourse) return;
 
     try {
       setSpotsLoading(true);
       
-      // 진행중인 코스의 시장 찾기
-      const courseMarket = markets.find(market => market.marketId === currentCourse.marketId);
-      if (!courseMarket) return;
+      // courseStore에서 상세 정보 가져오기
+      const { fetchCourseDetail } = useCourseStore.getState();
+      await fetchCourseDetail(currentCourse.courseId);
 
-      // 진행중인 코스의 시장 spot 데이터만 로드
-      const marketSpots = await fetchSpotsByMarket(courseMarket.marketId);
-      const spotsWithMarketName = marketSpots.map(spot => ({ ...spot, marketName: courseMarket.name }));
-      
-      setSpots(spotsWithMarketName);
+      // 상세 정보가 업데이트된 후 코스 스팟들만 지도에 표시
+      const { detailedCourse } = useCourseStore.getState();
+      const courseToDisplay = detailedCourse || currentCourse;
 
-      // 지도에 spot 표시 및 사용자 위치 표시
-      if (webViewRef.current && spotsWithMarketName.length > 0) {
+      if (courseToDisplay.courseSpots.length > 0) {
+        // 코스 스팟들을 지도에 표시
         setTimeout(() => {
-          webViewRef.current?.postMessage(
-            JSON.stringify({
-              type: "show_spots",
-              spots: spotsWithMarketName,
-            })
-          );
-          
+          showCourseSpotsOnMap(courseToDisplay.courseSpots);
+          // 지도를 코스 전체가 보이도록 조정
+          centerMapOnCourse(courseToDisplay.courseSpots);
           // 사용자 위치도 함께 표시
           if (userLocation) {
             showUserLocationOnMap(userLocation.latitude, userLocation.longitude);
