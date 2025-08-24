@@ -11,26 +11,16 @@ const MissionCompleteBadge: React.FC<MissionCompleteBadgeProps> = ({
   textSize = "text-lg",
 }) => {
   return (
-    <View 
+    <View
       className="absolute inset-0 items-center justify-center z-10"
       pointerEvents="none"
     >
       <Image
         source={require("../../../assets/images/mission_icons/mission_complete.png")}
-        className="opacity-80"
+        className="opacity-90"
         style={{ width: size, height: size }}
         resizeMode="contain"
       />
-      <Text
-        className={`absolute font-bold ${textSize}`}
-        style={{
-          fontFamily: "ChosunCentennial",
-          transform: [{ rotate: "-10deg" }],
-          color: "#cf2423",
-        }}
-      >
-        완료
-      </Text>
     </View>
   );
 };
