@@ -13,7 +13,6 @@ const HeaderBar: React.FC = () => {
             className="h-12 w-32 ml-2"
           />
         </View>
-        <Ionicons name="notifications-outline" size={24} color="#0F0D85" />
       </View>
     </View>
   );
