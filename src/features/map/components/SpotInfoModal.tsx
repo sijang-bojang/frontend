@@ -9,10 +9,18 @@ import {
   Dimensions,
   ActivityIndicator,
 } from "react-native";
+import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons } from "@expo/vector-icons";
 import { Spot } from "../../../shared/types/market";
-import { getSpotImageId, hasSpotImage } from "../../../shared/constants/spotImageMapping";
-import { getImageUrl, hasImageUrl } from "../../../shared/constants/imageMapping";
+import {
+  getSpotImageId,
+  hasSpotImage,
+} from "../../../shared/constants/spotImageMapping";
+import {
+  getImageUrl,
+  hasImageUrl,
+} from "../../../shared/constants/imageMapping";
+import { fetchAddressFromCoordinates } from "../../../shared/api";
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -53,6 +61,8 @@ export default function SpotInfoModal({
   const opacity = useSharedValue(0);
   const [imageUri, setImageUri] = useState<string | null>(null);
   const [imageLoading, setImageLoading] = useState(false);
+  const [detailedAddress, setDetailedAddress] = useState<string>("");
+  const [addressLoading, setAddressLoading] = useState(false);
 
   useEffect(() => {
     if (visible) {
@@ -72,21 +82,40 @@ export default function SpotInfoModal({
       }
 
       setImageLoading(true);
-      
+
       const imageId = getSpotImageId(spot.spotId);
-      
+
       if (hasImageUrl(imageId)) {
         const imageUrl = getImageUrl(imageId);
         setImageUri(imageUrl);
       } else {
         setImageUri(null);
       }
-      
+
       setImageLoading(false);
+    };
+
+    const loadDetailedAddress = async () => {
+      if (!spot) return;
+
+      setAddressLoading(true);
+      try {
+        const address = await fetchAddressFromCoordinates(
+          spot.latitude,
+          spot.longitude
+        );
+        setDetailedAddress(address);
+      } catch (error) {
+        console.error("상세 주소 로딩 실패:", error);
+        setDetailedAddress(`${spot.marketName} 내부`);
+      } finally {
+        setAddressLoading(false);
+      }
     };
 
     if (visible && spot) {
       loadSpotImage();
+      loadDetailedAddress();
     }
   }, [visible, spot]);
 
@@ -129,17 +158,14 @@ export default function SpotInfoModal({
       {/* 모달 컨텐츠 */}
       <Animated.View
         style={modalStyle}
-        className="absolute bottom-0 left-0 right-0 bg-white rounded-t-3xl max-h-[90%] shadow-2xl"
+        className="absolute bottom-0 left-0 right-0 bg-white rounded-t-3xl shadow-2xl"
       >
         {/* 드래그 핸들 */}
         <View className="items-center pt-3 pb-2">
           <View className="w-12 h-1 bg-gray-300 rounded-full" />
         </View>
 
-        <ScrollView
-          className="flex-1 px-6 pt-4"
-          showsVerticalScrollIndicator={false}
-        >
+        <View className="px-6">
           {/* 로딩 상태 */}
           {isLoading ? (
             <View className="mb-6 p-8 items-center">
@@ -190,45 +216,96 @@ export default function SpotInfoModal({
                 </View>
               )}
 
-              {/* 스팟 이름과 카테고리 */}
-              <View className="mb-6">
-                <Text className="text-3xl font-bold text-gray-900 mb-3">
-                  {spot.name}
-                </Text>
-
-                <View className="flex-row items-center">
-                  <View className="bg-blue-100 px-4 py-2 rounded-full">
-                    <Text className="text-blue-800 text-sm font-semibold">
-                      {spot.category}
-                    </Text>
-                  </View>
+              {/* 태그/필터 섹션 */}
+              <View className="ml-1 mb-1 flex-row space-x-2">
+                <View className="border border-gray-400 px-2.5 py-1 rounded-full">
+                  <Text className="text-gray-400 text-base font-medium">
+                    {spot.category}
+                  </Text>
                 </View>
               </View>
 
-              {/* 스팟 이미지 */}
+              {/* 스팟 이름 */}
+              <Text className="ml-1 text-3xl font-bold text-gray-900 mb-0">
+                {spot.name}
+              </Text>
+
+              {/* 주소 */}
+              <View className="ml-1 mb-1">
+                {addressLoading ? (
+                  <View className="flex-row items-center">
+                    <ActivityIndicator size="small" color="#6B7280" />
+                    <Text className="text-gray-400 text-base ml-2">
+                      주소 정보를 가져오는 중...
+                    </Text>
+                  </View>
+                ) : (
+                  <Text className="text-gray-500 text-lg">
+                    {detailedAddress || `${spot.marketName} 내부`}
+                  </Text>
+                )}
+              </View>
+
+              {/* 스팟 이미지와 설명 오버레이 */}
               {(imageLoading || imageUri) && (
-                <View className="mb-6">
+                <View className="mb-6 relative">
                   {imageLoading ? (
-                    <View className="h-48 bg-gray-100 rounded-2xl items-center justify-center">
+                    <View className="h-96 bg-gray-100 rounded-2xl items-center justify-center">
                       <ActivityIndicator size="large" color="#10B981" />
-                      <Text className="text-gray-500 mt-2">이미지 로딩 중...</Text>
+                      <Text className="text-gray-500 mt-2">
+                        이미지 로딩 중...
+                      </Text>
                     </View>
                   ) : imageUri ? (
-                    <Image
-                      source={{ uri: imageUri }}
-                      className="w-full h-48 rounded-2xl"
-                      resizeMode="cover"
-                    />
+                    <View className="relative">
+                      <Image
+                        source={{ uri: imageUri }}
+                        className="w-full h-96 rounded-2xl"
+                        resizeMode="cover"
+                        onError={() => {
+                          // 이미지 로딩 실패 시 처리
+                          setImageUri(null);
+                        }}
+                      />
+                      {/* 설명 텍스트 오버레이 */}
+                      <View className="absolute bottom-0 left-0 right-0 p-4 rounded-b-2xl">
+                        {/* 그라디언트 배경 */}
+                        <LinearGradient
+                          colors={[
+                            "rgba(0,0,0,0)",
+                            "rgba(0,0,0,0.2)",
+                            "rgba(0,0,0,0.7)",
+                            "rgba(0,0,0,0.9)",
+                          ]}
+                          locations={[0, 0.6, 0.8, 1]}
+                          style={{
+                            position: "absolute",
+                            bottom: 0,
+                            left: 0,
+                            right: 0,
+                            height: 340,
+                            borderRadius: 16,
+                          }}
+                        />
+
+                        {/* 텍스트 */}
+                        <Text className="text-white text-lg leading-6 relative z-10 p-3">
+                          {spot.description}
+                        </Text>
+                      </View>
+                    </View>
                   ) : null}
                 </View>
               )}
 
-              {/* 설명 */}
-              <View className="mb-6 p-4 bg-gray-50 rounded-2xl">
-                <Text className="text-gray-700 leading-6 text-base">
-                  {spot.description}
-                </Text>
-              </View>
+              {/* 이미지가 없을 때 설명 텍스트만 표시 */}
+              {!imageLoading && !imageUri && (
+                <View className="mb-6 p-4 bg-gray-50 rounded-2xl">
+                  <Text className="text-gray-700 text-base leading-6">
+                    {spot.description}
+                  </Text>
+                </View>
+              )}
 
               {/* 액션 버튼들 */}
               {isCourseSpot && (
@@ -279,7 +356,7 @@ export default function SpotInfoModal({
 
           {/* 하단 여백 */}
           <View className="h-6" />
-        </ScrollView>
+        </View>
       </Animated.View>
     </Modal>
   );

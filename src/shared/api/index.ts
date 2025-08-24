@@ -108,6 +108,35 @@ export interface CourseRecommendResponse {
   confidenceScore: number;
 }
 
+// 위도/경도 기반 상세 주소 가져오기 (카카오맵 API 사용)
+export const fetchAddressFromCoordinates = async (
+  latitude: number,
+  longitude: number
+): Promise<string> => {
+  try {
+    // 카카오맵 API를 사용하여 위도/경도로 주소 변환
+    const response = await axios.get(
+      `https://dapi.kakao.com/v2/local/geo/coord2address.json?x=${longitude}&y=${latitude}`,
+      {
+        headers: {
+          Authorization: `KakaoAK ${process.env.EXPO_PUBLIC_KAKAO_REST_API_KEY || ""}`,
+        },
+      }
+    );
+
+    if (response.data.documents && response.data.documents.length > 0) {
+      const address = response.data.documents[0];
+      return address.address.address_name;
+    }
+
+    throw new Error("주소 정보를 찾을 수 없습니다.");
+  } catch (error) {
+    console.error("위도/경도 기반 주소 변환 실패:", error);
+    // API 호출 실패 시 기본 주소 반환
+    return "주소 정보를 가져올 수 없습니다.";
+  }
+};
+
 // 코스 정보 인터페이스
 export interface Course {
   courseId: number;
