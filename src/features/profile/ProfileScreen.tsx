@@ -194,15 +194,15 @@ export default function ProfileScreen() {
               <Text className="text-lg font-semibold text-gray-900">
                 내가 완주한 투어
               </Text>
-              <TouchableOpacity>
-                <Text className="text-blue-500">더보기 &gt;</Text>
-              </TouchableOpacity>
             </View>
-            <View className="flex-row justify-center space-x-8">
+            <View className="flex-row justify-start">
               {completedTours.map((tour) => (
-                <View key={tour.id} className="items-center">
-                  <Image source={tour.icon} className="w-16 h-16 mb-2" />
-                  <Text className="text-sm text-gray-700 text-center">
+                <View key={tour.id} className="items-center px-2">
+                  <Image source={tour.icon} className="w-16 h-16" />
+                  <Text
+                    className="text-base text-gray-700 text-center"
+                    style={{ fontFamily: "ChosunCentennial" }}
+                  >
                     {tour.name}
                   </Text>
                 </View>
