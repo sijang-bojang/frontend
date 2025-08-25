@@ -76,19 +76,59 @@ export default function MapScreen() {
   const [showCourseList, setShowCourseList] = useState(false);
   const [coursesLoading, setCoursesLoading] = useState(false);
   const [webViewLoaded, setWebViewLoaded] = useState(false);
+  const [isLocationTracking, setIsLocationTracking] = useState(false);
+  const locationWatcherRef = useRef<Location.LocationSubscription | null>(null);
+  const lastLocationRef = useRef<{ latitude: number; longitude: number } | null>(null);
+  const locationUpdateTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const webViewRef = useRef<WebView>(null);
 
-  // 사용자 위치를 지도에 표시하는 함수
-  const showUserLocationOnMap = (lat: number, lng: number) => {
+  // 위치 변경 감지를 위한 거리 계산 함수 (미터 단위)
+  const calculateDistance = (lat1: number, lon1: number, lat2: number, lon2: number): number => {
+    const R = 6371e3; // 지구 반지름 (미터)
+    const φ1 = lat1 * Math.PI/180;
+    const φ2 = lat2 * Math.PI/180;
+    const Δφ = (lat2-lat1) * Math.PI/180;
+    const Δλ = (lon2-lon1) * Math.PI/180;
+
+    const a = Math.sin(Δφ/2) * Math.sin(Δφ/2) +
+            Math.cos(φ1) * Math.cos(φ2) *
+            Math.sin(Δλ/2) * Math.sin(Δλ/2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+
+    return R * c;
+  };
+
+  // 사용자 위치를 지도에 표시하는 함수 (throttling 적용)
+  const showUserLocationOnMap = (lat: number, lng: number, forceUpdate = false) => {
     if (webViewRef.current) {
-      webViewRef.current.postMessage(
-        JSON.stringify({
-          type: "show_user_location",
+      // 기존 timeout이 있으면 클리어
+      if (locationUpdateTimeoutRef.current) {
+        clearTimeout(locationUpdateTimeoutRef.current);
+      }
+
+      // 강제 업데이트이거나 이전 위치와 5미터 이상 차이날 때만 업데이트
+      const shouldUpdate = forceUpdate || !lastLocationRef.current ||
+        calculateDistance(
+          lastLocationRef.current.latitude,
+          lastLocationRef.current.longitude,
           lat,
-          lng,
-        })
-      );
+          lng
+        ) > 5; // 5미터 이상 이동시에만 업데이트
+
+      if (shouldUpdate) {
+        // throttling: 300ms마다 최대 1회 업데이트
+        locationUpdateTimeoutRef.current = setTimeout(() => {
+          webViewRef.current?.postMessage(
+            JSON.stringify({
+              type: "show_user_location",
+              lat,
+              lng,
+            })
+          );
+          lastLocationRef.current = { latitude: lat, longitude: lng };
+        }, 300);
+      }
     }
   };
 
@@ -116,7 +156,53 @@ export default function MapScreen() {
     }
   };
 
-  // 사용자 위치 가져오기
+  // 실시간 위치 추적 시작
+  const startLocationTracking = async () => {
+    try {
+      const { status } = await Location.requestForegroundPermissionsAsync();
+      
+      if (status !== "granted") {
+        return;
+      }
+
+      setIsLocationTracking(true);
+      
+      const subscription = await Location.watchPositionAsync(
+        {
+          accuracy: Location.Accuracy.Balanced,
+          timeInterval: 2000, // 2초마다 체크
+          distanceInterval: 5, // 5미터 이상 이동시 업데이트
+        },
+        (location) => {
+          const { latitude, longitude } = location.coords;
+          setUserLocation({ latitude, longitude });
+          
+          // 지도에 위치 표시 (throttling 적용)
+          showUserLocationOnMap(latitude, longitude);
+        }
+      );
+      
+      locationWatcherRef.current = subscription;
+    } catch (error) {
+      console.error("위치 추적 시작 실패:", error);
+      setIsLocationTracking(false);
+    }
+  };
+
+  // 실시간 위치 추적 중지
+  const stopLocationTracking = () => {
+    if (locationWatcherRef.current) {
+      locationWatcherRef.current.remove();
+      locationWatcherRef.current = null;
+    }
+    if (locationUpdateTimeoutRef.current) {
+      clearTimeout(locationUpdateTimeoutRef.current);
+      locationUpdateTimeoutRef.current = null;
+    }
+    setIsLocationTracking(false);
+  };
+
+  // 초기 사용자 위치 가져오기 (한 번만)
   const getUserLocation = async () => {
     try {
       setLocationLoading(true);
@@ -132,16 +218,17 @@ export default function MapScreen() {
       // 현재 위치 가져오기
       const location = await Location.getCurrentPositionAsync({
         accuracy: Location.Accuracy.Balanced,
-        timeInterval: 10000,
-        distanceInterval: 10,
       });
 
       const { latitude, longitude } = location.coords;
 
       setUserLocation({ latitude, longitude });
 
-      // WebView에 사용자 위치 마커 표시 요청 (항상 표시)
-      showUserLocationOnMap(latitude, longitude);
+      // WebView에 사용자 위치 마커 표시 요청 (강제 업데이트)
+      showUserLocationOnMap(latitude, longitude, true);
+      
+      // 실시간 위치 추적 시작
+      await startLocationTracking();
     } catch (error) {
       Alert.alert(
         "위치 정보 오류",
@@ -152,19 +239,24 @@ export default function MapScreen() {
     }
   };
 
-  // 앱 시작 시 사용자 위치 가져오기
+  // 앱 시작 시 사용자 위치 가져오기 및 추적 시작
   useEffect(() => {
     getUserLocation();
+    
+    // 컴포넌트 언마운트 시 위치 추적 정리
+    return () => {
+      stopLocationTracking();
+    };
   }, []);
 
-  // 사용자 위치가 설정될 때마다 지도에 표시
+  // 사용자 위치가 설정될 때마다 지도에 표시 (초기 로드시에만)
   useEffect(() => {
-    if (userLocation && webViewRef.current) {
+    if (userLocation && webViewRef.current && !isLocationTracking) {
       setTimeout(() => {
-        showUserLocationOnMap(userLocation.latitude, userLocation.longitude);
+        showUserLocationOnMap(userLocation.latitude, userLocation.longitude, true);
       }, 500);
     }
-  }, [userLocation]);
+  }, [userLocation, isLocationTracking]);
 
   // currentCourse 변경 시 지도 상태 관리
   useEffect(() => {
@@ -178,7 +270,7 @@ export default function MapScreen() {
         );
         // 사용자 위치 다시 표시
         if (userLocation) {
-          showUserLocationOnMap(userLocation.latitude, userLocation.longitude);
+          showUserLocationOnMap(userLocation.latitude, userLocation.longitude, true);
         }
       }, 100);
     }
@@ -275,7 +367,8 @@ export default function MapScreen() {
             if (userLocation) {
               showUserLocationOnMap(
                 userLocation.latitude,
-                userLocation.longitude
+                userLocation.longitude,
+                true
               );
             }
           }, 100);
@@ -403,7 +496,8 @@ export default function MapScreen() {
             if (userLocation) {
               showUserLocationOnMap(
                 userLocation.latitude,
-                userLocation.longitude
+                userLocation.longitude,
+                true
               );
             }
           }, 1000); // 1초로 지연시간 증가
@@ -501,7 +595,7 @@ export default function MapScreen() {
 
     // 사용자 위치도 함께 표시
     if (userLocation) {
-      showUserLocationOnMap(userLocation.latitude, userLocation.longitude);
+      showUserLocationOnMap(userLocation.latitude, userLocation.longitude, true);
     }
 
     // 코스가 있으면 코스 선택 UI 표시
@@ -542,7 +636,7 @@ export default function MapScreen() {
 
         // 사용자 위치도 함께 표시
         if (userLocation) {
-          showUserLocationOnMap(userLocation.latitude, userLocation.longitude);
+          showUserLocationOnMap(userLocation.latitude, userLocation.longitude, true);
         }
       }
     } catch (error) {
@@ -873,7 +967,8 @@ export default function MapScreen() {
               setTimeout(() => {
                 showUserLocationOnMap(
                   userLocation.latitude,
-                  userLocation.longitude
+                  userLocation.longitude,
+                  true
                 );
               }, 500);
             }
