@@ -93,11 +93,10 @@ export default function SpotInfoModal({
 
         if (shouldClose) {
           // 모달을 닫기
-          translateY.value = withTiming(screenHeight, { duration: 300 });
-          opacity.value = withTiming(0, { duration: 300 });
-          setTimeout(() => {
+          translateY.value = withTiming(screenHeight, { duration: 300 }, () => {
             runOnJS(onClose)();
-          }, 300);
+          });
+          opacity.value = withTiming(0, { duration: 300 });
         } else {
           // 원래 위치로 복귀
           translateY.value = withTiming(0, { duration: 300 });
@@ -165,12 +164,10 @@ export default function SpotInfoModal({
   }));
 
   const handleBackdropPress = () => {
-    translateY.value = withTiming(screenHeight, { duration: 300 });
+    translateY.value = withTiming(screenHeight, { duration: 300 }, () => {
+      runOnJS(onClose)();
+    });
     opacity.value = withTiming(0, { duration: 300 });
-
-    setTimeout(() => {
-      onClose();
-    }, 300);
   };
 
   if (!spot) return null;
